@@ -13,7 +13,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Navigate, useNavigate } from "react-router-dom";
 import Navegacion from "../Componentes/NavBar/Navegacion";
 
-
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
@@ -23,18 +22,16 @@ export default function Usuarios() {
   const [apellidos, setApellido] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [direccion, setDireccion] = useState("")
-  const [comuna, setComuna] = useState("")
+  const [direccion, setDireccion] = useState("");
+  const [comuna, setComuna] = useState("");
   const [region, setRegion] = useState("");
-  const [codigoPostal, setCodigoPostal] = useState ("");
+  const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
   const [codigoUsuario, setCodigoUsuario] = useState("");
   const [clave, setClave] = useState("");
-  const [remuneracion,setRemuneracion]=useState("");
-  const [credito,setCredito]=useState("");
-  
+  const [remuneracion, setRemuneracion] = useState("");
+  const [credito, setCredito] = useState("");
 
-  
   // const Navigate = useNavigate();
 
   const handleSubmit = (event) => {
@@ -53,16 +50,16 @@ export default function Usuarios() {
       codigoUsuario,
       clave,
       remuneracion,
-      credito
-
-
+      credito,
     };
     console.log(usuario);
     axios //
-      .post("/Usuarios/AddUsuario", usuario)
+      .post(
+        "https://788b-2803-9800-b02e-7f0c-b565-992e-c821-d984.ngrok-free.app/Usuarios/PostUsuario",
+        usuario
+      )
       .then((res) => {
         alert(res.data.message);
-       
       })
       .catch((err, res) => {
         console.log(err.response.data, "Leer Error");
@@ -72,18 +69,24 @@ export default function Usuarios() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-
       <Grid container component="main" sx={{ height: "100vh" }}>
         <CssBaseline />
-        
 
-      <Grid item xs={12} sm={8} md={12} component={Paper} elevation={6} square>
-          <Navegacion/>
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={12}
+          component={Paper}
+          elevation={6}
+          square
+        >
+          <Navegacion />
           <Box
             sx={{
               my: 8,
               mx: 4,
-              
+
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -93,7 +96,7 @@ export default function Usuarios() {
               component="form"
               noValidate
               onSubmit={handleSubmit}
-              sx={{ mt: 1}}
+              sx={{ mt: 1 }}
             >
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={4}>
@@ -118,7 +121,6 @@ export default function Usuarios() {
                     name="apellidos"
                     value={apellidos}
                     onChange={(e) => setApellido(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -130,7 +132,6 @@ export default function Usuarios() {
                     name="rut"
                     value={rut}
                     onChange={(e) => setRut(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -142,7 +143,6 @@ export default function Usuarios() {
                     name="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                   
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -155,7 +155,6 @@ export default function Usuarios() {
                     id="telefono"
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
-                   
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -168,7 +167,6 @@ export default function Usuarios() {
                     id="direccion"
                     value={direccion}
                     onChange={(e) => setDireccion(e.target.value)}
-                   
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -181,7 +179,6 @@ export default function Usuarios() {
                     id="comuna"
                     value={comuna}
                     onChange={(e) => setComuna(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -194,7 +191,6 @@ export default function Usuarios() {
                     id="region"
                     value={region}
                     onChange={(e) => setRegion(e.target.value)}
-                   
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -203,11 +199,10 @@ export default function Usuarios() {
                     fullWidth
                     name="codigoPostal"
                     label="Código Postal"
-                    type= "text"
+                    type="text"
                     id="codigoPostal"
                     value={codigoPostal}
                     onChange={(e) => setCodigoPostal(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={2}>
@@ -216,11 +211,10 @@ export default function Usuarios() {
                     fullWidth
                     name="codigousuario"
                     label="Código Usuario"
-                    type= "text"
+                    type="text"
                     id="codigousuario"
                     value={codigoUsuario}
                     onChange={(e) => setCodigoUsuario(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={2}>
@@ -229,14 +223,13 @@ export default function Usuarios() {
                     fullWidth
                     name="clave"
                     label="Clave Usuario"
-                    type= "text"
+                    type="text"
                     id="clave"
                     value={clave}
                     onChange={(e) => setClave(e.target.value)}
-                  
                   />
                 </Grid>
-                
+
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
                     required
@@ -247,7 +240,6 @@ export default function Usuarios() {
                     id="remuneracion"
                     value={remuneracion}
                     onChange={(e) => setRemuneracion(e.target.value)}
-                    
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
@@ -260,7 +252,6 @@ export default function Usuarios() {
                     id="credito"
                     value={credito}
                     onChange={(e) => setCredito(e.target.value)}
-                    
                   />
                 </Grid>
               </Grid>
@@ -271,7 +262,7 @@ export default function Usuarios() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-               guardar usuario
+                guardar usuario
               </Button>
               {/* <Button
                 type=""
