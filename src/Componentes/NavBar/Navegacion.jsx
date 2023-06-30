@@ -18,6 +18,7 @@ const Navegacion = () => {
               <Button href="/login">Login</Button>
               <Button href="/registro">Registro</Button>
               <Button href="/usuarios">Usuarios</Button>
+              <Button href="/usuarios">Segunda</Button>
             </Nav>
 
             <Nav>
