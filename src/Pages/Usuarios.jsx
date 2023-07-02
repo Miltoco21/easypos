@@ -5,13 +5,17 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import axios from "axios";
 import React, { useState } from "react";
-import Link from "@mui/material/Link";
+import InputAdornment from "@mui/material/InputAdornment";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import { Tooltip } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Navigate, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"
 import Navegacion from "../Componentes/NavBar/Navegacion";
+
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -31,40 +35,104 @@ export default function Usuarios() {
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
+  const [errors, setErrors] = useState({}); //error como objetos
 
   // const Navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    const errors = {};
 
-    const usuario = {
-      nombres,
-      apellidos,
-      email,
-      direccion,
-      telefono,
-      comuna,
-      region,
-      codigoPostal,
-      rut,
-      codigoUsuario,
-      clave,
-      remuneracion,
-      credito,
-    };
-    console.log(usuario);
-    axios //
-      .post(
-        "https://788b-2803-9800-b02e-7f0c-b565-992e-c821-d984.ngrok-free.app/Usuarios/PostUsuario",
-        usuario
-      )
-      .then((res) => {
-        alert(res.data.message);
-      })
-      .catch((err, res) => {
-        console.log(err.response.data, "Leer Error");
-        alert(err.response.data.message);
-      });
+    //Validaciones
+    if (!rut) {
+      errors.rut = "Favor completar campo";
+    } else if (
+      !/^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(rut)
+    ) {
+      errors.rut = "Ingresa tu rut con puntos y guión";
+    }
+
+    if (!nombres) {
+      errors.nombres = "Favor completar campo ";
+    }
+    if (!apellidos) {
+      errors.apellidos = "Favor completar campo ";
+    }
+    if (!email) {
+      errors.email = "Favor completar campo ";
+    }
+    if (!direccion) {
+      errors.direccion = "Favor completar campo ";
+    }
+    if (!telefono) {
+      errors.telefono = "Favor completar campo ";
+    }
+    if (!comuna) {
+      errors.comuna = "Favor completar campo ";
+    }
+    if (!region) {
+      errors.region = "Favor completar campo ";
+    }
+    if (!codigoPostal) {
+      errors.codigoPostal = "Favor completar campo ";
+    }
+    if (!rut) {
+      errors.rut = "Favor completar campo ";
+    }
+    if (!codigoUsuario) {
+      errors.codigoUsuario = "Favor completar campo ";
+    }
+    if (!clave) {
+      errors.clave = "Favor completar campo ";
+    }
+    if (!remuneracion) {
+      errors.remuneracion = "Favor completar campo ";
+    }
+    if (!credito) {
+      errors.credito = "Favor completar campo ";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+    } else {
+      const usuario = {
+        nombres,
+        apellidos,
+        email,
+        direccion,
+        telefono,
+        comuna,
+        region,
+        codigoPostal,
+        rut,
+        codigoUsuario,
+        clave,
+        remuneracion,
+        credito,
+      };
+      console.log(usuario);
+
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/usuarios",
+          usuario
+        );
+       
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: (response.data.message),
+          showConfirmButton: false,
+          timer: 1500
+        })
+        
+
+      } catch (error) {
+        console.log(error.response.data, "Leer Error");
+        alert(error.response.data.message);
+        
+      }
+    }
   };
 
   return (
@@ -107,6 +175,8 @@ export default function Usuarios() {
                     fullWidth
                     id="nombre"
                     label="Nombres"
+                    error={!!errors.nombres} //!!Vacio o falso
+                    helperText={errors.nombres}
                     value={nombres}
                     onChange={(e) => setNombre(e.target.value)}
                     autoFocus
@@ -118,6 +188,8 @@ export default function Usuarios() {
                     fullWidth
                     id="apellido"
                     label="Apellidos"
+                    error={!!errors.apellidos} //!!Vacio o falso
+                    helperText={errors.apellidos}
                     name="apellidos"
                     value={apellidos}
                     onChange={(e) => setApellido(e.target.value)}
@@ -125,17 +197,35 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    required
+                    require
                     fullWidth
                     id="rut"
                     label="Ingrese rut"
                     name="rut"
                     value={rut}
                     onChange={(e) => setRut(e.target.value)}
+                    error={!!errors.rut}
+                    helperText={errors.rut}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {rut &&
+                          /^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(
+                            rut
+                          ) ? (
+                            <Tooltip title="Correct rut format" placement="top">
+                              <CheckCircleIcon style={{ color: "green" }} />
+                            </Tooltip>
+                          ) : null}
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.email}
+                    helperText={errors.email}
                     required
                     fullWidth
                     id="email"
@@ -146,7 +236,9 @@ export default function Usuarios() {
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
-                  <TextField
+                  <TextField  
+                    error={!!errors.telefono}
+                    helperText={errors.telefono}
                     required
                     fullWidth
                     name="telefono"
@@ -159,6 +251,8 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.direccion}
+                    helperText={errors.direccion}
                     required
                     fullWidth
                     name="direccion"
@@ -171,6 +265,8 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.comuna}
+                    helperText={errors.comuna}
                     required
                     fullWidth
                     name="comuna"
@@ -183,6 +279,8 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.region}
+                    helperText={errors.region }
                     required
                     fullWidth
                     name="region"
@@ -197,6 +295,8 @@ export default function Usuarios() {
                   <TextField
                     required
                     fullWidth
+                    error={!!errors.codigoPostal}
+                    helperText={errors.codigoPostal}
                     name="codigoPostal"
                     label="Código Postal"
                     type="text"
@@ -209,6 +309,8 @@ export default function Usuarios() {
                   <TextField
                     required
                     fullWidth
+                    error={!!errors.codigoUsuario}
+                    helperText={errors.codigoUsuario}
                     name="codigousuario"
                     label="Código Usuario"
                     type="text"
@@ -219,6 +321,8 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={2}>
                   <TextField
+                    error={!!errors.clave}
+                    helperText={errors.clave}
                     required
                     fullWidth
                     name="clave"
@@ -232,6 +336,8 @@ export default function Usuarios() {
 
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.remuneracion}
+                    helperText={errors.remuneracion}
                     required
                     fullWidth
                     name="remuneracion"
@@ -244,6 +350,8 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.credito}
+                    helperText={errors.credito}
                     required
                     fullWidth
                     name="credito"
