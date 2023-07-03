@@ -117,6 +117,8 @@ export default function Usuarios() {
           "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
+
+      
        
         Swal.fire({
           position: 'top-end',
