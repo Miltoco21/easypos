@@ -60,6 +60,9 @@ export default function Usuarios() {
     }
     if (!email) {
       errors.email = "Favor completar campo ";
+    }else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)){
+      errors.email = "Formato de email no es válido"
+
     }
     if (!direccion) {
       errors.direccion = "Favor completar campo ";
@@ -123,7 +126,7 @@ export default function Usuarios() {
         Swal.fire({
           position: 'top-end',
           icon: 'success',
-          title: (response.data.message),
+          title: (response.data.descripcion),
           showConfirmButton: false,
           timer: 1500
         })
@@ -131,7 +134,7 @@ export default function Usuarios() {
 
       } catch (error) {
         console.log(error.response.data, "Leer Error");
-        alert(error.response.data.message);
+        alert(error.response.data.descripcion);
         
       }
     }
@@ -199,7 +202,7 @@ export default function Usuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    require
+                    required
                     fullWidth
                     id="rut"
                     label="Ingrese rut"
