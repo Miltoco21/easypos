@@ -14,6 +14,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Navigate, useNavigate} from 'react-router-dom';
+import Swal from "sweetalert2"
 
 function Copyright(props) {
   return (
@@ -58,7 +59,13 @@ export default function Registro() {
     axios // 
       .post("http://localhost:5000/api/registro",user)
       .then((res) => {
-        alert(res.data.message);
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: (res.data.message),
+          showConfirmButton: false,
+          timer: 1500
+        })
         Navigate('/login');
      
       })

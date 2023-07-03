@@ -114,7 +114,7 @@ export default function Usuarios() {
 
       try {
         const response = await axios.post(
-          "http://localhost:5000/api/usuarios",
+          "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
        
