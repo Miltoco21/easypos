@@ -9,6 +9,9 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import Usuarios from "./Pages/Usuarios";
+import Precios from "./Pages/Precios";
+
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -19,6 +22,7 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/" element={<Home />} />
       <Route path="/usuarios" element={<Usuarios />} />
+      <Route path="/precios" element={<Precios />} />
 
     </Routes>
   );

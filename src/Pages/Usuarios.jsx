@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 
+
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -60,7 +61,7 @@ export default function Usuarios() {
     }
     if (!email) {
       errors.email = "Favor completar campo ";
-    }else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)){
+    }else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)){
       errors.email = "Formato de email no es válido"
 
     }
@@ -120,21 +121,29 @@ export default function Usuarios() {
           "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
+        console.log(response.data.descripcion,'debugMiltoco')
 
       
        
         Swal.fire({
-          position: 'top-end',
           icon: 'success',
-          title: (response.data.descripcion),
-          showConfirmButton: false,
-          timer: 1500
+          title: 'Todo en orden',
+          text: (response.data.descripcion)
+          
         })
         
 
       } catch (error) {
         console.log(error.response.data, "Leer Error");
-        alert(error.response.data.descripcion);
+        Swal.fire({
+          position: 'top-end',
+          icon: 'error',
+          text:(error.response.data.descripcion),
+          title: (error.response.data.descripcion),
+          
+          
+        })
+        
         
       }
     }
@@ -238,6 +247,20 @@ export default function Usuarios() {
                     name="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          {email &&
+                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(
+                            email
+                          ) ? (
+                            <Tooltip title="Correct rut format" placement="top">
+                              <CheckCircleIcon style={{ color: "green" }} />
+                            </Tooltip>
+                          ) : null}
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>

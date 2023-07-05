@@ -1,35 +1,26 @@
 /* eslint-disable no-unused-vars */
-import React,{useState} from 'react';
-import Navegacion from '../NavBar/Navegacion';
-import Modal from '@mui/joy/Modal';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Stack from '@mui/joy/Stack';
+import React, { useState } from "react";
+import Modal from "@mui/joy/Modal";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Input from "@mui/joy/Input";
+import Stack from "@mui/joy/Stack";
+import ModalDialog from "@mui/joy/ModalDialog";
+import Typography from "@mui/joy/Typography";
+import Add from "@mui/icons-material/Add";
 
-import ModalDialog from '@mui/joy/ModalDialog';
-
-
-import Typography from '@mui/joy/Typography';
-import Add from '@mui/icons-material/Add';
-
-import Button from '@mui/joy/Button';
-
-
-
-const CardModal = () => {
+import Button from "@mui/joy/Button";
+const AsocCliente = () => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Navegacion/>
       <Button
-        
-        variant="contained" 
-        color="success"
+        variant="outlined"
+        color="neutral"
         startDecorator={<Add />}
         onClick={() => setOpen(true)}
       >
-       Precios Generales
+        Asociacion por clientes
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog
@@ -38,9 +29,12 @@ const CardModal = () => {
           sx={{ maxWidth: 500 }}
         >
           <Typography id="basic-modal-dialog-title" component="h2">
-            PRECIOS GENERALES
+           Asociacion CLIENTES
           </Typography>
-          <Typography id="basic-modal-dialog-description" textColor="text.tertiary">
+          <Typography
+            id="basic-modal-dialog-description"
+            textColor="text.tertiary"
+          >
             Fill in the information of the project.
           </Typography>
           <form
@@ -63,12 +57,8 @@ const CardModal = () => {
           </form>
         </ModalDialog>
       </Modal>
- 
-
-    
     </>
-    
-  )
-}
+  );
+};
 
-export default CardModal;
+export default AsocCliente;
