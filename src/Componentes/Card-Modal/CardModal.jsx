@@ -1,74 +1,72 @@
 /* eslint-disable no-unused-vars */
-import React,{useState} from 'react';
-import Navegacion from '../NavBar/Navegacion';
-import Modal from '@mui/joy/Modal';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Stack from '@mui/joy/Stack';
+import React, { useState } from "react";
+import Navegacion from "../NavBar/Navegacion";
+import Modal from "@mui/joy/Modal";
+import Button from "@mui/joy/Button";
+import Slider from '@mui/joy/Slider';
 
-import ModalDialog from '@mui/joy/ModalDialog';
+import TextField from "@mui/material/TextField";
+import axios from "axios";
+
+import InputAdornment from "@mui/material/InputAdornment";
+import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
 
 
-import Typography from '@mui/joy/Typography';
-import Add from '@mui/icons-material/Add';
+import Add from "@mui/icons-material/Add";
 
-import Button from '@mui/joy/Button';
+import ModalDialog from "@mui/joy/ModalDialog";
+
+
+
+
+import Precios from "../../Pages/Precios";
+import PreciosGenerales from "./PreciosGenerales";
+
+
 
 
 
 const CardModal = () => {
   const [open, setOpen] = useState(false);
+  const text = "Precios Generales";
+  const uppercaseText = text.toUpperCase();
+
+
+  
+
   return (
     <>
-      <Navegacion/>
+      <Navegacion />
       <Button
-        
-        variant="contained" 
-        color="success"
+        variant="outlined"
+        color="neutral"
         startDecorator={<Add />}
         onClick={() => setOpen(true)}
       >
-       Precios Generales
+        {uppercaseText}
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
-        <ModalDialog
-          aria-labelledby="basic-modal-dialog-title"
-          aria-describedby="basic-modal-dialog-description"
-          sx={{ maxWidth: 500 }}
+      <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            overflow: 'auto', // Added scrollable feature
+            maxHeight: '80vh', // Adjust as needed
+            maxWidth: '90vw', // Adjust as needed
+          }}
         >
-          <Typography id="basic-modal-dialog-title" component="h2">
-            PRECIOS GENERALES
-          </Typography>
-          <Typography id="basic-modal-dialog-description" textColor="text.tertiary">
-            Fill in the information of the project.
-          </Typography>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              setOpen(false);
-            }}
-          >
-            <Stack spacing={2}>
-              <FormControl>
-                <FormLabel>Name</FormLabel>
-                <Input autoFocus required />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Description</FormLabel>
-                <Input required />
-              </FormControl>
-              <Button type="submit">Submit</Button>
-            </Stack>
-          </form>
-        </ModalDialog>
+          <PreciosGenerales/>
+        </Box>
+        
       </Modal>
- 
-
-    
     </>
-    
-  )
-}
+  );
+};
 
 export default CardModal;

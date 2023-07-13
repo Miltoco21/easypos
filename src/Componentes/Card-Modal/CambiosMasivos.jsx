@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import Modal from "@mui/joy/Modal";
@@ -10,19 +11,26 @@ import Typography from "@mui/joy/Typography";
 import Add from "@mui/icons-material/Add";
 
 import Button from "@mui/joy/Button";
-const AsocCliente = () => {
+
+  
+ 
+
+
+
+
+
+const CambiosMasivos = () => {
   const [open, setOpen] = useState(false);
-  const text = 'Asociación por clientes';
+  const text = 'Cambios Masivos de precios';
   const uppercaseText = text.toUpperCase();
   return (
-    <>
+    <>  
       <Button
         variant="outlined"
         color="neutral"
         startDecorator={<Add />}
         onClick={() => setOpen(true)}
-      >
-        {uppercaseText}
+      > {uppercaseText}
       </Button>
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog
@@ -31,7 +39,7 @@ const AsocCliente = () => {
           sx={{ maxWidth: 500 }}
         >
           <Typography id="basic-modal-dialog-title" component="h2">
-           Asociacion CLIENTES
+          Cambios Masivos de precios
           </Typography>
           <Typography
             id="basic-modal-dialog-description"
@@ -59,8 +67,9 @@ const AsocCliente = () => {
           </form>
         </ModalDialog>
       </Modal>
+      
     </>
-  );
-};
+  )
+}
 
-export default AsocCliente;
+export default CambiosMasivos
