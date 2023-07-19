@@ -10,6 +10,10 @@ import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 function TablaNivel() {
   const [editableRows, setEditableRows] = useState([]);
   const [tableData, setTableData] = useState([
@@ -35,28 +39,29 @@ function TablaNivel() {
     setNewRow({ desde: '', hasta: '', valor: '' });
   };
 
+  const handleDeleteRow = (id) => {
+    setTableData(tableData.filter((row) => row.id !== id));
+  };
+
   const handleInputChange = (e) => {
     setNewRow({ ...newRow, [e.target.name]: e.target.value });
   };
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={1}>
       <Grid item xs={12} sm={6} md={12}  sx={{ marginRight: "10px" }}>
         <TableContainer component={Paper}
-         sx={{ marginRight: "8px" }}>
+         sx={{ marginRight: "4px" }}>
         <h5>Precios por Unidad o kg</h5>
           <Table size="small">
             <TableHead>
-              <TableRow size ="md">
-               
-                 
-                
-              </TableRow>
+             
               <TableRow>
                 <TableCell>Desde</TableCell>
                 <TableCell>Hasta</TableCell>
                 <TableCell>Valor</TableCell>
                 <TableCell>Acción</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -73,15 +78,36 @@ function TablaNivel() {
                   </TableCell>
                   <TableCell align="center">
                     {editableRows.includes(index) ? (
-                      <Button variant="contained" color="primary" size="small" onClick={() => handleSaveRow(index)}>
-                        Guardar
-                      </Button>
+                      <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => handleSaveRow(index)}
+                    >
+                      <CheckCircleIcon/> {/* Guardar */}
+                    </Button>
                     ) : (
-                      <Button variant="contained" color="primary" size="small" onClick={() => handleEditRow(index)}>
-                        Editar
-                      </Button>
+                      <Button
+                          variant="contained"
+                          color="secondary"
+                          size="small"
+                          onClick={() => handleEditRow(index)}
+                        >
+                          <AddCircleIcon/>
+                        </Button>
                     )}
                   </TableCell>
+                  <TableCell align="center">
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      size="small"
+                      onClick={() => handleDeleteRow(row.id)}
+                    >
+                      <DeleteIcon/>
+                    </Button>
+                  </TableCell>
+
                 </TableRow>
               ))}
               <TableRow>

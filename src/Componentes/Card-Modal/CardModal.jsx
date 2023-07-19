@@ -58,7 +58,7 @@ const CardModal = () => {
             p: 4,
             overflow: 'auto', // Added scrollable feature
             maxHeight: '80vh', // Adjust as needed
-            maxWidth: '90vw', // Adjust as needed
+            maxWidth: '200vw', // Adjust as needed
           }}
         >
           <PreciosGenerales/>

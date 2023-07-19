@@ -34,22 +34,22 @@ const PreciosGenerales = () => {
   };
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: "900vh", width: "150vh" }}>
+      <Grid container component="main" sx={{ height: "90vh", width: "180vh" }}>
         <CssBaseline />
 
         <Grid
           item
           xs={12}
           sm={8}
-          md={12}
+          md={14}
           component={Paper}
           elevation={6}
           square
         >
           <Box
             sx={{
-              my: 2,
-              mx: 5,
+              my: 1,
+              mx: 2,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -60,7 +60,7 @@ const PreciosGenerales = () => {
               component="form"
               noValidate
               onSubmit={handleSubmit}
-              sx={{ mt: 1 }}
+              sx={{ mt: 2 }}
             >
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={11}>
@@ -115,7 +115,7 @@ const PreciosGenerales = () => {
                     sx={{ marginTop: "15px" }}
                   >
                     <Typography variant="body1" sx={{ marginRight: "8px" }}>
-                      Precio final de venta{" "}
+                      Precio final de venta
                     </Typography>
                     <TextField id="precioCosto" size="small" /> <br />
                   </Box>
@@ -134,7 +134,7 @@ const PreciosGenerales = () => {
                 type="submit"
                 size="md"
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 1, mb: 1 }}
               >
                 guardar Precio
               </Button>
