@@ -34,16 +34,16 @@ const PreciosGenerales = () => {
   };
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: "90vh", width: "180vh" }}>
+      <Grid container component="main" sx={{ height: "90vh", width: "190vh" }}>
         <CssBaseline />
 
         <Grid
           item
-          xs={12}
+          xs={2}
           sm={8}
           md={14}
           component={Paper}
-          elevation={6}
+          elevation={24}
           square
         >
           <Box

@@ -19,11 +19,15 @@ const Navegacion = () => {
               <Button href="/registro">Registro</Button>
               <Button href="/usuarios">Usuarios</Button>
               <Button href="/precios">Precios</Button>
+              <Button href="/proveedores">Proovedores</Button>
+
+            
+
             </Nav>
 
             <Nav>
               {/* <Nav.Link href="/">Cerrar sesión</Nav.Link> */}
-              <Nav.Link href="/">Bienvenido</Nav.Link>
+              
 
              
             </Nav>

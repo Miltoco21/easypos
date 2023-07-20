@@ -10,6 +10,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import Usuarios from "./Pages/Usuarios";
 import Precios from "./Pages/Precios";
+import Proveedores from "./Pages/Proveedores";
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,6 +24,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/usuarios" element={<Usuarios />} />
       <Route path="/precios" element={<Precios />} />
+      <Route path="/proveedores" element={<Proveedores />} />
 
     </Routes>
   );
