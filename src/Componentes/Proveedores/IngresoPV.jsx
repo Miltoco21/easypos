@@ -31,10 +31,10 @@ const IngresoPV = () => {
   const [urlPagina, setUlrPagina] = useState("");
   const [formaPago, setFormaPago] = useState("");
  
-  const [codigoUsuario, setCodigoUsuario] = useState("");
-  const [clave, setClave] = useState("");
-  const [remuneracion, setRemuneracion] = useState("");
-  const [credito, setCredito] = useState("");
+  const [nombreResponsable, setNombreResponsable] = useState("");
+  const [correoResponsable, setcorreoResponsable] = useState("");
+  const [telefonoResponsable, setTelefonoResponsable] = useState("");
+ 
   const [errors, setErrors] = useState({}); //error como objetos
   
   const handleSubmit = async (event) => {
@@ -83,6 +83,15 @@ const IngresoPV = () => {
     if (!formaPago) {
       errors.formaPago = "Favor completar campo ";
     }
+    if (!nombreResponsable) {
+      errors.nombreResponsable = "Favor completar campo ";
+    }
+    if (!correoResponsable) {
+      errors.correoResponsable = "Favor completar campo ";
+    }
+    if (!telefonoResponsable) {
+      errors.telefonoResponsable = "Favor completar campo ";
+    }
     
 
     if (Object.keys(errors).length > 0) {
@@ -98,6 +107,9 @@ const IngresoPV = () => {
         urlPagina,
         formaPago,
         rut,
+        nombreResponsable,
+        correoResponsable,
+        telefonoResponsable
        
       };
       console.log(cliente);
@@ -117,6 +129,20 @@ const IngresoPV = () => {
           text: (response.data.descripcion)
           
         })
+
+        setRazonSocial('');
+        setGiro('');
+        setEmail('');
+        setDireccion('');
+        setTelefono('');
+        setComuna('');
+        setUlrPagina('');
+        setFormaPago('');
+        setRut('');
+        setNombreResponsable('');
+        setcorreoResponsable('');
+        setTelefonoResponsable('');
+
         
 
       } catch (error) {
@@ -163,6 +189,7 @@ const IngresoPV = () => {
               component="form"
               noValidate
               onSubmit={handleSubmit}
+              
               sx={{ mt: 2 }}
             >
               <Grid container spacing={2}>
@@ -318,6 +345,49 @@ const IngresoPV = () => {
                     onChange={(e) => setFormaPago(e.target.value)}
                   />
                 </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    required
+                    fullWidth
+                    error={!!errors.nombreResponsable}
+                    helperText={errors.nombreResponsable}
+                    name="nombreResponsable"
+                    label="Nombre Responsable"
+                    type="text"
+                    id="nombreResponsable"
+                    value={nombreResponsable}
+                    onChange={(e) => setNombreResponsable(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    required
+                    fullWidth
+                    error={!!errors.correoResponsable}
+                    helperText={errors.correoResponsable}
+                    name="correoResponsable"
+                    label="Correo Responsable"
+                    type="text"
+                    id="correoResponsable"
+                    value={correoResponsable}
+                    onChange={(e) => setcorreoResponsable(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    required
+                    fullWidth
+                    error={!!errors.telefonoResponsable}
+                    helperText={errors.telefonoResponsable}
+                    name="telefonoResponsable"
+                    label="Telefono Responsable"
+                    type="text"
+                    id="telefonoResponsable"
+                    value={telefonoResponsable}
+                    onChange={(e) => setTelefonoResponsable(e.target.value)}
+                  />
+                </Grid>
+                
                 
                 
 
