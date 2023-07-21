@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 import React from 'react'
 import Button from "@mui/material/Button";
@@ -12,8 +13,12 @@ import Grid from "@mui/material/Grid";
 import { Tooltip } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Navigate, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2"
+import { saveAs } from 'file-saver';
+import * as xlsx from 'xlsx/xlsx.mjs';
+
+
+
 
 
 const defaultTheme = createTheme();
@@ -30,12 +35,81 @@ const IngresoPV = () => {
   const [sucursal, setSucursal] = useState("");
   const [urlPagina, setUlrPagina] = useState("");
   const [formaPago, setFormaPago] = useState("");
- 
   const [nombreResponsable, setNombreResponsable] = useState("");
   const [correoResponsable, setcorreoResponsable] = useState("");
   const [telefonoResponsable, setTelefonoResponsable] = useState("");
  
   const [errors, setErrors] = useState({}); //error como objetos
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = xlsx.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = xlsx.utils.sheet_to_json(worksheet);
+
+      if (jsonData.length > 0) {
+        const firstDataRow = jsonData[0];
+        setRazonSocial(firstDataRow.razonSocial || "");
+        setGiro(firstDataRow.giro || "");
+        setEmail(firstDataRow.email || "");
+        setDireccion(firstDataRow.direccion || "");
+        setTelefono(firstDataRow.telefono || "");
+        setComuna(firstDataRow.comuna || "");
+        setSucursal(firstDataRow.sucursal || "");
+        setUlrPagina(firstDataRow.urlPagina || "");
+        setFormaPago(firstDataRow.formaPago || "");
+        setRut(firstDataRow.rut || "");
+        setNombreResponsable(firstDataRow.nombreResponsable || "");
+        setcorreoResponsable(firstDataRow.correoResponsable || "");
+        setTelefonoResponsable(firstDataRow.telefonoResponsable || "");
+      }
+
+     
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleExportExcel = () => {
+    const jsonData = [
+      {
+        razonSocial:razonSocial,
+        giro:giro,
+        email:email,
+        direccion:direccion,
+        telefono:telefono,
+        comuna:comuna,
+        sucursal:sucursal,
+        urlPagina:urlPagina,
+        formaPago:formaPago,
+        rut:rut,
+        nombreResponsable:nombreResponsable,
+        correoResponsable:correoResponsable,
+        telefonoResponsable:telefonoResponsable,
+        
+      }
+    ];
+
+    const worksheet = xlsx.utils.json_to_sheet(jsonData);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const excelBuffer = xlsx.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    const excelBlob = new Blob(
+      [excelBuffer],
+      {
+        type:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }
+    );
+    saveAs(excelBlob, 'exported_data.xlsx');
+  };
   
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -89,6 +163,9 @@ const IngresoPV = () => {
     if (!correoResponsable) {
       errors.correoResponsable = "Favor completar campo ";
     }
+    if (!sucursal) {
+      errors.sucursal = "Favor completar campo ";
+    }
     if (!telefonoResponsable) {
       errors.telefonoResponsable = "Favor completar campo ";
     }
@@ -101,6 +178,7 @@ const IngresoPV = () => {
         razonSocial,
         giro,
         email,
+        sucursal,
         direccion,
         telefono,
         comuna,
@@ -116,7 +194,7 @@ const IngresoPV = () => {
 
       try {
         const response = await axios.post(
-          "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
+          "https://www.easyposdev.somee.com/api/Proveedores/AddProveedor",
           cliente
         );
         console.log(response.data.descripcion,'debugMiltoco')
@@ -135,6 +213,7 @@ const IngresoPV = () => {
         setEmail('');
         setDireccion('');
         setTelefono('');
+        setSucursal('');
         setComuna('');
         setUlrPagina('');
         setFormaPago('');
@@ -151,7 +230,7 @@ const IngresoPV = () => {
           position: 'top-end',
           icon: 'error',
           text:(error.response.data.descripcion),
-          title: (error.response.data.descripcion),
+          title: (error.response.data.title),
           
           
         })
@@ -195,7 +274,7 @@ const IngresoPV = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    autoComplete="razgiro"
+                    autoComplete="razonsocial"
                     name="razonsocial"
                     required
                     fullWidth
@@ -319,6 +398,20 @@ const IngresoPV = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
+                    error={!!errors.sucursal}
+                    helperText={errors.sucursal}
+                    required
+                    fullWidth
+                    name="sucursal"
+                    label="Sucursal"
+                    type="text"
+                    id="sucursal"
+                    value={sucursal}
+                    onChange={(e) => setSucursal(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
                     error={!!errors.urlPagina}
                     helperText={errors.urlPagina }
                     required
@@ -403,8 +496,11 @@ const IngresoPV = () => {
               >
                 guardar 
               </Button>
+              <input type="file" onChange={handleFileUpload} />
+              <button onClick={handleExportExcel}>Export to Excel</button>
+
               
-              <Grid container></Grid>
+             
             </Box>
           </Box>
         </Grid>
