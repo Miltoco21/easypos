@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React from 'react'
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -17,14 +15,13 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Swal from "sweetalert2";
 import { saveAs } from "file-saver";
 import * as xlsx from "xlsx/xlsx.mjs";
-import withReactContent from "sweetalert2-react-content";
+
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-
-const IngresoPV = () => {
+const IngresoCL = () => {
   const [rut, setRut] = useState("");
   const [razonSocial, setRazonSocial] = useState("");
   const [giro, setGiro] = useState("");
@@ -39,12 +36,12 @@ const IngresoPV = () => {
   const [correoResponsable, setcorreoResponsable] = useState("");
   const [telefonoResponsable, setTelefonoResponsable] = useState("");
   const [errors, setErrors] = useState({}); //error como objetos
-  const [showAlert, setShowAlert] = useState(false);
+ 
   const [response, setResponse] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const MySwal = withReactContent(Swal);
+
   const theme = createTheme();
 
   const handleFileUpload = (event) => {
@@ -211,7 +208,7 @@ const IngresoPV = () => {
         );
         setResponse(response.data);
         setFormSubmitted(true);
-        setShowAlert(true);
+        
 
         console.log(response, "debugMiltoco");
 
@@ -240,6 +237,7 @@ const IngresoPV = () => {
     }
   };
   return (
+   
     <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: "100vh", width: "90vw" }}>
         <CssBaseline />
@@ -262,7 +260,7 @@ const IngresoPV = () => {
               alignItems: "center",
             }}
           >
-            <h4>Ingreso Proveedores</h4>
+            <h4>Ingreso Clientes</h4>
             <Box
               component="form"
               noValidate
@@ -547,7 +545,7 @@ const IngresoPV = () => {
           </div>
         ))}
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default IngresoPV;
+export default IngresoCL
