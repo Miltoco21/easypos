@@ -13,10 +13,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import IngresoFamilia from "./IngresoFamilia";
-import IngresoSubfamilia from "./IngresoSubfamilia";
-import IngresoItem from "./IngresoItem";
-import CeldaEditable from "./Celdaeditable";
+
 import Nuevo from "./Nuevo";
 
 const Familias = () => {
