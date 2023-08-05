@@ -14,7 +14,7 @@ const CardModal = () => {
 
   return (
     <>
-      <Navegacion />
+     
       <Button
         variant="outlined"
         color="neutral"

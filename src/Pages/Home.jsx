@@ -1,11 +1,31 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
-import React from 'react'  
-import Navegacion from '../Componentes/NavBar/Navegacion'
 
+import React from 'react'  
+import SideBar from '../Componentes/NavBar/SideBar'
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import InfoCard from "../Componentes/Home/InfoCard"
+
+export const defaultTheme = createTheme;
 const Home = () => {
   return (
     <>
-      <Navegacion/>
+     
+     <ThemeProvider theme={defaultTheme}>
+      <CssBaseline />
+
+      <Box sx={{ display: "flex" }}>
+        <SideBar />
+        <InfoCard/>
+        
+      </Box>
+
+      
+    </ThemeProvider>
+
+     
     </>
   )
 }

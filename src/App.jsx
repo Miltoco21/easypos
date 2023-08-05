@@ -11,6 +11,7 @@ import "@fontsource/roboto/700.css";
 import Usuarios from "./Pages/Usuarios";
 import Precios from "./Pages/Precios";
 import Proveedores from "./Pages/Proveedores";
+import SideBar from "./Componentes/NavBar/SideBar"
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -18,6 +19,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function App() {
   return (
     <Routes>
+     
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
       <Route path="/home" element={<Home />} />

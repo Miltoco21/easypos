@@ -262,7 +262,7 @@ const IngresoPV = () => {
               alignItems: "center",
             }}
           >
-            <h4>Ingreso Proveedores</h4>
+            <h4>Ingreso Proveedoress</h4>
             <Box
               component="form"
               noValidate
@@ -528,7 +528,7 @@ const IngresoPV = () => {
                 
               
 
-                {/* Add other properties as needed */}
+                
               </div>
             )}
           </DialogContent>
