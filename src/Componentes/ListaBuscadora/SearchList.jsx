@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   TextField,
@@ -21,37 +22,35 @@ const SearchList = () => {
   const [perPage, setPerPage] = useState(5);
   const [displayCount, setDisplayCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1); // Define the currentPage state here
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/Usuarios/GetAllUsuario"
+        );
+        console.log('API response:', response.data); 
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
 
-  const filteredUsers = [
-    {
-      id: 1,
-      name: "User 1",
-      rut: "13.686.677-2",
-      correo: "example@gmail.com",
-      telefono: "5532755",
-      direccion: "evergreen 235",
-      credito: "",
-    },
-    { id: 2, name: "User 2" },
-    { id: 3, name: "User 3" },
-    { id: 4, name: "User 4" },
-    { id: 5, name: "User 5" },
-    { id: 6, name: "User 6" },
-    { id: 7, name: "User 7" },
-    { id: 8, name: "User 8" },
-    { id: 9, name: "User 9" },
-    { id: 10, name: "User 10" },
-    { id: 11, name: "User 11" },
-    { id: 12, name: "User 12" },
-    { id: 13, name: "User 13" },
-    { id: 14, name: "User 14" },
-    { id: 15, name: "User 15" },
-    { id: 16, name: "User 16" },
-    { id: 17, name: "User 17" },
-    { id: 18, name: "User 18" },
-    { id: 19, name: "User 19" },
-    { id: 20, name: "User 20" },
-  ];
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (Array.isArray(users)) {
+      setFilteredUsers(
+        users.filter((user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+  }, [searchTerm, users]);
+  
 
   const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / perPage);
@@ -77,7 +76,7 @@ const SearchList = () => {
   };
 
   const handleEdit = (userId) => {
-    // Implement edit functionality
+    
     console.log("Edit user with ID:", userId);
   };
 
@@ -95,7 +94,7 @@ const SearchList = () => {
             <TableCell>ID</TableCell>
             <TableCell>Usuario</TableCell>
             <TableCell>RUT</TableCell>
-           
+
             <TableCell>Teléfono</TableCell>
             <TableCell>Crédito</TableCell>
 
@@ -103,24 +102,34 @@ const SearchList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {usersToDisplay.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell>{user.id}</TableCell>
-              <TableCell>
-                <span style={{ color: "purple" }}>{user.name}</span>
-                <br />
-                <span>{user.correo}</span>
-              </TableCell>
-              <TableCell>{user.rut}</TableCell>
-              
-              <TableCell>{user.telefono}</TableCell>
-              <TableCell>{user.credito}</TableCell>
-              <TableCell>
-                <Button onClick={() => handleDelete(user.id)}><DeleteIcon/></Button>
-                <Button onClick={() => handleEdit(user.id)}><EditIcon/></Button>
-              </TableCell>
+          {usersToDisplay.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6}>No users found</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            usersToDisplay.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>
+                  <span style={{ color: "purple" }}>{user.name}</span>
+                  <br />
+                  <span>{user.correo}</span>
+                </TableCell>
+                <TableCell>{user.rut}</TableCell>
+
+                <TableCell>{user.telefono}</TableCell>
+                <TableCell>{user.credito}</TableCell>
+                <TableCell>
+                  <Button onClick={() => handleDelete(user.id)}>
+                    <DeleteIcon />
+                  </Button>
+                  <Button onClick={() => handleEdit(user.id)}>
+                    <EditIcon />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 

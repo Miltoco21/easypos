@@ -5,8 +5,13 @@ import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Button } from '@mui/material';
+import { Button } from "@mui/material";
 import axios from "axios";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import Paper from "@mui/material/Paper";
@@ -16,15 +21,11 @@ import { Tooltip } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
+import Swal from "sweetalert2";
 
-import Swal from "sweetalert2"
-
-
-
-// 
+//
 
 export const defaultTheme = createTheme();
-
 
 export default function IngresoUsuarios() {
   const [nombres, setNombre] = useState("");
@@ -41,8 +42,28 @@ export default function IngresoUsuarios() {
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
   const [errors, setErrors] = useState({}); //error como objetos
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
 
-
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalContent("");
+    setNombre("");
+    setApellido("");
+    setEmail("");
+    setTelefono("");
+    setDireccion("");
+    setComuna("");
+    setRegion("");
+    setCodigoPostal("");
+    setRut("");
+    setCodigoUsuario("");
+    setClave("");
+    setRemuneracion("");
+    setCredito("");
+    // Clear errors
+    setErrors({});
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -65,9 +86,8 @@ export default function IngresoUsuarios() {
     }
     if (!email) {
       errors.email = "Favor completar campo ";
-    }else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)){
-      errors.email = "Formato de email no es válido"
-
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)) {
+      errors.email = "Formato de email no es válido";
     }
     if (!direccion) {
       errors.direccion = "Favor completar campo ";
@@ -125,42 +145,27 @@ export default function IngresoUsuarios() {
           "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
-        console.log(response.data.descripcion,'debugMiltoco')
-
-      
-       
-        Swal.fire({
-          icon: 'success',
-          title: 'Todo en orden',
-          text: (response.data.descripcion)
-          
-        })
-        
-
+        console.log(response.data.descripcion, "debugMiltoco");
+        setModalContent({
+          description: response.data.descripcion,
+          positive: true,
+        });
+        setModalOpen(true);
       } catch (error) {
         console.log(error.response.data, "Leer Error");
-        Swal.fire({
-          position: 'top-end',
-          icon: 'error',
-          text:(error.response.data.descripcion),
-          title: (error.response.data.descripcion),
-          
-          
-        })
-        
-        
+        setModalContent({
+          description: error.response.data.descripcion,
+          positive: false,
+        });
+        setModalOpen(true);
       }
     }
   };
-  
 
   return (
-    
-    <ThemeProvider theme={defaultTheme} >
-       
-      <Grid container component="main" sx={{ height: "70vh" ,width:"800px"}}>
+    <ThemeProvider theme={defaultTheme}>
+      <Grid container component="main" sx={{ height: "70vh", width: "800px" }}>
         <CssBaseline />
-
 
         <Grid
           item
@@ -171,8 +176,6 @@ export default function IngresoUsuarios() {
           elevation={6}
           square
         >
-         
-         
           <Box
             sx={{
               my: 8,
@@ -182,13 +185,13 @@ export default function IngresoUsuarios() {
               flexDirection: "column",
               alignItems: "center",
             }}
-          >
+          > <h2>Crea nuevo usuario</h2>
             <Box
               component="form"
               noValidate
               onSubmit={handleSubmit}
               sx={{ mt: 1 }}
-            >
+            > 
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
@@ -260,9 +263,7 @@ export default function IngresoUsuarios() {
                       endAdornment: (
                         <InputAdornment position="end">
                           {email &&
-                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(
-                            email
-                          ) ? (
+                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) ? (
                             <Tooltip title="Correct rut format" placement="top">
                               <CheckCircleIcon style={{ color: "green" }} />
                             </Tooltip>
@@ -273,7 +274,7 @@ export default function IngresoUsuarios() {
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
-                  <TextField  
+                  <TextField
                     error={!!errors.telefono}
                     helperText={errors.telefono}
                     required
@@ -317,7 +318,7 @@ export default function IngresoUsuarios() {
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
                     error={!!errors.region}
-                    helperText={errors.region }
+                    helperText={errors.region}
                     required
                     fullWidth
                     name="region"
@@ -409,12 +410,27 @@ export default function IngresoUsuarios() {
               >
                 guardar usuario
               </Button>
-             
+
               <Grid container></Grid>
             </Box>
           </Box>
         </Grid>
       </Grid>
+      <Dialog open={modalOpen} onClose={closeModal}>
+       
+        <DialogContent>
+          <DialogContentText>
+            {modalContent.positive ? (
+              <span style={{ color: "green" }}>Guardado con éxito</span>
+            ) : (
+              <span style={{ color: "red" }}>Error al guardar</span>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeModal}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 }

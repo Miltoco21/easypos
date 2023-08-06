@@ -1,23 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Container,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  Button,
-  Grid,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from "@mui/material";
+import { Container } from "@mui/material";
 
 import Nuevo from "./Nuevo";
 
 const Familias = () => {
-  const [data, setData] = useState( []|| initialData);
+  const [data, setData] = useState([] || initialData);
   const [newFamilia, setNewFamilia] = useState("");
 
   const [initialData] = useState([
@@ -40,8 +29,6 @@ const Familias = () => {
     },
   ]);
 
-  
-
   const handleAddProduct = () => {
     setData([...data, { id: generateId(), name: newFamilia, subProducts: [] }]);
     setNewFamilia("");
@@ -63,7 +50,13 @@ const Familias = () => {
     );
   };
 
-  const handleEditCell = (productId, subProductId, itemId, columnName, newValue) => {
+  const handleEditCell = (
+    productId,
+    subProductId,
+    itemId,
+    columnName,
+    newValue
+  ) => {
     setData((prevData) =>
       prevData.map((product) =>
         product.id === productId
@@ -74,7 +67,9 @@ const Familias = () => {
                   ? {
                       ...subProduct,
                       items: subProduct.items.map((item) =>
-                        item.id === itemId ? { ...item, [columnName]: newValue } : item
+                        item.id === itemId
+                          ? { ...item, [columnName]: newValue }
+                          : item
                       ),
                     }
                   : subProduct
@@ -95,7 +90,9 @@ const Familias = () => {
                 subProduct.id === subProductId
                   ? {
                       ...subProduct,
-                      items: subProduct.items.filter((item) => item.id !== itemId),
+                      items: subProduct.items.filter(
+                        (item) => item.id !== itemId
+                      ),
                     }
                   : subProduct
               ),
@@ -132,16 +129,12 @@ const Familias = () => {
     return uuidv4();
   };
 
-
   return (
-
     <Container>
       <h1>Ingreso Familias</h1>
-      
-      <Nuevo/>
+
+      <Nuevo />
     </Container>
-    
-    
   );
 };
 
