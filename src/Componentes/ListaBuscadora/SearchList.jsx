@@ -46,9 +46,9 @@ const SearchList = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [errors, setErrors] = useState({});
-  const [nombres, setNombre] = useState("");
+  const [nombres, setNombres] = useState("");
   const [apellidos, setApellido] = useState("");
-  const [email, setEmail] = useState("");
+  const [correo, setcorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [comuna, setComuna] = useState("");
@@ -112,19 +112,19 @@ const SearchList = () => {
 
   const handleEdit = (user) => {
     setEditingUser(user);
-    setNombres(user.nombres);
-    setApellido(user.apellidos);
-    setEmail(user.email);
-    setTelefono(user.telefono);
-    setDireccion(user.direccion);
-    setComuna(user.comuna);
-    setRegion(user.region);
-    setCodigoPostal(user.codigoPostal);
-    setRut(user.rut);
-    setCodigoUsuario(user.codigoUsuario);
-    setClave(user.clave);
-    setRemuneracion(user.remuneracion);
-    setCredito(user.credito);
+    setNombres(user.nombres || "");
+    setApellido(user.apellidos || "");
+    setcorreo(user.correo || "");
+    setTelefono(user.telefono || "");
+    setDireccion(user.direccion || "");
+    setComuna(user.comuna || "");
+    setRegion(user.region || "");
+    setCodigoPostal(user.codigoPostal || "");
+    setRut(user.rut || "");
+    setCodigoUsuario(user.codigoUsuario || "");
+    setClave(user.clave || "");
+    setRemuneracion(user.remuneracion || "");
+    setCredito(user.credito || "");
     setModalOpen(true);
   };
 
@@ -155,7 +155,7 @@ const SearchList = () => {
         p: 4,
       }}
     >
-      <Typography>Edit User</Typography>
+      <Typography>Editar Usuario</Typography>
       {editingUser && (
         <Box>
           <Typography>ID: {editingUser.id}</Typography>
@@ -172,7 +172,7 @@ const SearchList = () => {
           {/* Add more input fields for other user properties */}
         </Box>
       )}
-      <Button onClick={closeModal}>Close</Button>
+      <Button onClick={closeModal}>Cerrar</Button>
     </Box>
     </Modal>
   );
@@ -196,10 +196,10 @@ const SearchList = () => {
     if (!apellidos) {
       errors.apellidos = "Favor completar campo ";
     }
-    if (!email) {
-      errors.email = "Favor completar campo ";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)) {
-      errors.email = "Formato de email no es válido";
+    if (!correo) {
+      errors.correo = "Favor completar campo ";
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo)) {
+      errors.correo = "Formato de correo no es válido";
     }
     if (!direccion) {
       errors.direccion = "Favor completar campo ";
@@ -238,7 +238,7 @@ const SearchList = () => {
       const usuario = {
         nombres,
         apellidos,
-        email,
+        correo,
         direccion,
         telefono,
         comuna,
@@ -305,7 +305,7 @@ const SearchList = () => {
                   <span style={{ color: "purple" }}>{user.nombres}</span>
                   <br />
                   <span>{user.apellidos}</span>
-                  <span>{user.email}</span>
+                  <span>{user.correo}</span>
                 </TableCell>
                 <TableCell>{user.rut}</TableCell>
                 <TableCell>
@@ -386,7 +386,7 @@ const SearchList = () => {
                          label="Nombres"
                          error={!!errors.nombres} //!!Vacio o falso
                          helperText={errors.nombres}
-                         value={editingUser.firstName}
+                         value={editingUser.nombres}
                          onChange={(e) =>
                           setEditingUser({
                             ...editingUser,
@@ -439,20 +439,20 @@ const SearchList = () => {
                      </Grid>
                      <Grid item xs={12} sm={6} md={4}>
                        <TextField
-                         error={!!errors.email}
-                         helperText={errors.email}
+                         error={!!errors.correo}
+                         helperText={errors.correo}
                          required
                          fullWidth
-                         id="email"
+                         id="correo"
                          label="Correo Electrónico"
-                         name="email"
-                         value={email}
-                         onChange={(e) => setEmail(e.target.value)}
+                         name="correo"
+                         value={correo}
+                         onChange={(e) => setcorreo(e.target.value)}
                          InputProps={{
                            endAdornment: (
                              <InputAdornment position="end">
-                               {email &&
-                               /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) ? (
+                               {correo &&
+                               /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo) ? (
                                  <Tooltip title="Correct rut format" placement="top">
                                    <CheckCircleIcon style={{ color: "green" }} />
                                  </Tooltip>
@@ -489,6 +489,20 @@ const SearchList = () => {
                          value={direccion}
                          onChange={(e) => setDireccion(e.target.value)}
                        />
+                     </Grid> 
+                     <Grid item xs={12} sm={6} md={4}>
+                       <TextField
+                         error={!!errors.region}
+                         helperText={errors.region}
+                         required
+                         fullWidth
+                         name="region"
+                         label="Región"
+                         type="text"
+                         id="region"
+                         value={region}
+                         onChange={(e) => setRegion(e.target.value)}
+                       />
                      </Grid>
                      <Grid item xs={12} sm={6} md={4}>
                        <TextField
@@ -504,20 +518,7 @@ const SearchList = () => {
                          onChange={(e) => setComuna(e.target.value)}
                        />
                      </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.region}
-                         helperText={errors.region}
-                         required
-                         fullWidth
-                         name="region"
-                         label="Región"
-                         type="text"
-                         id="region"
-                         value={region}
-                         onChange={(e) => setRegion(e.target.value)}
-                       />
-                     </Grid>
+                    
                      <Grid item xs={12} sm={6} md={4}>
                        <TextField
                          required

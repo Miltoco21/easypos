@@ -1,27 +1,26 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
-
-import React, { useState } from "react";
+import { regionsData } from "./data.js";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import { Button } from "@mui/material";
 import axios from "axios";
 import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
+
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import Paper from "@mui/material/Paper";
+import { MenuItem } from "@mui/material";
 
 import Grid from "@mui/material/Grid";
 import { Tooltip } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-import Swal from "sweetalert2";
 
 //
 
@@ -30,31 +29,70 @@ export const defaultTheme = createTheme();
 export default function IngresoUsuarios() {
   const [nombres, setNombre] = useState("");
   const [apellidos, setApellido] = useState("");
-  const [email, setEmail] = useState("");
+  const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [comuna, setComuna] = useState("");
-  const [region, setRegion] = useState("");
+
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
   const [codigoUsuario, setCodigoUsuario] = useState("");
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
-  const [errors, setErrors] = useState({}); //error como objetos
+  const [errors, setErrors] = useState({
+    rut: "",
+    nombres: "",
+    apellidos: "",
+    correo: "",
+    direccion: "",
+    telefono: "",
+    comuna: "",
+    selectedRegion: "",
+    codigoPostal: "",
+    codigoUsuario: "",
+    clave: "",
+    remuneracion: "",
+    credito: "",
+  });
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState("");
+
+  const [modalContent, setModalContent] = useState({});
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedComuna, setSelectedComuna] = useState("");
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [comunaOptions, setComunaOptions] = useState([]);
+
+  const regions = regionsData;
+
+  useEffect(() => {
+    // Extraer regiones 
+    const regions = regionsData.map((region) => region.name);
+    setRegionOptions(regions);
+  }, []);
+
+  useEffect(() => {
+    // Extraer comuna segun  region seleccionada
+    const selectedRegionData = regionsData.find(
+      (region) => region.name === selectedRegion
+    );
+    if (selectedRegionData) {
+      const comunas = selectedRegionData.communes.map((comuna) => comuna.name);
+      setComunaOptions(comunas);
+    } else {
+      setComunaOptions([]);
+    }
+  }, [selectedRegion]);
 
   const closeModal = () => {
     setModalOpen(false);
     setModalContent("");
     setNombre("");
     setApellido("");
-    setEmail("");
+    setCorreo("");
     setTelefono("");
     setDireccion("");
-    setComuna("");
-    setRegion("");
+    setSelectedRegion("");
+    setSelectedComuna("");
     setCodigoPostal("");
     setRut("");
     setCodigoUsuario("");
@@ -79,45 +117,45 @@ export default function IngresoUsuarios() {
     }
 
     if (!nombres) {
-      errors.nombres = "Favor completar campo ";
+      errors.nombres = "Favor completar nombres ";
     }
     if (!apellidos) {
-      errors.apellidos = "Favor completar campo ";
+      errors.apellidos = "Favor completar apeliidos ";
     }
-    if (!email) {
-      errors.email = "Favor completar campo ";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)) {
-      errors.email = "Formato de email no es válido";
+    if (!correo) {
+      errors.correo = "Favor completar email ";
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo)) {
+      errors.correo = "Formato de correo no es válido";
     }
     if (!direccion) {
-      errors.direccion = "Favor completar campo ";
+      errors.direccion = "Favor completar dirección ";
     }
     if (!telefono) {
-      errors.telefono = "Favor completar campo ";
+      errors.telefono = "Favor completar telefono ";
     }
-    if (!comuna) {
-      errors.comuna = "Favor completar campo ";
+    if (!selectedComuna || selectedComuna.length === 0) {
+      errors.comuna = "Favor completar comuna ";
     }
-    if (!region) {
-      errors.region = "Favor completar campo ";
+    if (!selectedRegion) {
+      errors.selectedRegion = "Favor completar región ";
     }
     if (!codigoPostal) {
-      errors.codigoPostal = "Favor completar campo ";
+      errors.codigoPostal = "Favor completar codigo postal ";
     }
     if (!rut) {
-      errors.rut = "Favor completar campo ";
+      errors.rut = "Favor completar rut ";
     }
     if (!codigoUsuario) {
-      errors.codigoUsuario = "Favor completar campo ";
+      errors.codigoUsuario = "Favor completar código  ";
     }
     if (!clave) {
-      errors.clave = "Favor completar campo ";
+      errors.clave = "Favor completar clave ";
     }
     if (!remuneracion) {
-      errors.remuneracion = "Favor completar campo ";
+      errors.remuneracion = "Favor completar remuneración ";
     }
     if (!credito) {
-      errors.credito = "Favor completar campo ";
+      errors.credito = "Favor completar crédito ";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -126,11 +164,11 @@ export default function IngresoUsuarios() {
       const usuario = {
         nombres,
         apellidos,
-        email,
+        correo,
         direccion,
         telefono,
-        comuna,
-        region,
+        region: selectedRegion,
+        comuna: selectedComuna,
         codigoPostal,
         rut,
         codigoUsuario,
@@ -164,7 +202,7 @@ export default function IngresoUsuarios() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: "70vh", width: "800px" }}>
+      <Grid container component="main" sx={{ height: "70vh", width: "1200px" }}>
         <CssBaseline />
 
         <Grid
@@ -185,13 +223,14 @@ export default function IngresoUsuarios() {
               flexDirection: "column",
               alignItems: "center",
             }}
-          > <h2>Crea nuevo usuario</h2>
+          >
+            <h2>Crea nuevo usuario</h2>
             <Box
               component="form"
               noValidate
               onSubmit={handleSubmit}
               sx={{ mt: 1 }}
-            > 
+            >
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
@@ -250,21 +289,21 @@ export default function IngresoUsuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    error={!!errors.email}
-                    helperText={errors.email}
+                    error={!!errors.correo}
+                    helperText={errors.correo}
                     required
                     fullWidth
-                    id="email"
+                    id="correo"
                     label="Correo Electrónico"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="correo"
+                    value={correo}
+                    onChange={(e) => setCorreo(e.target.value)}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          {email &&
-                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) ? (
-                            <Tooltip title="Correct rut format" placement="top">
+                          {correo &&
+                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo) ? (
+                            <Tooltip title="Email Correcto" placement="top">
                               <CheckCircleIcon style={{ color: "green" }} />
                             </Tooltip>
                           ) : null}
@@ -303,32 +342,51 @@ export default function IngresoUsuarios() {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    error={!!errors.comuna}
-                    helperText={errors.comuna}
-                    required
                     fullWidth
-                    name="comuna"
-                    label="Comuna"
-                    type="text"
-                    id="comuna"
-                    value={comuna}
-                    onChange={(e) => setComuna(e.target.value)}
-                  />
+                    required
+                    select
+                    label="Región"
+                    value={selectedRegion}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    error={!!errors.selectedRegion}
+                    helperText={errors.selectedRegion}
+                    
+                  >
+                    
+                    <MenuItem value="">
+                      <em>Selecciona...</em>
+                    </MenuItem>
+                    {regionOptions.map((region) => (
+                      <MenuItem key={region} value={region}>
+                        {region}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
+
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    error={!!errors.region}
-                    helperText={errors.region}
                     required
                     fullWidth
-                    name="region"
-                    label="Región"
-                    type="text"
-                    id="region"
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                  />
+                    select
+                    label="Comuna"
+                    value={selectedComuna}
+                    onChange={(e) => setSelectedComuna(e.target.value)}
+                    error={!!errors.comuna}
+                    helperText={errors.comuna}
+                  >
+                    {" "}
+                    <MenuItem value="">
+                      <em>Selecciona...</em>
+                    </MenuItem>
+                    {comunaOptions.map((comuna) => (
+                      <MenuItem key={comuna} value={comuna}>
+                        {comuna}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
+
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
                     required
@@ -417,7 +475,6 @@ export default function IngresoUsuarios() {
         </Grid>
       </Grid>
       <Dialog open={modalOpen} onClose={closeModal}>
-       
         <DialogContent>
           <DialogContentText>
             {modalContent.positive ? (

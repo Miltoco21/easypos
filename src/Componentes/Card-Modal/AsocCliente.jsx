@@ -60,7 +60,7 @@ const AsocCliente = () => {
               alignItems: "center",
             }}
           >
-            <h4>Asocion de clientes</h4>
+            <h4>Asociación clientes</h4>
             <Box
               component="form"
               noValidate
