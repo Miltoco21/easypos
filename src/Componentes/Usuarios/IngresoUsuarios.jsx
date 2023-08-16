@@ -477,11 +477,11 @@ export default function IngresoUsuarios() {
       <Dialog open={modalOpen} onClose={closeModal}>
         <DialogContent>
           <DialogContentText>
-            {modalContent.positive ? (
+            {/* {modalContent.positive ? (
               <span style={{ color: "green" }}>Guardado con éxito</span>
             ) : (
               <span style={{ color: "red" }}>Error al guardar</span>
-            )}
+            )} */}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

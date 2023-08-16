@@ -12,9 +12,14 @@ import Usuarios from "./Pages/Usuarios";
 import Precios from "./Pages/Precios";
 import Proveedores from "./Pages/Proveedores";
 import SideBar from "./Componentes/NavBar/SideBar"
+import Productos from "./Pages/Productos"
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Categorias from "./Pages/Categoria";
+import SubCategorias from "./Pages/SubCategoria";
+import Familias from "./Pages/Familias";
+import SubFamilias from "./Pages/SubFamilias";
 
 function App() {
   return (
@@ -27,6 +32,11 @@ function App() {
       <Route path="/usuarios" element={<Usuarios />} />
       <Route path="/precios" element={<Precios />} />
       <Route path="/proveedores" element={<Proveedores />} />
+      <Route path="/productos" element={<Productos />} />
+      <Route path="/categorias" element={<Categorias />} />
+      <Route path="/sub-categorias" element={<SubCategorias />} />
+      <Route path="/familias" element={<Familias />} />
+      <Route path="/subfamilias" element={<SubFamilias />} />
 
     </Routes>
   );

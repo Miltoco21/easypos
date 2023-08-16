@@ -63,7 +63,7 @@ export default function Usuarios() {
             maxWidth: "180vw",
           }}
         >
-          <IngresoUsuarios />
+          <IngresoUsuarios /> 
         </Box>
       </Modal>
     </div>

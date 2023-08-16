@@ -24,10 +24,7 @@ import {
   Button,
   Modal,
   InputAdornment,
-  
-
-  Tooltip 
-
+  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -43,7 +40,7 @@ const SearchList = () => {
   const [currentPage, setCurrentPage] = useState(1); // Define the currentPage state here
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalEditOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [errors, setErrors] = useState({});
   const [nombres, setNombres] = useState("");
@@ -59,7 +56,6 @@ const SearchList = () => {
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
- 
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -138,44 +134,6 @@ const SearchList = () => {
   const setOpen = () => {
     setModalOpen(true);
   };
-
-  
-
-  const modalContent = (
-    <Modal open={modalOpen} onClose={handleClose}>
-    <Box
-      sx={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        bgcolor: "background.paper",
-        border: "2px solid #000",
-        boxShadow: 24,
-        p: 4,
-      }}
-    >
-      <Typography>Editar Usuario</Typography>
-      {editingUser && (
-        <Box>
-          <Typography>ID: {editingUser.id}</Typography>
-          <TextField
-            label="Name"
-            value={editingUser.name}
-            onChange={(e) =>
-              setEditingUser((prevUser) => ({
-                ...prevUser,
-                name: e.target.value,
-              }))
-            }
-          />
-          {/* Add more input fields for other user properties */}
-        </Box>
-      )}
-      <Button onClick={closeModal}>Cerrar</Button>
-    </Box>
-    </Modal>
-  );
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -305,6 +263,7 @@ const SearchList = () => {
                   <span style={{ color: "purple" }}>{user.nombres}</span>
                   <br />
                   <span>{user.apellidos}</span>
+                  <br />
                   <span>{user.correo}</span>
                 </TableCell>
                 <TableCell>{user.rut}</TableCell>
@@ -341,287 +300,292 @@ const SearchList = () => {
           {index + 1}
         </Button>
       ))}
-      
-      <Modal open={modalOpen} onClose={handleClose}>
+
+      <Modal open={modalEditOpen} onClose={handleClose}>
         <Box>
           {/* Display and edit the user data here */}
           {editingUser && (
-           <ThemeProvider theme={defaultTheme}>
-           <Grid container component="main" sx={{ height: "70vh", width: "800px" }}>
-             <CssBaseline />
-     
-             <Grid
-               item
-               xs={12}
-               sm={8}
-               md={12}
-               component={Paper}
-               elevation={6}
-               square
-             >
-               <Box
-                 sx={{
-                   my: 8,
-                   mx: 4,
-     
-                   display: "flex",
-                   flexDirection: "column",
-                   alignItems: "center",
-                 }}
-               > <h2>Editar usuario</h2>
-                 <Box
-                   component="form"
-                   noValidate
-                   onSubmit={handleSubmit}
-                   sx={{ mt: 1 }}
-                 > 
-                   <Grid container spacing={2}>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         autoComplete="given-name"
-                         name="nombres"
-                         required
-                         fullWidth
-                         id="nombre"
-                         label="Nombres"
-                         error={!!errors.nombres} //!!Vacio o falso
-                         helperText={errors.nombres}
-                         value={editingUser.nombres}
-                         onChange={(e) =>
-                          setEditingUser({
-                            ...editingUser,
-                            firstName: e.target.value,
-                          })
-                        }
-      
-                         
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         required
-                         fullWidth
-                         id="apellido"
-                         label="Apellidos"
-                         error={!!errors.apellidos} //!!Vacio o falso
-                         helperText={errors.apellidos}
-                         name="apellidos"
-                         value={apellidos}
-                         onChange={(e) => setApellido(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         required
-                         fullWidth
-                         id="rut"
-                         label="Ingrese rut"
-                         name="rut"
-                         value={rut}
-                         onChange={(e) => setRut(e.target.value)}
-                         error={!!errors.rut}
-                         helperText={errors.rut}
-                         InputProps={{
-                           endAdornment: (
-                             <InputAdornment position="end">
-                               {rut &&
-                               /^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(
-                                 rut
-                               ) ? (
-                                 <Tooltip title="Correct rut format" placement="top">
-                                   <CheckCircleIcon style={{ color: "green" }} />
-                                 </Tooltip>
-                               ) : null}
-                             </InputAdornment>
-                           ),
-                         }}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.correo}
-                         helperText={errors.correo}
-                         required
-                         fullWidth
-                         id="correo"
-                         label="Correo Electrónico"
-                         name="correo"
-                         value={correo}
-                         onChange={(e) => setcorreo(e.target.value)}
-                         InputProps={{
-                           endAdornment: (
-                             <InputAdornment position="end">
-                               {correo &&
-                               /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo) ? (
-                                 <Tooltip title="Correct rut format" placement="top">
-                                   <CheckCircleIcon style={{ color: "green" }} />
-                                 </Tooltip>
-                               ) : null}
-                             </InputAdornment>
-                           ),
-                         }}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.telefono}
-                         helperText={errors.telefono}
-                         required
-                         fullWidth
-                         name="telefono"
-                         label="Teléfono"
-                         type="text"
-                         id="telefono"
-                         value={telefono}
-                         onChange={(e) => setTelefono(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.direccion}
-                         helperText={errors.direccion}
-                         required
-                         fullWidth
-                         name="direccion"
-                         label="Dirección"
-                         type="text"
-                         id="direccion"
-                         value={direccion}
-                         onChange={(e) => setDireccion(e.target.value)}
-                       />
-                     </Grid> 
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.region}
-                         helperText={errors.region}
-                         required
-                         fullWidth
-                         name="region"
-                         label="Región"
-                         type="text"
-                         id="region"
-                         value={region}
-                         onChange={(e) => setRegion(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.comuna}
-                         helperText={errors.comuna}
-                         required
-                         fullWidth
-                         name="comuna"
-                         label="Comuna"
-                         type="text"
-                         id="comuna"
-                         value={comuna}
-                         onChange={(e) => setComuna(e.target.value)}
-                       />
-                     </Grid>
-                    
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         required
-                         fullWidth
-                         error={!!errors.codigoPostal}
-                         helperText={errors.codigoPostal}
-                         name="codigoPostal"
-                         label="Código Postal"
-                         type="text"
-                         id="codigoPostal"
-                         value={codigoPostal}
-                         onChange={(e) => setCodigoPostal(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={2}>
-                       <TextField
-                         required
-                         fullWidth
-                         error={!!errors.codigoUsuario}
-                         helperText={errors.codigoUsuario}
-                         name="codigousuario"
-                         label="Código Usuario"
-                         type="text"
-                         id="codigousuario"
-                         value={codigoUsuario}
-                         onChange={(e) => setCodigoUsuario(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={2}>
-                       <TextField
-                         error={!!errors.clave}
-                         helperText={errors.clave}
-                         required
-                         fullWidth
-                         name="clave"
-                         label="Clave Usuario"
-                         type="text"
-                         id="clave"
-                         value={clave}
-                         onChange={(e) => setClave(e.target.value)}
-                       />
-                     </Grid>
-     
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.remuneracion}
-                         helperText={errors.remuneracion}
-                         required
-                         fullWidth
-                         name="remuneracion"
-                         label="Remuneración"
-                         type="text"
-                         id="remuneracion"
-                         value={remuneracion}
-                         onChange={(e) => setRemuneracion(e.target.value)}
-                       />
-                     </Grid>
-                     <Grid item xs={12} sm={6} md={4}>
-                       <TextField
-                         error={!!errors.credito}
-                         helperText={errors.credito}
-                         required
-                         fullWidth
-                         name="credito"
-                         label="Crédito"
-                         type="text"
-                         id="credito"
-                         value={credito}
-                         onChange={(e) => setCredito(e.target.value)}
-                       />
-                     </Grid>
-                   </Grid>
-     
-                   <Button
-                     type="submit"
-                     size="md"
-                     variant="contained"
-                     sx={{ mt: 3, mb: 2 }}
-                   >
-                     guardar usuario
-                   </Button>
-     
-                   <Grid container></Grid>
-                 </Box>
-               </Box>
-             </Grid>
-           </Grid>
-           <Dialog open={modalOpen} onClose={closeModal}>
-            
-             <DialogContent>
-               <DialogContentText>
-                 {modalContent.positive ? (
-                   <span style={{ color: "green" }}>Guardado con éxito</span>
-                 ) : (
-                   <span style={{ color: "red" }}>Error al guardar</span>
-                 )}
-               </DialogContentText>
-             </DialogContent>
-             <DialogActions>
-               <Button onClick={closeModal}>Cerrar</Button>
-             </DialogActions>
-           </Dialog>
-         </ThemeProvider>
+            <ThemeProvider theme={defaultTheme}>
+              <Grid
+                container
+                component="main"
+                sx={{
+                  height: "70vh",
+                  width: "900px",
+                  
+                }}
+              >
+                <CssBaseline />
+
+                <Grid
+                  item
+                  xs={12}
+                  sm={8}
+                  md={12}
+                  component={Paper}
+                  elevation={6}
+                  square
+                >
+                  <Box
+                    sx={{
+                      my: 8,
+                      mx: 4,
+
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    {" "}
+                    <h2>Editar usuario</h2>
+                    <Box
+                      component="form"
+                      noValidate
+                      onSubmit={handleSubmit}
+                      sx={{ mt: 1 }}
+                    >
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            autoComplete="given-name"
+                            name="nombres"
+                            required
+                            fullWidth
+                            id="nombre"
+                            label="Nombres"
+                            error={!!errors.nombres} //!!Vacio o falso
+                            helperText={errors.nombres}
+                            value={editingUser.nombres}
+                            onChange={(e) =>
+                              setEditingUser({
+                                ...editingUser,
+                                nombres: e.target.value,
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            required
+                            fullWidth
+                            id="apellido"
+                            label="Apellidos"
+                            error={!!errors.apellidos} //!!Vacio o falso
+                            helperText={errors.apellidos}
+                            name="apellidos"
+                            value={apellidos}
+                            onChange={(e) => setApellido(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            required
+                            fullWidth
+                            id="rut"
+                            label="Ingrese rut"
+                            name="rut"
+                            value={rut}
+                            onChange={(e) => setRut(e.target.value)}
+                            error={!!errors.rut}
+                            helperText={errors.rut}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  {rut &&
+                                  /^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(
+                                    rut
+                                  ) ? (
+                                    <Tooltip
+                                      title="Correct rut format"
+                                      placement="top"
+                                    >
+                                      <CheckCircleIcon
+                                        style={{ color: "green" }}
+                                      />
+                                    </Tooltip>
+                                  ) : null}
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.correo}
+                            helperText={errors.correo}
+                            required
+                            fullWidth
+                            id="correo"
+                            label="Correo Electrónico"
+                            name="correo"
+                            value={correo}
+                            onChange={(e) => setcorreo(e.target.value)}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  {correo &&
+                                  /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(
+                                    correo
+                                  ) ? (
+                                    <Tooltip
+                                      title="Correct rut format"
+                                      placement="top"
+                                    >
+                                      <CheckCircleIcon
+                                        style={{ color: "green" }}
+                                      />
+                                    </Tooltip>
+                                  ) : null}
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.telefono}
+                            helperText={errors.telefono}
+                            required
+                            fullWidth
+                            name="telefono"
+                            label="Teléfono"
+                            type="text"
+                            id="telefono"
+                            value={telefono}
+                            onChange={(e) => setTelefono(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.direccion}
+                            helperText={errors.direccion}
+                            required
+                            fullWidth
+                            name="direccion"
+                            label="Dirección"
+                            type="text"
+                            id="direccion"
+                            value={direccion}
+                            onChange={(e) => setDireccion(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.region}
+                            helperText={errors.region}
+                            required
+                            fullWidth
+                            name="region"
+                            label="Región"
+                            type="text"
+                            id="region"
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.comuna}
+                            helperText={errors.comuna}
+                            required
+                            fullWidth
+                            name="comuna"
+                            label="Comuna"
+                            type="text"
+                            id="comuna"
+                            value={comuna}
+                            onChange={(e) => setComuna(e.target.value)}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            required
+                            fullWidth
+                            error={!!errors.codigoPostal}
+                            helperText={errors.codigoPostal}
+                            name="codigoPostal"
+                            label="Código Postal"
+                            type="text"
+                            id="codigoPostal"
+                            value={codigoPostal}
+                            onChange={(e) => setCodigoPostal(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={2}>
+                          <TextField
+                            required
+                            fullWidth
+                            error={!!errors.codigoUsuario}
+                            helperText={errors.codigoUsuario}
+                            name="codigousuario"
+                            label="Código Usuario"
+                            type="text"
+                            id="codigousuario"
+                            value={codigoUsuario}
+                            onChange={(e) => setCodigoUsuario(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={2}>
+                          <TextField
+                            error={!!errors.clave}
+                            helperText={errors.clave}
+                            required
+                            fullWidth
+                            name="clave"
+                            label="Clave Usuario"
+                            type="text"
+                            id="clave"
+                            value={clave}
+                            onChange={(e) => setClave(e.target.value)}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.remuneracion}
+                            helperText={errors.remuneracion}
+                            required
+                            fullWidth
+                            name="remuneracion"
+                            label="Remuneración"
+                            type="text"
+                            id="remuneracion"
+                            value={remuneracion}
+                            onChange={(e) => setRemuneracion(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                          <TextField
+                            error={!!errors.credito}
+                            helperText={errors.credito}
+                            required
+                            fullWidth
+                            name="credito"
+                            label="Crédito"
+                            type="text"
+                            id="credito"
+                            value={credito}
+                            onChange={(e) => setCredito(e.target.value)}
+                          />
+                        </Grid>
+                      </Grid>
+
+                      <Button
+                        type="submit"
+                        size="md"
+                        variant="contained"
+                        sx={{ mt: 3, mb: 2 }}
+                      >
+                        guardar usuario
+                      </Button>
+
+                      <Grid container></Grid>
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            </ThemeProvider>
           )}
         </Box>
       </Modal>
