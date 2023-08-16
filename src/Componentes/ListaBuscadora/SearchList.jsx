@@ -337,7 +337,7 @@ const SearchList = () => {
                     }}
                   >
                     {" "}
-                    <h2>Editar usuario</h2>
+                    <h2>Editar usuarios</h2>
                     <Box
                       component="form"
                       noValidate
