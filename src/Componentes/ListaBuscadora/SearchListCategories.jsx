@@ -14,12 +14,13 @@ const SearchListCategories = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get("https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias");
-        setCategories(response.data); // Update this line to use the response data directly
+        console.log("API Response:", response.data.categorias); // Now logs only the categories
+        setCategories(response.data.categorias); // Sets only the categories
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
-
+  
     fetchCategories();
   }, []);
 
@@ -27,7 +28,7 @@ const SearchListCategories = () => {
     if (Array.isArray(categories)) {
       setFilteredCategories(
         categories.filter((category) =>
-          category.descripcion && category.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+          category.descripcion && category.descripcion.trim().toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
@@ -56,7 +57,7 @@ const SearchListCategories = () => {
             filteredCategories.map((category) => (
               <TableRow key={category.idCategoria}>
                 <TableCell>{category.idCategoria}</TableCell>
-                <TableCell>{category.descripcion}</TableCell>
+                <TableCell>{category.descripcion.trim()}</TableCell>
               </TableRow>
             ))
           )}
