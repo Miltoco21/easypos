@@ -34,7 +34,7 @@ function App() {
       <Route path="/proveedores" element={<Proveedores />} />
       <Route path="/productos" element={<Productos />} />
       <Route path="/categorias" element={<Categorias />} />
-      <Route path="/sub-categorias" element={<SubCategorias />} />
+      <Route path="/subcategorias" element={<SubCategorias />} />
       <Route path="/familias" element={<Familias />} />
       <Route path="/subfamilias" element={<SubFamilias />} />
 
