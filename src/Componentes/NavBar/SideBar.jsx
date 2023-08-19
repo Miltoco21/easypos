@@ -17,6 +17,8 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import PolylineIcon from '@mui/icons-material/Polyline';
+import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
+import SchemaOutlinedIcon from '@mui/icons-material/SchemaOutlined';
 
 
 const drawerWidth = 200;
@@ -33,8 +35,8 @@ const menuItems = [
     subMenuItems: [
       { text: "Categorias", link: "/categorias",icon: <CategoryIcon />},
       { text: "Sub-Categorias", link: "/subcategorias",icon: <PolylineIcon /> },
-      { text: "Familia", link: "/familias" },
-      { text: "Sub-Familia", link: "/subfamilias" },
+      { text: "Familia", link: "/familias",icon:<StackedBarChartIcon/> },
+      { text: "Sub-Familia", link: "/subfamilias",icon:<SchemaOutlinedIcon/> },
       // Add more sub-menu items as needed
     ],
   },

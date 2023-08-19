@@ -39,14 +39,14 @@ const Proveedores = () => {
 
   return (
     <div style={{ display: "flex" }}>
-      {/* SideBar */}
+      
       <SideBar />
 
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        {/* Proveedores Button */}
+       
         <Button
           variant="outlined"
-          color="neutral"
+          color="primary"
           sx={{
             my: 1,
             mx: 2,
@@ -60,7 +60,7 @@ const Proveedores = () => {
         {/* CLIENTES Button */}
         <Button
           variant="outlined"
-          color="neutral"
+          color="primary"
           sx={{
             my: 1,
             mx: 2,
@@ -71,7 +71,7 @@ const Proveedores = () => {
           CLIENTES
         </Button>
 
-        <Familias />
+        
         <Box />
 
         {/* Modal for IngresoPV */}
