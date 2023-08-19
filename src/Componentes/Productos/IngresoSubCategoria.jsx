@@ -115,7 +115,7 @@ const IngresoSubCategorias = () => {
                     fullWidth
                     value={selectedCategoryId}
                     onChange={(e) => setSelectedCategoryId(e.target.value)}
-                    label="Select Category"
+                    label="Selecciona Categoría"
                   >
                     {categories.map((category) => (
                       <MenuItem

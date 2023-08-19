@@ -16,6 +16,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CategoryIcon from "@mui/icons-material/Category";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import PolylineIcon from '@mui/icons-material/Polyline';
 
 
 const drawerWidth = 200;
@@ -31,7 +32,7 @@ const menuItems = [
     icon: <CategoryIcon />,
     subMenuItems: [
       { text: "Categorias", link: "/categorias",icon: <CategoryIcon />},
-      { text: "Sub-Categorias", link: "/subcategorias" },
+      { text: "Sub-Categorias", link: "/subcategorias",icon: <PolylineIcon /> },
       { text: "Familia", link: "/familias" },
       { text: "Sub-Familia", link: "/subfamilias" },
       // Add more sub-menu items as needed

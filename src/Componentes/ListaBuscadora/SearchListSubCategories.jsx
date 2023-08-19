@@ -68,7 +68,7 @@ const SearchListSubCategories = () => {
       <Box sx={{ mt: 2 }}>
         <TextField
           select
-          label="Select Category"
+          label="Selecciona Categoría"
           value={selectedCategoryId}
           onChange={handleCategoryChange}
           fullWidth
@@ -83,14 +83,14 @@ const SearchListSubCategories = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>ID Sub-Category</TableCell>
-            <TableCell>Description</TableCell>
+            <TableCell>ID Sub-Categoría</TableCell>
+            <TableCell>Descripción</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {filteredSubCategories.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={2}>No subcategories found</TableCell>
+              <TableCell colSpan={2}>No hay subcategorias para mostrar</TableCell>
             </TableRow>
           ) : (
             filteredSubCategories.map((subcategory) => (
