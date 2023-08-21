@@ -59,9 +59,7 @@ const IngresoSubFamilias = () => {
           const response = await axios.get(
             `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
-          console.log(
-            "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}"
-          );
+          
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
         } catch (error) {

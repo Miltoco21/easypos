@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -6,10 +7,11 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import { createTheme, CssBaseline, Paper, TextField, ThemeProvider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
-const IngresoCategorias = () => {
+const IngresoCategorias = ({ onSubmitSuccess }) => {
   const [descripcionCategoria, setDescripcionCategoria] = useState('');
   const [errors, setErrors] = useState({});
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const theme = createTheme();
 
@@ -17,6 +19,7 @@ const IngresoCategorias = () => {
     setIsSuccessDialogOpen(false);
     setDescripcionCategoria(''); 
     setErrors({}); 
+    setIsModalOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -39,6 +42,7 @@ const IngresoCategorias = () => {
       setIsSuccessDialogOpen(true);
 
       setDescripcionCategoria('');
+      onSubmitSuccess();
     } catch (error) {
       console.log(error.response.data, 'Error Debug');
       // Handle error and display a message

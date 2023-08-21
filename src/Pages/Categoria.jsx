@@ -56,7 +56,8 @@ const Categorias = () => {
               maxWidth: "90vw", // Adjust as needed
             }}
           >
-          <IngresoCategorias/>
+          <IngresoCategorias onSubmitSuccess={handleCloseModal}/>
+          
           </Box>
         </Modal>
 
