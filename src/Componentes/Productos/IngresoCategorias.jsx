@@ -15,6 +15,8 @@ const IngresoCategorias = () => {
 
   const handleSuccessDialogClose = () => {
     setIsSuccessDialogOpen(false);
+    setDescripcionCategoria(''); 
+    setErrors({}); 
   };
 
   const handleSubmit = async (e) => {
@@ -28,7 +30,7 @@ const IngresoCategorias = () => {
     try {
       const response = await axios.post(
         'https://www.easyposdev.somee.com/api/NivelMercadoLogicos/AddCategoria',
-        { descripcionCategoria }
+        { descripcionCategoria:descripcionCategoria }
       );
 
       console.log(response.data, 'Response Debug');
