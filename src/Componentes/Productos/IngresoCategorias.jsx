@@ -5,6 +5,7 @@ import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
+
 import { createTheme, CssBaseline, Paper, TextField, ThemeProvider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 const IngresoCategorias = ({ onSubmitSuccess }) => {
@@ -51,7 +52,7 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Grid container component="main" sx={{ height: '100vh', width: '90vw' }}>
+      <Grid container component="main" sx={{ height: '60vh', width: '60vw' }}>
         <CssBaseline />
 
         <Grid item xs={12} sm={8} md={12} component={Paper} elevation={24} square>
