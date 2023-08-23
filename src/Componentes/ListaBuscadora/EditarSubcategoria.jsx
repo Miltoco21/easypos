@@ -14,7 +14,12 @@ import {
   DialogActions,
 } from "@mui/material";
 
-const EditarSubCategoria = ({ subcategory, open, handleClose }) => {
+const EditarSubCategoria = ({
+  subcategory,
+  open,
+  handleClose,
+  fetchSubcategories,
+}) => {
   const [editSubCategory, setEditSubCategory] = useState({
     idSubCategoria: "",
     descripcionSubCategoria: "",
@@ -29,14 +34,20 @@ const EditarSubCategoria = ({ subcategory, open, handleClose }) => {
         idSubCategoria: subcategory.idCategoria || 0,
         descripcionSubCategoria: subcategory.descripcion || "",
       });
+    }
+  }, [subcategory]);
+
+  useEffect(() => {
+    if (refresh) {
       setRefresh(false);
     }
-  }, [subcategory,refresh]);
+  }, [refresh]);
 
   const handleInputChange = (event) => {
+    const { name, value } = event.target;
     setEditSubCategory((prevEditSubCategory) => ({
       ...prevEditSubCategory,
-      [event.target.name]: event.target.value,
+      [name]: value,
     }));
   };
 
@@ -53,9 +64,10 @@ const EditarSubCategoria = ({ subcategory, open, handleClose }) => {
       );
 
       console.log("SubCategoria updated successfully:", response.data);
+
+      setSuccessDialogOpen(true);
+      fetchSubcategories(); // Update subcategories list
       handleClose();
-      setSuccessDialogOpen(true)
-      setRefresh(true); // Open success dialog
     } catch (error) {
       console.error("Error updating category:", error.response);
     }
@@ -63,6 +75,7 @@ const EditarSubCategoria = ({ subcategory, open, handleClose }) => {
 
   const closeSuccessDialog = () => {
     setSuccessDialogOpen(false);
+    handleClose();
   };
 
   return (
@@ -100,7 +113,7 @@ const EditarSubCategoria = ({ subcategory, open, handleClose }) => {
               onChange={handleInputChange}
               sx={{ my: 2 }}
             />
-            
+
             <Button variant="contained" color="primary" type="submit">
               Guardar
             </Button>
