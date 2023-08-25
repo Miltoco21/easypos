@@ -1,0 +1,128 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Modal,
+  TextField,
+  Button,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+
+const EditarSubFamilia = ({
+  subfamily,
+  open,
+  handleClose,
+  fetchSubfamilies,
+}) => {
+  const [editSubFamily, setEditSubFamily] = useState({
+    idSubFamilia: "",
+    descripcion: "",
+  });
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (subfamily) {
+      setEditSubFamily({
+        idSubFamilia: subfamily.idSubFamilia || 0,
+        descripcion: subfamily.descripcion || "",
+      });
+    }
+  }, [subfamily]);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setEditSubFamily((prevEditSubFamily) => ({
+      ...prevEditSubFamily,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.put(
+        `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateSubFamilia`,
+        {
+          idSubFamilia: editSubFamily.idSubFamilia,
+          descripcion: editSubFamily.descripcion,
+        }
+      );
+
+      console.log("SubFamilia updated successfully:", response.data);
+
+      setSuccessDialogOpen(true);
+      fetchSubfamilies(); // Update subfamilies list
+      handleClose();
+    } catch (error) {
+      console.error("Error updating subfamily:", error.response);
+    }
+  };
+
+  const closeSuccessDialog = () => {
+    setSuccessDialogOpen(false);
+    handleClose();
+  };
+
+  return (
+    <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2 id="modal-modal-title">Editar Subfamilia</h2>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="ID SubFamilia"
+              name="idSubFamilia"
+              value={editSubFamily.idSubFamilia}
+              InputProps={{ readOnly: true }}
+            />
+            <TextField
+              label="Descripcion"
+              name="descripcion"
+              value={editSubFamily.descripcion}
+              fullWidth
+              onChange={handleInputChange}
+              sx={{ my: 2 }}
+            />
+
+            <Button variant="contained" color="primary" type="submit">
+              Guardar
+            </Button>
+          </form>
+        </Box>
+      </Modal>
+      <Dialog open={successDialogOpen} onClose={closeSuccessDialog}>
+        <DialogTitle>Edición Exitosa!</DialogTitle>
+        <DialogContent>Subfamilia editada correctamente.</DialogContent>
+        <DialogActions>
+          <Button onClick={closeSuccessDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
+
+export default EditarSubFamilia;
