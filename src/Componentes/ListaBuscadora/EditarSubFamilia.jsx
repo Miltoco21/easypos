@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
 } from "@mui/material";
 
@@ -25,6 +26,8 @@ const EditarSubFamilia = ({
     descripcion: "",
   });
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (subfamily) {
@@ -51,7 +54,7 @@ const EditarSubFamilia = ({
         `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateSubFamilia`,
         {
           idSubFamilia: editSubFamily.idSubFamilia,
-          descripcion: editSubFamily.descripcion,
+          descripcionSubFamilia: editSubFamily.descripcion,
         }
       );
 
@@ -117,6 +120,19 @@ const EditarSubFamilia = ({
         <DialogContent>Subfamilia editada correctamente.</DialogContent>
         <DialogActions>
           <Button onClick={closeSuccessDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openErrorDialog} onClose={() => setOpenErrorDialog(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{errorMessage}</DialogContentText>
+          <DialogContentText>Ingrese una nueva y repita el proceso</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenErrorDialog(false)} color="primary">
             Cerrar
           </Button>
         </DialogActions>

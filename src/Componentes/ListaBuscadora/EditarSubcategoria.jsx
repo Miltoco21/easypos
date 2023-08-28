@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
 } from "@mui/material";
 
@@ -25,6 +26,8 @@ const EditarSubCategoria = ({
     descripcionSubCategoria: "",
   });
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
@@ -70,6 +73,8 @@ const EditarSubCategoria = ({
       handleClose();
     } catch (error) {
       console.error("Error updating category:", error.response);
+      setErrorMessage(error.response.data.descripcion);
+      setOpenErrorDialog(true);
     }
   };
 
@@ -125,6 +130,18 @@ const EditarSubCategoria = ({
         <DialogContent>Sub-Categoria editada correctamente.</DialogContent>
         <DialogActions>
           <Button onClick={closeSuccessDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openErrorDialog} onClose={() => setOpenErrorDialog(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{errorMessage}</DialogContentText>
+          <DialogContentText>Ingrese una nueva y repita el proceso</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenErrorDialog(false)} color="primary">
             Cerrar
           </Button>
         </DialogActions>

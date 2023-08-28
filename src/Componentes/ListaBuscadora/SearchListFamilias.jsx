@@ -26,7 +26,7 @@ import EditarFamilia from "./EditarFamilia";
 
 const ITEMS_PER_PAGE = 10;
 
-const SearchListFamilias = (fetchFamilies) => {
+const SearchListFamilias = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [families, setFamilies] = useState([]);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
@@ -41,6 +41,7 @@ const SearchListFamilias = (fetchFamilies) => {
   const [totalPages, setTotalPages] = useState(0);
   const [pageCategories, setPageCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isEditSuccessful, setIsEditSuccessful] = useState(false);
 
   const setPageCount = (categoriesCount) => {
     setTotalPages(Math.ceil(categoriesCount / ITEMS_PER_PAGE));
@@ -69,7 +70,7 @@ const SearchListFamilias = (fetchFamilies) => {
         const response = await axios.get(
           "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
         );
-        console.log("API response:", response.data.categorias); // Add this line
+        console.log("API response:", response.data.categorias);
         setCategories(response.data.categorias);
       } catch (error) {
         console.log(error);
@@ -100,27 +101,34 @@ const SearchListFamilias = (fetchFamilies) => {
     fetchSubCategories();
   }, [selectedCategoryId]);
 
-  useEffect(() => {
-    const fetchFamilies = async () => {
-      if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
-        try {
-          const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
-          );
-          console.log("API Response:", response.data.familias); // Add this line to check the response
-          setFamilies(response.data.familias);
-        } catch (error) {
-          console.error("Error fetching families:", error);
-        }
+  const fetchFamilies = async () => {
+    if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
+      try {
+        const response = await axios.get(
+          `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
+        );
+        console.log("API Response:", response.data.familias);
+        setFamilies(response.data.familias);
+      } catch (error) {
+        console.error("Error fetching families:", error);
       }
-    };
-  
+    }
+  };
+
+  useEffect(() => {
     fetchFamilies();
   }, [selectedSubCategoryId, selectedCategoryId]);
+
+  useEffect(() => {
+    if (isEditSuccessful) {
+      setOpenEditModal(false); // Close the modal on successful edit
+    }
+  }, [isEditSuccessful]);
 
   const handleEdit = (family) => {
     setEditFamilyData(family);
     setOpenEditModal(true);
+    setIsEditSuccessful(false);
   };
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
@@ -188,7 +196,7 @@ const SearchListFamilias = (fetchFamilies) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {families.length === 0 ? (
+          {families && families.length === 0 ? (
             <TableRow>
               <TableCell colSpan={2}>No hay familias para mostrar</TableCell>
             </TableRow>
@@ -201,9 +209,7 @@ const SearchListFamilias = (fetchFamilies) => {
                   <IconButton onClick={() => handleEdit(family)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton
-                    onClick={() => handleDelete(family.idFamilia)}
-                  >
+                  <IconButton onClick={() => handleDelete(family.idFamilia)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>

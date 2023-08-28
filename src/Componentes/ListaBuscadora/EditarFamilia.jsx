@@ -11,6 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
 } from "@mui/material";
 
@@ -20,6 +21,8 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
     descripcion: "", // Use the same property name as in the family object
   });
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (family) {
@@ -50,13 +53,24 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
         }
       );
 
-      console.log("Familia updated successfully:", response.data);
-
-      setSuccessDialogOpen(true);
-      fetchFamilies(); // Update families list
-      handleClose();
+      if (response.status === 200) {
+        console.log("Familia updated successfully:", response.data);
+        fetchFamilies(); // Update families list
+        handleClose();
+        setSuccessDialogOpen(true);
+      }
     } catch (error) {
-      console.error("Error updating category:", error.response);
+      if (error.response && error.response.status === 400) {
+        console.error(
+          "Error updating category:",
+          error.response.data.descripcion
+        );
+        // Open the error dialog with the error message from the server
+        setErrorMessage(error.response.data.descripcion);
+        setOpenErrorDialog(true);
+      } else {
+        console.error("Error updating category:", error);
+      }
     }
   };
 
@@ -86,12 +100,12 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
         >
           <h2 id="modal-modal-title">Editar Familia</h2>
           <form onSubmit={handleSubmit}>
-            <TextField
+            {/* <TextField
               label="ID Familia"
               name="idFamilia"
               value={editFamily.idFamilia}
               InputProps={{ readOnly: true }}
-            />
+            /> */}
             <TextField
               label="Descripcion"
               name="descripcion"
@@ -112,6 +126,19 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
         <DialogContent>Familia editada correctamente.</DialogContent>
         <DialogActions>
           <Button onClick={closeSuccessDialog} color="primary">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      
+      <Dialog open={openErrorDialog} onClose={() => setOpenErrorDialog(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{errorMessage}</DialogContentText>
+          <DialogContentText>Ingrese uno nuevo y repita el proceso</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenErrorDialog(false)} color="primary">
             Cerrar
           </Button>
         </DialogActions>
