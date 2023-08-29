@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Stepper,
   Step,
@@ -12,15 +12,19 @@ import {
   DialogActions,
   Typography,
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 
-const steps = ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4', 'Paso 5', 'Paso 6'];
+const steps = ["Paso 1", "Paso 2", "Paso 3", "Paso 4", "Paso 5", "Paso 6"];
 
 function MultiStepForm() {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState(Array.from({ length: steps.length }, () => ({})));
+  const [formData, setFormData] = useState(
+    Array.from({ length: steps.length }, () => ({}))
+  );
   const [open, setOpen] = useState(false);
-  const [inputErrors, setInputErrors] = useState(Array.from({ length: steps.length }, () => ({})));
+  const [inputErrors, setInputErrors] = useState(
+    Array.from({ length: steps.length }, () => ({}))
+  );
 
   const handleNext = () => {
     const currentStep = activeStep;
@@ -59,12 +63,16 @@ function MultiStepForm() {
 
   const handleSubmit = () => {
     // Validation before submission
-    if (formData.every((stepData) => stepData.input1 && stepData.input2 && stepData.input3)) {
+    if (
+      formData.every(
+        (stepData) => stepData.input1 && stepData.input2 && stepData.input3
+      )
+    ) {
       // Call API endpoint to save formData
       console.log(formData);
       handleClose();
     } else {
-      alert('Please fill in all inputs before submitting.');
+      alert("Please fill in all inputs before submitting.");
     }
   };
 
@@ -81,10 +89,11 @@ function MultiStepForm() {
 
   return (
     <Container maxWidth="md">
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+      <Button variant="contained" color="primary" sx={{marginTop:'13px'}}onClick={handleOpen}>
         Agregar Producto
       </Button>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <h3 style={{ textAlign: "center" ,marginTop:'5px'}}>Agregar Producto</h3>
         <DialogContent>
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label, index) => (
@@ -96,11 +105,15 @@ function MultiStepForm() {
           <div>
             {activeStep === steps.length ? (
               <div>
-                <p>All steps completed - you can now submit.</p>
+                <p>Todo completado y listo para guardar.</p>
                 <DialogActions>
-                  <Button onClick={handleClose}>Cancel</Button>
-                  <Button variant="contained" color="primary" onClick={handleSubmit}>
-                    Submit
+                  <Button onClick={handleClose}>Cancelar</Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                  >
+                    Guardar
                   </Button>
                 </DialogActions>
               </div>
@@ -108,43 +121,61 @@ function MultiStepForm() {
               <div>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={4}>
-                    Agregar Producto
                     <TextField
                       label="Input 1"
-                      value={formData[activeStep]?.input1 || ''}
-                      onChange={(e) => handleInputChange(activeStep, 'input1', e.target.value)}
+                      value={formData[activeStep]?.input1 || ""}
+                      onChange={(e) =>
+                        handleInputChange(activeStep, "input1", e.target.value)
+                      }
                       error={inputErrors[activeStep]?.input1}
-                      helperText={inputErrors[activeStep]?.input1 && 'Please fill in this field'}
+                      helperText={
+                        inputErrors[activeStep]?.input1 &&
+                        "Please fill in this field"
+                      }
                       fullWidth
                     />
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <TextField
                       label="Input 2"
-                      value={formData[activeStep]?.input2 || ''}
-                      onChange={(e) => handleInputChange(activeStep, 'input2', e.target.value)}
+                      value={formData[activeStep]?.input2 || ""}
+                      onChange={(e) =>
+                        handleInputChange(activeStep, "input2", e.target.value)
+                      }
                       error={inputErrors[activeStep]?.input2}
-                      helperText={inputErrors[activeStep]?.input2 && 'Please fill in this field'}
+                      helperText={
+                        inputErrors[activeStep]?.input2 &&
+                        "Please fill in this field"
+                      }
                       fullWidth
                     />
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <TextField
                       label="Input 3"
-                      value={formData[activeStep]?.input3 || ''}
-                      onChange={(e) => handleInputChange(activeStep, 'input3', e.target.value)}
+                      value={formData[activeStep]?.input3 || ""}
+                      onChange={(e) =>
+                        handleInputChange(activeStep, "input3", e.target.value)
+                      }
                       error={inputErrors[activeStep]?.input3}
-                      helperText={inputErrors[activeStep]?.input3 && 'Please fill in this field'}
+                      helperText={
+                        inputErrors[activeStep]?.input3 &&
+                        "Please fill in this field"
+                      }
                       fullWidth
                     />
                   </Grid>
                 </Grid>
                 <DialogActions>
                   <Button disabled={activeStep === 0} onClick={handleBack}>
-                    Back
+                    Volver
                   </Button>
-                  <Button variant="contained" color="primary" onClick={handleNext}>
-                    {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNext}
+                  >
+                    {activeStep === steps.length - 1 ? "Finalizar" : "Siguiente"}
                   </Button>
                 </DialogActions>
               </div>

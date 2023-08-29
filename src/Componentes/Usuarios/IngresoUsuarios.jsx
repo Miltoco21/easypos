@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Button } from "@mui/material";
+import { Button,Typography } from "@mui/material";
 import axios from "axios";
 import Dialog from "@mui/material/Dialog";
 
@@ -202,14 +202,14 @@ export default function IngresoUsuarios() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: "70vh", width: "1200px" }}>
+      <Grid container component="main" sx={{ height: "70vh", width: "100%" }}>
         <CssBaseline />
-
         <Grid
           item
           xs={12}
           sm={8}
           md={12}
+          lg={12}
           component={Paper}
           elevation={6}
           square
@@ -218,276 +218,361 @@ export default function IngresoUsuarios() {
             sx={{
               my: 8,
               mx: 4,
-
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
             }}
           >
-            <h2>Crea nuevo usuario</h2>
+            Ingreso Usuarios
             <Box
               component="form"
               noValidate
               onSubmit={handleSubmit}
               sx={{ mt: 1 }}
             >
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    autoComplete="given-name"
-                    name="nombres"
-                    required
-                    fullWidth
-                    id="nombre"
-                    label="Nombres"
-                    error={!!errors.nombres} //!!Vacio o falso
-                    helperText={errors.nombres}
-                    value={nombres}
-                    onChange={(e) => setNombre(e.target.value)}
-                    autoFocus
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="apellido"
-                    label="Apellidos"
-                    error={!!errors.apellidos} //!!Vacio o falso
-                    helperText={errors.apellidos}
-                    name="apellidos"
-                    value={apellidos}
-                    onChange={(e) => setApellido(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="rut"
-                    label="Ingrese rut"
-                    name="rut"
-                    value={rut}
-                    onChange={(e) => setRut(e.target.value)}
-                    error={!!errors.rut}
-                    helperText={errors.rut}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {rut &&
-                          /^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(
-                            rut
-                          ) ? (
-                            <Tooltip title="Correct rut format" placement="top">
-                              <CheckCircleIcon style={{ color: "green" }} />
-                            </Tooltip>
-                          ) : null}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.correo}
-                    helperText={errors.correo}
-                    required
-                    fullWidth
-                    id="correo"
-                    label="Correo Electrónico"
-                    name="correo"
-                    value={correo}
-                    onChange={(e) => setCorreo(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {correo &&
-                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo) ? (
-                            <Tooltip title="Email Correcto" placement="top">
-                              <CheckCircleIcon style={{ color: "green" }} />
-                            </Tooltip>
-                          ) : null}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.telefono}
-                    helperText={errors.telefono}
-                    required
-                    fullWidth
-                    name="telefono"
-                    label="Teléfono"
-                    type="text"
-                    id="telefono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.direccion}
-                    helperText={errors.direccion}
-                    required
-                    fullWidth
-                    name="direccion"
-                    label="Dirección"
-                    type="text"
-                    id="direccion"
-                    value={direccion}
-                    onChange={(e) => setDireccion(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    fullWidth
-                    required
-                    select
-                    label="Región"
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
-                    error={!!errors.selectedRegion}
-                    helperText={errors.selectedRegion}
-                    
-                  >
-                    
-                    <MenuItem value="">
-                      <em>Selecciona...</em>
-                    </MenuItem>
-                    {regionOptions.map((region) => (
-                      <MenuItem key={region} value={region}>
-                        {region}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    select
-                    label="Comuna"
-                    value={selectedComuna}
-                    onChange={(e) => setSelectedComuna(e.target.value)}
-                    error={!!errors.comuna}
-                    helperText={errors.comuna}
-                  >
-                    {" "}
-                    <MenuItem value="">
-                      <em>Selecciona...</em>
-                    </MenuItem>
-                    {comunaOptions.map((comuna) => (
-                      <MenuItem key={comuna} value={comuna}>
-                        {comuna}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.codigoPostal}
-                    helperText={errors.codigoPostal}
-                    name="codigoPostal"
-                    label="Código Postal"
-                    type="text"
-                    id="codigoPostal"
-                    value={codigoPostal}
-                    onChange={(e) => setCodigoPostal(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={2}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.codigoUsuario}
-                    helperText={errors.codigoUsuario}
-                    name="codigousuario"
-                    label="Código Usuario"
-                    type="text"
-                    id="codigousuario"
-                    value={codigoUsuario}
-                    onChange={(e) => setCodigoUsuario(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={2}>
-                  <TextField
-                    error={!!errors.clave}
-                    helperText={errors.clave}
-                    required
-                    fullWidth
-                    name="clave"
-                    label="Clave Usuario"
-                    type="text"
-                    id="clave"
-                    value={clave}
-                    onChange={(e) => setClave(e.target.value)}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.remuneracion}
-                    helperText={errors.remuneracion}
-                    required
-                    fullWidth
-                    name="remuneracion"
-                    label="Remuneración"
-                    type="text"
-                    id="remuneracion"
-                    value={remuneracion}
-                    onChange={(e) => setRemuneracion(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.credito}
-                    helperText={errors.credito}
-                    required
-                    fullWidth
-                    name="credito"
-                    label="Crédito"
-                    type="text"
-                    id="credito"
-                    value={credito}
-                    onChange={(e) => setCredito(e.target.value)}
-                  />
-                </Grid>
-              </Grid>
-
-              <Button
-                type="submit"
-                size="md"
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                
+                id="rut"
+                label="Rut"
+                name="rut"
+                autoComplete="rut"
+                autoFocus
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+                error={Boolean(errors.rut)}
+                helperText={errors.rut}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.rut ? null : (
+                        <Tooltip title="Rut válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+              
+                id="nombres"
+                label="Nombres"
+                name="nombres"
+                autoComplete="nombres"
+                autoFocus
+                value={nombres}
+                onChange={(e) => setNombre(e.target.value)}
+                error={Boolean(errors.nombres)}
+                helperText={errors.nombres}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.nombres ? null : (
+                        <Tooltip title="Nombres válidos">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                id="apellidos"
+                label="Apellidos"
+                name="apellidos"
+                autoComplete="apellidos"
+                autoFocus
+                value={apellidos}
+                onChange={(e) => setApellido(e.target.value)}
+                error={Boolean(errors.apellidos)}
+                helperText={errors.apellidos}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.apellidos ? null : (
+                        <Tooltip title="Apellidos válidos">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                id="correo"
+                label="Correo"
+                name="correo"
+                autoComplete="correo"
+                autoFocus
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                error={Boolean(errors.correo)}
+                helperText={errors.correo}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.correo ? null : (
+                        <Tooltip title="Correo válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                id="direccion"
+                label="Dirección"
+                name="direccion"
+                autoComplete="direccion"
+                autoFocus
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                error={Boolean(errors.direccion)}
+                helperText={errors.direccion}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.direccion ? null : (
+                        <Tooltip title="Dirección válida">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                id="telefono"
+                label="Teléfono"
+                name="telefono"
+                autoComplete="telefono"
+                autoFocus
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                error={Boolean(errors.telefono)}
+                helperText={errors.telefono}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.telefono ? null : (
+                        <Tooltip title="Teléfono válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                id="region"
+                select
+                label="Región"
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                error={Boolean(errors.selectedRegion)}
+                helperText={errors.selectedRegion}
+                sx={{ marginTop: 2 }}
+                fullWidth
               >
-                guardar usuario
-              </Button>
-
-              <Grid container></Grid>
-            </Box>
+                {regionOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                sx={{ marginTop: 2 }}
+                id="comuna"
+                select
+                fullWidth
+                label="Comuna"
+                value={selectedComuna}
+                onChange={(e) => setSelectedComuna(e.target.value)}
+                error={Boolean(errors.comuna)}
+                helperText={errors.comuna}
+               
+              >
+                {comunaOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+              
+                id="codigoPostal"
+                label="Código Postal"
+                name="codigoPostal"
+                autoComplete="codigoPostal"
+                
+                autoFocus
+                value={codigoPostal}
+                onChange={(e) => setCodigoPostal(e.target.value)}
+                error={Boolean(errors.codigoPostal)}
+                helperText={errors.codigoPostal}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.codigoPostal ? null : (
+                        <Tooltip title="Código Postal válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                sx={{ marginRight: 2 }}
+                id="codigoUsuario"
+                label="Código Usuario"
+                name="codigoUsuario"
+                autoComplete="codigoUsuario"
+                autoFocus
+                value={codigoUsuario}
+                onChange={(e) => setCodigoUsuario(e.target.value)}
+                error={Boolean(errors.codigoUsuario)}
+                helperText={errors.codigoUsuario}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.codigoUsuario ? null : (
+                        <Tooltip title="Código Usuario válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+               
+                id="clave"
+                label="Clave"
+                name="clave"
+                sx={{ marginRight: 2 }}
+                autoComplete="clave"
+                autoFocus
+                value={clave}
+                onChange={(e) => setClave(e.target.value)}
+                error={Boolean(errors.clave)}
+                helperText={errors.clave}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.clave ? null : (
+                        <Tooltip title="Clave válida">
+                        <CheckCircleIcon />
+                      </Tooltip>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+              
+              id="remuneracion"
+              label="Remuneración"
+              name="remuneracion"
+              autoComplete="remuneracion"
+              autoFocus
+              value={remuneracion}
+              onChange={(e) => setRemuneracion(e.target.value)}
+              error={Boolean(errors.remuneracion)}
+              helperText={errors.remuneracion}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {errors.remuneracion ? null : (
+                      <Tooltip title="Remuneración válida">
+                        <CheckCircleIcon />
+                      </Tooltip>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+            
+              id="credito"
+              label="Crédito"
+              name="credito"
+              autoComplete="credito"
+              autoFocus
+              value={credito}
+              onChange={(e) => setCredito(e.target.value)}
+              error={Boolean(errors.credito)}
+              helperText={errors.credito}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {errors.credito ? null : (
+                      <Tooltip title="Crédito válido">
+                        <CheckCircleIcon />
+                      </Tooltip>
+                    )}
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Registrar
+            </Button>
           </Box>
-        </Grid>
+        </Box>
       </Grid>
-      <Dialog open={modalOpen} onClose={closeModal}>
-        <DialogContent>
-          <DialogContentText>
-            {/* {modalContent.positive ? (
-              <span style={{ color: "green" }}>Guardado con éxito</span>
-            ) : (
-              <span style={{ color: "red" }}>Error al guardar</span>
-            )} */}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeModal}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
-    </ThemeProvider>
-  );
+      
+     
+    </Grid>
+    <Dialog
+      open={modalOpen}
+      onClose={closeModal}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {modalContent.description}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={closeModal}>Ok</Button>
+      </DialogActions>
+    </Dialog>
+  </ThemeProvider>
+);
 }
