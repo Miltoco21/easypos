@@ -27,6 +27,7 @@ const EditarSubFamilia = ({
   });
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
+  
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -48,7 +49,7 @@ const EditarSubFamilia = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     try {
       const response = await axios.put(
         `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateSubFamilia`,
@@ -57,14 +58,25 @@ const EditarSubFamilia = ({
           descripcionSubFamilia: editSubFamily.descripcion,
         }
       );
-
+  
       console.log("SubFamilia updated successfully:", response.data);
-
+  
       setSuccessDialogOpen(true);
       fetchSubfamilies(); // Update subfamilies list
       handleClose();
     } catch (error) {
       console.error("Error updating subfamily:", error.response);
+  
+      if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.descripcion || "Ha ocurrido un error";
+        setOpenErrorDialog(true);
+        setErrorMessage(errorMessage);
+      } else {
+        // Handle other errors
+        const errorMessage = "An error occurred";
+        setOpenErrorDialog(true);
+        setErrorMessage(errorMessage);
+      }
     }
   };
 

@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Add from "@mui/icons-material/Add";
 import Modal from "@mui/joy/Modal";
+import Stepperproductos from "../Componentes/Stepper/Stepperproductos";
 
 
 
@@ -18,6 +19,7 @@ const Productos = () => {
     <div style={{ display: "flex" }}>
       
       <SideBar />
+      <Stepperproductos/>
 
       <Box  sx={{ flexGrow: 1, p: 3 }}>
        

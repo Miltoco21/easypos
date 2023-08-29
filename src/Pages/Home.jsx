@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InfoCard from "../Componentes/Home/InfoCard"
+import Card2 from "../Componentes/Home/Card2"
 
 export const defaultTheme = createTheme;
 const Home = () => {
@@ -19,6 +20,7 @@ const Home = () => {
       <Box sx={{ display: "flex" }}>
         <SideBar />
         <InfoCard/>
+        <Card2/>
         
       </Box>
 
