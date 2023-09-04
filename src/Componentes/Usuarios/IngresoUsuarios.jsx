@@ -183,7 +183,7 @@ export default function IngresoUsuarios() {
           "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
-        console.log(response.data.descripcion, "debugMiltoco");
+        console.log(response.data.descripcion, "DATA OK");
         setModalContent({
           description: response.data.descripcion,
           positive: true,

@@ -120,6 +120,7 @@ function MultiStepForm() {
             ) : (
               <div>
                 <Grid container spacing={2}>
+                  
                   <Grid item xs={12} md={4}>
                     <TextField
                       label="Input 1"

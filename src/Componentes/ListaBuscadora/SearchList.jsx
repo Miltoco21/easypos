@@ -3,18 +3,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Dialog from "@mui/material/Dialog";
 
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
-import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import {
   Box,
-  Typography,
-  Grid,
   TextField,
   Table,
   TableBody,
@@ -22,14 +15,10 @@ import {
   TableHead,
   TableRow,
   Button,
-  Modal,
-  InputAdornment,
-  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import Paper from "@mui/material/Paper";
+
 import EditarUsuario from "./EditUsuario";
 
 export const defaultTheme = createTheme();
@@ -59,6 +48,7 @@ const SearchList = () => {
   const [credito, setCredito] = useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -74,7 +64,7 @@ const SearchList = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     if (Array.isArray(users)) {
@@ -137,6 +127,10 @@ const SearchList = () => {
   };
   const setOpen = () => {
     setModalOpen(true);
+  };
+  const handleCloseEditModal = () => {
+    setModalOpen(false);
+    setRefresh((prevRefresh) => !prevRefresh);
   };
 
   const handleSubmit = async (event) => {
@@ -304,6 +298,7 @@ const SearchList = () => {
           {index + 1}
         </Button>
       ))}
+
       <EditarUsuario
         selectedUser={selectedUser}
         open={modalEditOpen} // You can use the same modal state or a separate one

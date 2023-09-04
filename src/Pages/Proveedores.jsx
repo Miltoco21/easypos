@@ -10,6 +10,7 @@ import IngresoPV from "../Componentes/Proveedores/IngresoPV";
 import IngresoCL from "../Componentes/Proveedores/IngresoCL";
 import Familias from "../Componentes/Familias/Familias";
 import SideBar from "../Componentes/NavBar/SideBar";
+import SearchListProveedores from "../Componentes/Proveedores/SearchListProveedores";
 
 const Proveedores = () => {
   const [open, setOpen] = useState(false);
@@ -70,6 +71,8 @@ const Proveedores = () => {
         >
           CLIENTES
         </Button>
+
+        <SearchListProveedores/>
 
         
         <Box />
