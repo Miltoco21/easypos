@@ -12,8 +12,8 @@ import {
 import Step1Component from "./Step1Component"; // Import your custom components for each step
 import Step2Component from "./Step2Component";
 import Step3Component from "./Step3Component";
-// import Step4Component from "./Step4Component";
-// import Step5Component from "./Step5Component";
+import Step4Component from "./Step4Component";
+import Step5Component from "./Step5Component";
 // import Step6Component from "./Step6Component";
 // import Step7Component from "./Step7Component";
 
@@ -51,8 +51,8 @@ const App = () => {
     <Step1Component />,
     <Step2Component />,
     <Step3Component />,
-    // <Step4Component />,
-    // <Step5Component />,
+    <Step4Component />,
+    <Step5Component />,
     // <Step6Component />,
     // <Step7Component />,
   ];
