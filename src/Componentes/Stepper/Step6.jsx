@@ -112,7 +112,7 @@ const Step6Component = () => {
             }}
           >
             {" "}
-            Código de producto creado con éxito{" "}
+           Producto creado con éxito{" "}
           </Typography>
           <InputLabel>Código del Producto :</InputLabel>
           <TextField

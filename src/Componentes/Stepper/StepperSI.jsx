@@ -12,7 +12,7 @@ import Step6 from "./Step6";
 
 
 
-const steps = ["Paso 1", "Paso 2", "Paso 3", "Paso 4", "Paso 5", "Paso 6"];
+const steps = ["Paso 1", "Paso 2", "Paso 3", "Paso 4", "Paso 5" ];
 
 const StepperSI = () => {
   const [activeStep, setActiveStep] = useState(0);
