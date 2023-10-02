@@ -9,78 +9,54 @@ import Modal from "@mui/joy/Modal";
 import Stepperproductos from "../Componentes/Stepper/Stepperproductos";
 import Stepper2 from "../Componentes/Stepper/Stepper2";
 import { Stepper } from "@mui/material";
-import StepperNO from "../Componentes/Stepper/StepperNo"
-import StepperSI from "../Componentes/Stepper/StepperSI"
-
-
-
-
+import StepperNO from "../Componentes/Stepper/StepperNo";
+import StepperSI from "../Componentes/Stepper/StepperSI";
+import SearchListProducts from "../Componentes/Productos/SearchListProduct";
 
 const Productos = () => {
-  const [open,setOpen]= useState(false);
+  const [open, setOpen] = useState(false);
 
-  const [open2,setOpen2]= useState(false);
+  const [open2, setOpen2] = useState(false);
 
+  const handleOpenStepper = () => {
+    setOpen(true);
+  };
+  const handleCloseStepper = () => {
+    setOpen(false);
+  };
 
-  const handleOpenStepper = () =>{
-    setOpen(true)
+  const handleOpenStepper2 = () => {
+    setOpen2(true);
+  };
+  const handleCloseStepper2 = () => {
+    setOpen2(false);
+  };
 
-
-  }
-  const handleCloseStepper = () =>{
-    setOpen(false)
-
-
-  }
-
-  const handleOpenStepper2 = () =>{
-    setOpen2(true)
-
-
-  }
-  const handleCloseStepper2 = () =>{
-    setOpen2(false)
-
-
-  }
-  
-  
-
-  
   return (
     <div style={{ display: "flex" }}>
-      
       <SideBar />
-      {/* <StepperNO/> */}
-      {/* <Stepper2/> */}
-      {/* <StepperSI/> */}
 
-      
+      <Box sx={{ flexGrow: 1, p: 3 }}>
+        <Button
+          size="large"
+          variant="outlined"
+          style={{ marginLeft: "18px", padding: "14px", marginTop: "6px" }}
+          onClick={handleOpenStepper}
+        >
+          + Producto sin código
+        </Button>
+        <Button
+          size="large"
+          variant="outlined"
+          style={{ marginLeft: "18px", padding: "14px", marginTop: "6px" }}
+          onClick={handleOpenStepper2}
+        >
+          + Producto con código
+        </Button>
 
-      
+        <SearchListProducts/>
 
-      <Box  sx={{ flexGrow: 1, p: 3 }}>
-
-      <Button
-        size="large"
-        variant="outlined"
-        style={{ marginLeft: "18px", padding: "14px", marginTop: "6px" }}
-        onClick={handleOpenStepper}
-      >
-         + Producto sin código 
-      
-      </Button>
-      <Button
-        size="large"
-        variant="outlined"
-        style={{ marginLeft: "18px", padding: "14px", marginTop: "6px" }}
-        onClick={handleOpenStepper2}
-      >
-         + Producto con código 
-      
-      </Button>
-
-      <Modal open={open} onClose={handleCloseStepper}>
+        <Modal open={open} onClose={handleCloseStepper}>
           <Box
             sx={{
               position: "absolute",
@@ -95,7 +71,7 @@ const Productos = () => {
               maxWidth: "180vw", // Adjust as needed
             }}
           >
-             <StepperNO/>
+            <StepperNO />
           </Box>
         </Modal>
 
@@ -114,22 +90,12 @@ const Productos = () => {
               maxWidth: "180vw", // Adjust as needed
             }}
           >
-             <StepperSI/>
+            <StepperSI />
           </Box>
         </Modal>
-       
-       
-        
-        
-        
-
-       
-        
-
-       
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default Productos
+export default Productos;

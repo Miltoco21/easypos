@@ -11,11 +11,9 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  MenuItem,
   IconButton,
-  Grid,
-  Select,
-  InputLabel,
+  Tabs,
+  Tab,
   Pagination,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -34,10 +32,11 @@ const SearchListProveedores = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditSuccessful, setIsEditSuccessful] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(0);
 
-  
-
-  
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  };
 
   useEffect(() => {
     if (proveedores) {
@@ -53,7 +52,9 @@ const SearchListProveedores = () => {
         );
         console.log("API response:", response.data.proveedores);
         setProveedores(response.data.proveedores);
-        setFilteredProveedores(response.data.proveedores.slice(0, ITEMS_PER_PAGE));
+        setFilteredProveedores(
+          response.data.proveedores.slice(0, ITEMS_PER_PAGE)
+        );
         setPageCount(response.data.proveedores.length);
       } catch (error) {
         console.log(error);
@@ -125,14 +126,19 @@ const SearchListProveedores = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4 }}>
-      <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
-      <Box sx={{ mt: 2 }}>
+      <div>
+        <Tabs value={selectedTab} onChange={handleTabChange}>
+          <Tab label="Proovedores" />
+          <Tab label="Clientes" />
+        </Tabs>
+        <div style={{ p: 2, mt: 4 }} role="tabpanel" hidden={selectedTab !== 0}>
+        <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} margin="dense"/>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
+              <TableCell>ID Proveedor</TableCell>
               <TableCell>Razón Social</TableCell>
-             
+
               <TableCell>Responsable</TableCell>
               <TableCell>Sucursal</TableCell>
               <TableCell>Forma de pago</TableCell>
@@ -148,27 +154,29 @@ const SearchListProveedores = () => {
                 <TableCell>
                   {proveedor.razonSocial} <br />
                   <span style={{ color: "purple" }}>{proveedor.email}</span>
-                
                   {proveedor.correo}
                   <br />
                   {proveedor.rut}
                 </TableCell>
-                
-                <TableCell>
-                  {proveedor.nombreResponsable}<br />
-                  {proveedor.correoResponsable}<br />
-                  {proveedor.telefonoResponsable}<br />
 
+                <TableCell>
+                  {proveedor.nombreResponsable}
+                  <br />
+                  {proveedor.correoResponsable}
+                  <br />
+                  {proveedor.telefonoResponsable}
+                  <br />
                 </TableCell>
                 <TableCell>
-                  {proveedor.sucursal}<br />
-                  {proveedor.direccion}<br />
-                  {proveedor.comuna}<br />
-
+                  {proveedor.sucursal}
+                  <br />
+                  {proveedor.direccion}
+                  <br />
+                  {proveedor.comuna}
+                  <br />
                 </TableCell>
                 <TableCell>{proveedor.formaPago}</TableCell>
                 <TableCell>{proveedor.pagina}</TableCell>
-
 
                 <TableCell>
                   <IconButton onClick={() => handleEdit(proveedor)}>
@@ -182,6 +190,72 @@ const SearchListProveedores = () => {
             ))}
           </TableBody>
         </Table>
+        </div>
+        <div style={{ p: 2, mt: 4 }} role="tabpanel" hidden={selectedTab !== 1}>
+        <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} margin="dense" />
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID Cliente</TableCell>
+              <TableCell>Razón Social</TableCell>
+
+              <TableCell>Responsable</TableCell>
+              <TableCell>Sucursal</TableCell>
+              <TableCell>Forma de pago</TableCell>
+              <TableCell>Página</TableCell>
+
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {proveedores?.map((cliente) => (
+              <TableRow key={cliente.codigoProveedor}>
+                <TableCell>{cliente.codigoProveedor}</TableCell>
+                <TableCell>
+                  {cliente.razonSocial} <br />
+                  <span style={{ color: "purple" }}>{cliente.email}</span>
+                  {cliente.correo}
+                  <br />
+                  {cliente.rut}
+                </TableCell>
+
+                <TableCell>
+                  {cliente.nombreResponsable}
+                  <br />
+                  {cliente.correoResponsable}
+                  <br />
+                  {cliente.telefonoResponsable}
+                  <br />
+                </TableCell>
+                <TableCell>
+                  {cliente.sucursal}
+                  <br />
+                  {cliente.direccion}
+                  <br />
+                  {cliente.comuna}
+                  <br />
+                </TableCell>
+                <TableCell>{cliente.formaPago}</TableCell>
+                <TableCell>{cliente.pagina}</TableCell>
+
+                <TableCell>
+                  <IconButton onClick={() => handleEdit(cliente)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        </div>
+      </div>
+
+      
+      <Box sx={{ mt: 2 }}>
+        
         <Pagination
           count={totalPages}
           page={currentPage}
@@ -200,3 +274,76 @@ const SearchListProveedores = () => {
 };
 
 export default SearchListProveedores;
+
+// <Box sx={{ p: 2, mb: 4 }}>
+
+//       <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
+//       <Box sx={{ mt: 2 }}>
+//         <Table>
+//           <TableHead>
+//             <TableRow>
+//               <TableCell>ID</TableCell>
+//               <TableCell>Razón Social</TableCell>
+
+//               <TableCell>Responsable</TableCell>
+//               <TableCell>Sucursal</TableCell>
+//               <TableCell>Forma de pago</TableCell>
+//               <TableCell>Página</TableCell>
+
+//               <TableCell>Acciones</TableCell>
+//             </TableRow>
+//           </TableHead>
+//           <TableBody>
+//             {proveedores?.map((proveedor) => (
+//               <TableRow key={proveedor.codigoProveedor}>
+//                 <TableCell>{proveedor.codigoProveedor}</TableCell>
+//                 <TableCell>
+//                   {proveedor.razonSocial} <br />
+//                   <span style={{ color: "purple" }}>{proveedor.email}</span>
+
+//                   {proveedor.correo}
+//                   <br />
+//                   {proveedor.rut}
+//                 </TableCell>
+
+//                 <TableCell>
+//                   {proveedor.nombreResponsable}<br />
+//                   {proveedor.correoResponsable}<br />
+//                   {proveedor.telefonoResponsable}<br />
+
+//                 </TableCell>
+//                 <TableCell>
+//                   {proveedor.sucursal}<br />
+//                   {proveedor.direccion}<br />
+//                   {proveedor.comuna}<br />
+
+//                 </TableCell>
+//                 <TableCell>{proveedor.formaPago}</TableCell>
+//                 <TableCell>{proveedor.pagina}</TableCell>
+
+//                 <TableCell>
+//                   <IconButton onClick={() => handleEdit(proveedor)}>
+//                     <EditIcon />
+//                   </IconButton>
+//                   <IconButton>
+//                     <DeleteIcon />
+//                   </IconButton>
+//                 </TableCell>
+//               </TableRow>
+//             ))}
+//           </TableBody>
+//         </Table>
+//         <Pagination
+//           count={totalPages}
+//           page={currentPage}
+//           onChange={handlePageChange}
+//         />
+//       </Box>
+//       <EditarProveedor
+//         open={openEditModal}
+//         handleClose={handleCloseEditModal}
+//         proveedor={editProveedorData}
+//         fetchProveedores={setProveedores}
+//         onEditSuccess={() => setIsEditSuccessful(true)} // New addition
+//       />
+//     </Box>

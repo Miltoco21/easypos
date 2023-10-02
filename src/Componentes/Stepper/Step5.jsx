@@ -225,7 +225,7 @@ const Step5Component = ({ data, onNext }) => {
         sx={{ marginLeft: "40px",marginTop: "5px",  marginBottom: "12px" }}
         variant="contained"
         color="secondary"
-        onClick={handleNext}>Guardar y continuar</Button>
+        onClick={handleNext}> Guardar </Button>
 
         
 
