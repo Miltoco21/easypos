@@ -104,9 +104,9 @@ const StepperSI = () => {
       case 3:
         return <Step4 data={data.step4} onNext={handleNext} />;
       case 4:
-        return <Step5 data={data.step4} onNext={handleNext} />;
+        return <Step5 data={data.step5} onNext={handleNext} />;
       case 5:
-        return <Step6 data={data} />;
+        return <Step6 data={data.step6} onNext={handleNext}/>;
       default:
         return "Unknown step";
     }
@@ -138,6 +138,7 @@ const StepperSI = () => {
                   <Button
                     variant="contained"
                     color="primary"
+                    margin="dense"
                     onClick={() => handleNext({})}
                   >
                     Enviar

@@ -33,31 +33,51 @@ const StepperComponent = () => {
       setData(JSON.parse(storedData));
     }
   }, []);
-
   const handleNext = (stepData) => {
-    // Update the data object with the data from the current step
     const updatedData = { ...data, [`step${activeStep + 1}`]: stepData };
     setData(updatedData);
-
+  
     if (activeStep === steps.length - 1) {
-      // Log the complete data when the last step is reached
-      console.log("Complete Data Submitted:", updatedData);
-
-      // Send the complete data to the server using Axios
+      console.log("Complete data submitted:", updatedData);
       axios
         .post("your-api-endpoint", updatedData)
         .then((response) => {
-          // Handle the response from the server
+          // handle the response from the server
         })
         .catch((error) => {
-          // Handle any errors
+          // handle any errors
         });
-    } else {
-      // Save the data for the current step and proceed to the next step
-      localStorage.setItem("stepperData", JSON.stringify(updatedData));
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
+  
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    localStorage.setItem("stepperData", JSON.stringify(updatedData));
   };
+  
+
+  // const handleNext = (stepData) => {
+  //   // Update the data object with the data from the current step
+  //   const updatedData = { ...data, [`step${activeStep + 1}`]: stepData };
+  //   setData(updatedData);
+
+  //   if (activeStep === steps.length - 1) {
+  //     // Log the complete data when the last step is reached
+  //     console.log("Complete Data Submitted:", updatedData);
+
+  //     // Send the complete data to the server using Axios
+  //     axios
+  //       .post("your-api-endpoint", updatedData)
+  //       .then((response) => {
+  //         // Handle the response from the server
+  //       })
+  //       .catch((error) => {
+  //         // Handle any errors
+  //       });
+  //   } else {
+  //     // Save the data for the current step and proceed to the next step
+  //     localStorage.setItem("stepperData", JSON.stringify(updatedData));
+  //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  //   }
+  // };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -104,9 +124,9 @@ const StepperComponent = () => {
       case 3:
         return <Step4Component data={data.step4} onNext={handleNext} />;
       case 4:
-        return <Step5Component data={data.step4} onNext={handleNext} />;
+        return <Step5Component data={data.step5} onNext={handleNext} />;
       case 5:
-        return <Step6Component data={data} />;
+        return <Step6Component data={data.step6} onNext={handleNext} />;
       default:
         return "Unknown step";
     }

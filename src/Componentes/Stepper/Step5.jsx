@@ -26,12 +26,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 const Step5Component = ({ data, onNext }) => {
   const [newStock, setNewStock] = useState("");
   const [newImpuesto, setNewImpuesto] = useState("");
-  const [nota, setNota] = useState("");
+  const [nota, setNota] = useState(data.nota||"");
 
-  const [stockCritico, setStockCritico] = useState("");
-  const [selectedImpuestoId, setSelectedImpuestoId] = useState("");
+  const [stockCritico, setStockCritico] = useState(data.stockCritico||"");
+  const [selectedImpuestoId, setSelectedImpuestoId] = useState(data.selectedImpuestoId||"");
 
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(data.selectedFile||null);
 
   const [openDialog1, setOpenDialog1] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);

@@ -38,9 +38,9 @@ const Step1Component = ({ data, onNext }) => {
   const [subcategories, setSubCategories] = useState([]);
   const [families, setFamilies] = useState([]);
   const [subfamilies, setSubFamilies] = useState([]);
-  const [respuestaSINO, setRespuestaSINO] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [marca, setMarca] = useState("");
+  const [respuestaSINO, setRespuestaSINO] = useState(data.respuestaSINO||"");
+  const [nombre, setNombre] = useState(data.nombre||"");
+  const [marca, setMarca] = useState(data.marca||"");
 
   const [openDialog1, setOpenDialog1] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
