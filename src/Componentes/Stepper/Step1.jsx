@@ -39,6 +39,7 @@ const Step1Component = ({ data, onNext }) => {
   const [families, setFamilies] = useState([]);
   const [subfamilies, setSubFamilies] = useState([]);
   const [respuestaSINO, setRespuestaSINO] = useState(data.respuestaSINO||"");
+  const [pesoSINO, setPesoSINO] = useState(data.pesoSINO||"");
   const [nombre, setNombre] = useState(data.nombre||"");
   const [marca, setMarca] = useState(data.marca||"");
 
@@ -55,9 +56,14 @@ const Step1Component = ({ data, onNext }) => {
     const value = e.target.value;
     setRespuestaSINO(value);
   };
+  const handlePeso = (e) => {
+    const value = e.target.value;
+    setPesoSINO(value);
+  };
   const handleNext = () => {
     const stepData = {
       respuestaSINO,
+      pesoSINO,
       selectedCategoryId,
       selectedSubCategoryId,
       selectedFamilyId,
@@ -225,7 +231,8 @@ const Step1Component = ({ data, onNext }) => {
       }}
     >
       <Box>
-        <Typography>¿Este producto requiere trazabilidad?</Typography>
+        
+           <Typography>¿Este producto requiere trazabilidad?</Typography>
         <div style={{ display: "flex", marginLeft: "10px" }}>
           <FormControl component="fieldset">
             <RadioGroup value={respuestaSINO} onChange={handleRespuesta}>
@@ -234,6 +241,17 @@ const Step1Component = ({ data, onNext }) => {
             </RadioGroup>
           </FormControl>
         </div>
+        <Typography>¿Este producto es pesable?</Typography>
+        <div style={{ display: "flex", marginLeft: "10px" }}>
+          <FormControl component="fieldset">
+            <RadioGroup value={pesoSINO} onChange={handlePeso}>
+              <FormControlLabel value="Sí" control={<Radio />} label="Sí" />
+              <FormControlLabel value="No" control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </div>
+        
+       
         <InputLabel>Selecciona Categoría</InputLabel>
         <Select
           sx={{ width: "700px" }}

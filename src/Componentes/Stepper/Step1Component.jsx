@@ -41,6 +41,7 @@ const Step1Component = ({ data, onNext }) => {
   const [respuestaSINO, setRespuestaSINO] = useState(data.respuestaSINO||"");
   const [nombre, setNombre] = useState(data.nombre||"");
   const [marca, setMarca] = useState(data.marca||"");
+  const [pesoSINO, setPesoSINO] = useState(data.pesoSINO||"");
 
   const [openDialog1, setOpenDialog1] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
@@ -55,9 +56,14 @@ const Step1Component = ({ data, onNext }) => {
     const value = e.target.value;
     setRespuestaSINO(value);
   };
+  const handlePeso = (e) => {
+    const value = e.target.value;
+    setPesoSINO(value);
+  };
   const handleNext = () => {
     const stepData = {
       respuestaSINO ,
+      pesoSINO,
       marca,
       selectedCategoryId,
       selectedSubCategoryId,
@@ -229,6 +235,15 @@ const Step1Component = ({ data, onNext }) => {
         <div style={{ display: "flex", marginLeft: "10px" }}>
           <FormControl component="fieldset">
             <RadioGroup value={respuestaSINO} onChange={handleRespuesta}>
+              <FormControlLabel value="Sí" control={<Radio />} label="Sí" />
+              <FormControlLabel value="No" control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
+        </div>
+        <Typography>¿Este producto es pesable?</Typography>
+        <div style={{ display: "flex", marginLeft: "10px" }}>
+          <FormControl component="fieldset">
+            <RadioGroup value={pesoSINO} onChange={handlePeso}>
               <FormControlLabel value="Sí" control={<Radio />} label="Sí" />
               <FormControlLabel value="No" control={<Radio />} label="No" />
             </RadioGroup>
