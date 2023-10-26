@@ -24,8 +24,8 @@ import {
 const Step4Component = ({ data, onNext }) => {
   const [newUnidad, setNewUnidad] = useState("");
   const [stockInicial, setStockInical] = useState("");
-  const [precioVenta, setPrecioVenta] = useState(data.precioVenta||"");
-  const [selectedFormatoId, setSelectedFormatoId] = useState(data.selectedFormatoId||"");
+  const [precioVenta, setPrecioVenta] = useState(data.precioVenta||0);
+  const [selectedFormatoId, setSelectedFormatoId] = useState(data.formatoVenta||"");
 
   const [openDialog1, setOpenDialog1] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
@@ -34,8 +34,8 @@ const Step4Component = ({ data, onNext }) => {
 
   const handleNext = () => {
     const stepData = {
-      selectedFormatoId,
-      precioVenta
+      formatoVenta:selectedFormatoId,
+      precioVenta:precioVenta
 
     };
     console.log("Step 4 Data:", stepData); // Log the data for this step
@@ -135,7 +135,7 @@ const Step4Component = ({ data, onNext }) => {
             label="Precio Venta"
             fullWidth
             value={precioVenta}
-            onChange={(e) => setPrecioVenta(e.target.value)}
+            onChange={(e) => setPrecioVenta(+e.target.value)}
           />
           <Button
             size="large"

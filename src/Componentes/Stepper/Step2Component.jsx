@@ -18,8 +18,8 @@ import {
 } from "@mui/material";
 
 const Step2Component = ({ data, onNext }) => {
-  const [selectedBodegaId, setSelectedBodegaId] = useState(data.selectedBodegaId||"");
-  const [selectedProveedorId, setSelectedProveedorId] = useState(data.selectedProveedorId||"");
+  const [selectedBodegaId, setSelectedBodegaId] = useState(data.bodega||"");
+  const [selectedProveedorId, setSelectedProveedorId] = useState(data.proveedor||"");
 
   const [bodegas, setBodegas] = useState([]);
   const [proveedor, setProveedor] = useState([]);
@@ -35,8 +35,8 @@ const Step2Component = ({ data, onNext }) => {
 
   const handleNext = () => {
     const stepData = {
-      selectedBodegaId,
-      selectedProveedorId
+      bodega:selectedBodegaId,
+      proveedor:selectedProveedorId
     };
     console.log("Step 2 Data:", stepData); // Log the data for this step
     onNext(stepData);

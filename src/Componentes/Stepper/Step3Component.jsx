@@ -23,8 +23,8 @@ import {
 
 const Step3Component = ({ data, onNext }) => {
   const [newUnidad, setNewUnidad] = useState("");
-  const [stockInicial, setStockInical] = useState(data.stockInicial||"");
-  const [precioCosto, setPrecioCosto] = useState(data.precioCosto||"");
+  const [stockInicial, setStockInical] = useState(data.stockInicial||0);
+  const [precioCosto, setPrecioCosto] = useState(data.precioCosto||0);
   const [selectedUnidadId, setSelectedUnidadId] = useState(data.selectedUnidadId||"");
 
   const [openDialog1, setOpenDialog1] = useState(false);
@@ -33,9 +33,9 @@ const Step3Component = ({ data, onNext }) => {
 
   const handleNext = () => {
     const stepData = {
-      selectedUnidadId,
-      precioCosto,
-      stockInicial
+      unidad:selectedUnidadId,
+      precioCosto:precioCosto,
+      stockInicial:stockInicial
     };
     console.log("Step 3 Data:", stepData); // Log the data for this step
     onNext(stepData);
@@ -128,7 +128,7 @@ const Step3Component = ({ data, onNext }) => {
             label="Precio Costo"
             fullWidth
             value={precioCosto}
-            onChange={(e) => setPrecioCosto(e.target.value)}
+            onChange={(e) => setPrecioCosto(+e.target.value)}
           />
         </Box>
         <Box>
@@ -138,7 +138,7 @@ const Step3Component = ({ data, onNext }) => {
             label="Stock Inicial"
             fullWidth
             value={stockInicial}
-            onChange={(e) => setStockInical(e.target.value)}
+            onChange={(e) => setStockInical(+e.target.value)}
           />
         </Box>
         <Button 
@@ -155,7 +155,7 @@ const Step3Component = ({ data, onNext }) => {
             label="Ingresa Unidad de Compra"
             fullWidth
             value={newUnidad}
-            onChange={(e) => setNewUnidad(e.target.value)}
+            onChange={(e) => setNewUnidad(+e.target.value)}
           />
         </DialogContent>
         <DialogActions>

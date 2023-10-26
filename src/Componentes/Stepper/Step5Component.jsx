@@ -24,12 +24,18 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const Step5Component = ({ data, onNext }) => {
+  const impuestos = [
+    { id: 1, tipo: "IVA 19%" },
+    { id: 2, tipo: "EXENTO" },
+    { id: 3, tipo: "OTRO IMPUESTO" },
+  ];
+
   const [newStock, setNewStock] = useState("");
   const [newImpuesto, setNewImpuesto] = useState(data.selectedFormatoId||"");
   const [nota, setNota] = useState(data.nota||"");
 
   const [stockCritico, setStockCritico] = useState(data.stockCritico||"");
-  const [selectedImpuestoId, setSelectedImpuestoId] = useState(data.selectedImpuestoId||"");
+  const [selectedImpuestoId, setSelectedImpuestoId] = useState(data.selectedImpuestoId||impuestos[0].tipo);
 
   const [selectedFile, setSelectedFile] = useState(data.selectedFile||null);
 
@@ -38,10 +44,10 @@ const Step5Component = ({ data, onNext }) => {
 
   const handleNext = () => {
     const stepData = {
-      stockCritico,
-      selectedImpuestoId,
+      stockCritico:stockCritico,
+      impuesto:selectedImpuestoId,
       selectedFile,
-      nota,
+      nota:nota,
     };
     console.log("Step 5 Data:", stepData); // Log the data for this step
     onNext(stepData);
@@ -105,11 +111,7 @@ const Step5Component = ({ data, onNext }) => {
   //   fetchBodegas();
   // }, []);
 
-  const impuestos = [
-    { id: 1, tipo: "IVA 19%" },
-    { id: 2, tipo: "EXENTO" },
-    { id: 3, tipo: "OTRO IMPUESTO" },
-  ];
+  
 
   return (
     <Paper
@@ -127,7 +129,7 @@ const Step5Component = ({ data, onNext }) => {
             label="Stock Crítico"
             fullWidth
             value={stockCritico}
-            onChange={(e) => setStockCritico(e.target.value)}
+            onChange={(e) => setStockCritico(+e.target.value)}
             
           />
           {/* <Button
@@ -152,8 +154,11 @@ const Step5Component = ({ data, onNext }) => {
             value={selectedImpuestoId}
             onChange={(e) => handleImpuestoSelect(e.target.value)}
             label="Selecciona Impuesto adicional "
-          >
             
+          >
+            <MenuItem selected  key={impuestos.id} value={impuestos.tipo}>
+            {impuestos.tipo}
+              </MenuItem>
             {impuestos.map((impuesto) => (
               <MenuItem key={impuesto.id} value={impuesto.tipo}>
                 {impuesto.tipo}
@@ -221,13 +226,13 @@ const Step5Component = ({ data, onNext }) => {
             onChange={(e) => setNota(e.target.value)}
           />
         </Box>
-        {/* <Button onClick={handleNext}>Next</Button> */}
+        {/* <Button onClick={handleNext}>Guardar</Button> */}
 
-        <Button 
+        {/* <Button 
         sx={{ marginLeft: "40px",marginTop: "5px",  marginBottom: "12px" }}
         variant="contained"
         color="secondary"
-        onClick={handleNext}>Guardar y continuar</Button>
+        onClick={handleNext}>Guardar </Button> */}
 
         
 

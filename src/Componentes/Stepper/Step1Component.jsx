@@ -65,11 +65,11 @@ const Step1Component = ({ data, onNext }) => {
       respuestaSINO ,
       pesoSINO,
       marca,
-      selectedCategoryId,
-      selectedSubCategoryId,
-      selectedFamilyId,
-      selectedSubFamilyId,
-      nombre,
+      categoriaID:selectedCategoryId,
+      subCategoriaID:selectedSubCategoryId,
+      familiaID:selectedFamilyId,
+      subFamilia:selectedSubFamilyId,
+      nombre:nombre,
     };
     console.log("Step 1 Dataa:", stepData); // Log the data for this step
     onNext(stepData);

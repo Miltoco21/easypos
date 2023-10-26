@@ -24,13 +24,13 @@ import EditIcon from "@mui/icons-material/Edit";
 const ITEMS_PER_PAGE = 10;
 const SearchListProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [product, setproduct] = useState([]);
+  const [filteredproduct, setFilteredproduct] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [pageCategories, setPageCategories] = useState([]);
+  const [pageproduct, setPageproduct] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [editCategoryData, setEditCategoryData] = useState({});
+  const [editproductData, setEditproductData] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -38,13 +38,18 @@ const SearchListProducts = () => {
     setSelectedTab(newValue);
   };
 
-  const setPageCount = (categoriesCount) => {
-    setTotalPages(Math.ceil(categoriesCount / ITEMS_PER_PAGE));
+  const setPageCount = (productCount) => {
+    const totalPages = Math.ceil(productCount / ITEMS_PER_PAGE);
+    if (!isNaN(totalPages)) {
+      setTotalPages(totalPages);
+    } else {
+      console.error('Invalid product count:', productCount);
+    }
   };
 
   const updatePageData = () => {
-    setPageCategories(
-      filteredCategories.slice(
+    setPageproduct(
+      filteredproduct.slice(
         ITEMS_PER_PAGE * (currentPage - 1),
         ITEMS_PER_PAGE * currentPage
       )
@@ -52,38 +57,44 @@ const SearchListProducts = () => {
   };
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchproduct = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
         );
-        console.log("API Response:", response.data.categorias);
-        setCategories(response.data.categorias);
-        setPageCount(response.data.categorias.length);
+        console.log("API Response:", response.data.productos);
+        if (Array.isArray(response.data.productos)) {
+          setproduct(response.data.productos);
+          setPageCount(response.data.cantidadRegistros);
+          setPageproduct(response.data.productos);
+        } 
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching product:", error);
       }
     };
 
-    fetchCategories();
+    fetchproduct();
   }, [refresh]);
 
-  useEffect(() => {
-    setFilteredCategories(
-      categories.filter(
-        (category) =>
-          category.descripcion &&
-          category.descripcion
-            .trim()
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [searchTerm, categories]);
 
   useEffect(() => {
-    updatePageData();
-  }, [searchTerm, categories, currentPage, filteredCategories]);
+    if (Array.isArray(product)) {
+      setFilteredproduct(
+        product.filter(
+          (product) =>
+            product.descripcion &&
+            product.descripcion
+              .trim()
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
+        )
+      );
+    } 
+  }, [searchTerm, product]);
+
+  // useEffect(() => {
+  //   updatePageData();
+  // }, [searchTerm, product, currentPage, filteredproduct]);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
@@ -91,8 +102,13 @@ const SearchListProducts = () => {
 
   //
   useEffect(() => {
-    setTotalPages(Math.ceil(filteredCategories.length / ITEMS_PER_PAGE));
-  }, [filteredCategories]);
+    const totalPages = Math.ceil(filteredproduct.length / ITEMS_PER_PAGE);
+    if (!isNaN(totalPages)) {
+      setTotalPages(totalPages);
+    } else {
+      console.error('Invalid filtered product length:', filteredproduct.length);
+    }
+  }, [filteredproduct]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -104,8 +120,8 @@ const SearchListProducts = () => {
     // Write your delete handling logic here...
   };
 
-  const handleEdit = (category) => {
-    setEditCategoryData(category, category.descripcion);
+  const handleEdit = (product) => {
+    setEditproductData(product, product.descripcion);
     setOpenEditModal(true);
   };
 
@@ -116,11 +132,7 @@ const SearchListProducts = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4 }}>
-      {/* <TextField
-        label="Buscar productos..."
-        value={searchTerm}
-        onChange={handleSearch}
-      /> */}
+     
       <div>
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label="Productos sin codigos" />
@@ -142,21 +154,21 @@ const SearchListProducts = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageCategories.length === 0 ? (
+              {pageproduct.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
                 </TableRow>
               ) : (
-                pageCategories.map((category) => (
-                  <TableRow key={category.idCategoria}>
-                    <TableCell>{category.idCategoria}</TableCell>
-                    <TableCell>{category.descripcion.trim()}</TableCell>
+                pageproduct.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>{product.id}</TableCell>
+                    <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleEdit(category)}>
+                      <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
                       <IconButton
-                        onClick={() => handleDelete(category.idCategoria)}
+                        onClick={() => handleDelete(product.idProducto)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -183,21 +195,21 @@ const SearchListProducts = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageCategories.length === 0 ? (
+              {pageproduct.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
                 </TableRow>
               ) : (
-                pageCategories.map((category) => (
-                  <TableRow key={category.idCategoria}>
-                    <TableCell>{category.idCategoria}</TableCell>
-                    <TableCell>{category.descripcion.trim()}</TableCell>
+                pageproduct.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>{product.nombre}</TableCell>
+                    <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleEdit(category)}>
+                      <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
                       <IconButton
-                        onClick={() => handleDelete(category.idCategoria)}
+                        onClick={() => handleDelete(product.idProducto)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -219,7 +231,7 @@ const SearchListProducts = () => {
       />
       {/* ModalEditar */}
       {/* <EditarCategoria
-        category={editCategoryData}
+        product={editproductData}
         open={openEditModal}
         handleClose={handleCloseEditModal}
       /> */}

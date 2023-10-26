@@ -1,21 +1,24 @@
 /* eslint-disable no-unused-vars */
 // StepperComponent.js
 import React, { useState, useEffect } from "react";
-import { Button, Container, Step, StepLabel, Stepper } from "@mui/material";
+import { Button, Container, Step, StepLabel, Stepper,Dialog,DialogActions,DialogContent,DialogContentText,DialogTitle } from "@mui/material";
 import axios from "axios";
 import Step1Component from "./Step1Component";
 import Step2Component from "./Step2Component";
 import Step3Component from "./Step3Component";
 import Step4Component from "./Step4Component";
 import Step5Component from "./Step5Component";
-import Step6Component from "./Step6Component";
 
-// import Step4 from './Step4';
 
-const steps = ["Paso 1", "Paso 2", "Paso 3", "Paso 4", "Paso 5", "Paso 6"];
+
+
+
+const steps = ["Paso 1", "Paso 2", "Paso 3", "Paso 4", "Paso 5"];
 
 const StepperComponent = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [open, setOpen] = useState(false);
+const [dialogMessage, setDialogMessage] = useState('');
 
   const [data, setData] = useState({
     step1: {},
@@ -23,7 +26,7 @@ const StepperComponent = () => {
     step3: {},
     step4: {},
     step5: {},
-    step6: {},
+    
   });
 
   useEffect(() => {
@@ -40,7 +43,7 @@ const StepperComponent = () => {
     if (activeStep === steps.length - 1) {
       console.log("Complete data submitted:", updatedData);
       axios
-        .post("your-api-endpoint", updatedData)
+      .post("https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto", updatedData)
         .then((response) => {
           // handle the response from the server
         })
@@ -89,15 +92,15 @@ const StepperComponent = () => {
 
     // Send the data to the server using Axios (replace with your API endpoint)
     axios
-      .post("your-api-endpoint", data)
+      .post("https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto", data)
       .then((response) => {
         // Handle the response from the server if needed
         console.log("Server Response:", response.data);
+        
+        setActiveStep(prevActiveStep => prevActiveStep + 1);
 
-        // Optionally, you can reset the form or perform any other actions
-        // after a successful submission.
 
-        // For example, you can reset the data and step state:
+        // Reset the data and step state:
         setData({
           step1: {},
           step2: {},
@@ -105,11 +108,19 @@ const StepperComponent = () => {
           step4: {},
           step5: {},
         });
-        setActiveStep(0);
+        // setActiveStep(0);
+
+        // Set success message and open dialog
+        setDialogMessage("Producto guardado con exito");
+        setOpen(true);
       })
       .catch((error) => {
         // Handle any errors
         console.error("Error:", error);
+
+        // Set error message and open dialog
+        setDialogMessage("Error al guardar");
+        setOpen(true);
       });
   };
 
@@ -125,8 +136,7 @@ const StepperComponent = () => {
         return <Step4Component data={data.step4} onNext={handleNext} />;
       case 4:
         return <Step5Component data={data.step5} onNext={handleNext} />;
-      case 5:
-        return <Step6Component data={data.step6} onNext={handleNext} />;
+      
       default:
         return "Unknown step";
     }
@@ -158,9 +168,9 @@ const StepperComponent = () => {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => handleNext({})}
+                    onClick={() => handleSubmit({})}
                   >
-                    Enviar
+                    Terminar
                   </Button>
                 ) : null}
               
@@ -168,6 +178,24 @@ const StepperComponent = () => {
           </div>
         )}
       </div>
+      <Dialog
+  open={open}
+  onClose={() => setOpen(false)}
+  aria-labelledby="alert-dialog-title"
+  aria-describedby="alert-dialog-description"
+>
+  <DialogTitle id="alert-dialog-title">{"Notification"}</DialogTitle>
+  <DialogContent>
+    <DialogContentText id="alert-dialog-description">
+      {dialogMessage}
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpen(false)} color="primary" autoFocus>
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
     </Container>
   );
 };
