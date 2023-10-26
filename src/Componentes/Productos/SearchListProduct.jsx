@@ -43,7 +43,7 @@ const SearchListProducts = () => {
     if (!isNaN(totalPages)) {
       setTotalPages(totalPages);
     } else {
-      console.error('Invalid product count:', productCount);
+      console.error("Invalid product count:", productCount);
     }
   };
 
@@ -67,7 +67,7 @@ const SearchListProducts = () => {
           setproduct(response.data.productos);
           setPageCount(response.data.cantidadRegistros);
           setPageproduct(response.data.productos);
-        } 
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
       }
@@ -75,7 +75,6 @@ const SearchListProducts = () => {
 
     fetchproduct();
   }, [refresh]);
-
 
   useEffect(() => {
     if (Array.isArray(product)) {
@@ -89,7 +88,7 @@ const SearchListProducts = () => {
               .includes(searchTerm.toLowerCase())
         )
       );
-    } 
+    }
   }, [searchTerm, product]);
 
   // useEffect(() => {
@@ -106,7 +105,7 @@ const SearchListProducts = () => {
     if (!isNaN(totalPages)) {
       setTotalPages(totalPages);
     } else {
-      console.error('Invalid filtered product length:', filteredproduct.length);
+      console.error("Invalid filtered product length:", filteredproduct.length);
     }
   }, [filteredproduct]);
 
@@ -132,7 +131,6 @@ const SearchListProducts = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4 }}>
-     
       <div>
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label="Productos sin codigos" />
@@ -148,7 +146,9 @@ const SearchListProducts = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID Productos Sin Codigos</TableCell>
+                <TableCell>ID Productos </TableCell>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Mercado Lógico</TableCell>
                 <TableCell>Descripción</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
@@ -160,8 +160,21 @@ const SearchListProducts = () => {
                 </TableRow>
               ) : (
                 pageproduct.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.id}</TableCell>
+                  <TableRow key={product.idProducto}>
+                    <TableCell>{product.idProducto}</TableCell>
+                    <TableCell>{product.nombre}</TableCell>
+
+                    <TableCell>
+                      <span style={{ color: "purple" }}>Categoría: </span>
+                      {product.categoria} <br></br>
+                      <span style={{ color: "purple" }}>SubCategoría: </span>
+                      {product.subCategoria} <br></br>
+                      <span style={{ color: "purple" }}>Familia: </span>
+                      {product.familia} <br></br>
+                      <span style={{ color: "purple" }}>SubFamilia: </span>
+                      {product.subFamilia} <br></br>
+                    </TableCell>
+
                     <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleEdit(product)}>
@@ -194,7 +207,7 @@ const SearchListProducts = () => {
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody key={product.idProducto}>
               {pageproduct.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
