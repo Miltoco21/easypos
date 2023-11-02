@@ -24,6 +24,7 @@ const Step2Component = ({ data, onNext }) => {
   const [bodegas, setBodegas] = useState([]);
   const [proveedor, setProveedor] = useState([]);
   const [proveedores, setProveedores] = useState([]);
+  const [refresh, setRefresh] = useState(false);
  
 
   const [openDialog1, setOpenDialog1] = useState(false);
@@ -51,14 +52,14 @@ const Step2Component = ({ data, onNext }) => {
     {id:5,nombre:"bodega5"},
 
   ]
-  const listasproveedores = [
-    {id:1,nombre:"proveedor1"},
-    {id:2,nombre:"proveedor2"},
-    {id:3,nombre:"proveedor3"},
-    {id:4,nombre:"proveedor4"},
-    {id:5,nombre:"proveedor5"},
+  // const listasproveedores = [
+  //   {id:1,nombre:"proveedor1"},
+  //   {id:2,nombre:"proveedor2"},
+  //   {id:3,nombre:"proveedor3"},
+  //   {id:4,nombre:"proveedor4"},
+  //   {id:5,nombre:"proveedor5"},
 
-  ]
+  // ]
  
 
   
@@ -90,6 +91,24 @@ const Step2Component = ({ data, onNext }) => {
   const handleBodegaSelect = (bodegaId) => {
     setSelectedBodegaId(bodegaId);
   };
+
+  useEffect(() => {
+    async function fetchProveedores() {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
+        );
+        console.log("API response:", response.data.proveedores);
+        setProveedores(response.data.proveedores);
+       
+       
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchProveedores();
+  }, [refresh]);
 
   const handleProveedorSelect = (proveedorId) => {
     setSelectedProveedorId(proveedorId);
@@ -188,9 +207,9 @@ const Step2Component = ({ data, onNext }) => {
           onChange={(e) => handleProveedorSelect(e.target.value)}
           label="Selecciona Sub-Categoría"
         > 
-           {listasproveedores.map((proveedor) => (
-            <MenuItem key={proveedor.id} value={proveedor.nombre}>
-              {proveedor.nombre}
+           {proveedores.map((proveedor) => (
+            <MenuItem key={proveedor.id} value={proveedor.nombreResponsable}>
+              {proveedor.nombreResponsable}
             </MenuItem>
           ))}
           {/* {proveedores.map((proveedor) => (

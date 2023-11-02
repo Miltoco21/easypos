@@ -23,25 +23,29 @@ import {
 
 const Step1Component = ({ data, onNext }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(
-    data.selectedCategoryId || ""
+    data.categoriaID || ""
   );
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(
-    data.selectedSubCategoryId || ""
+    data.subCategoriaID || ""
   );
   const [selectedFamilyId, setSelectedFamilyId] = useState(
-    data.selectedFamilyId || ""
+    data.familiaID || ""
   );
   const [selectedSubFamilyId, setSelectedSubFamilyId] = useState(
-    data.selectedSubFamilyId || ""
+    data.subFamilia || ""
   );
+  const [selectedMarcaId, setSelectedMarcaId] = useState(
+    data.marca || "");
+
+  const [marcas, setMarcas] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubCategories] = useState([]);
-  const [families, setFamilies] = useState([])
+  const [families, setFamilies] = useState([]);
   const [subfamilies, setSubFamilies] = useState([]);
-  const [respuestaSINO, setRespuestaSINO] = useState(data.respuestaSINO||"");
-  const [nombre, setNombre] = useState(data.nombre||"");
-  const [marca, setMarca] = useState(data.marca||"");
-  const [pesoSINO, setPesoSINO] = useState(data.pesoSINO||"");
+  const [respuestaSINO, setRespuestaSINO] = useState(data.respuestaSINO || "");
+  const [nombre, setNombre] = useState(data.nombre || "");
+  const [marca, setMarca] = useState(data.marca || "");
+  const [pesoSINO, setPesoSINO] = useState(data.pesoSINO || "");
 
   const [openDialog1, setOpenDialog1] = useState(false);
   const [openDialog2, setOpenDialog2] = useState(false);
@@ -62,14 +66,14 @@ const Step1Component = ({ data, onNext }) => {
   };
   const handleNext = () => {
     const stepData = {
-      respuestaSINO ,
-      pesoSINO,
-      marca,
-      categoriaID:selectedCategoryId,
-      subCategoriaID:selectedSubCategoryId,
-      familiaID:selectedFamilyId,
-      subFamilia:selectedSubFamilyId,
-      nombre:nombre,
+      respuestaSINO: respuestaSINO,
+      pesoSINO: pesoSINO,
+      marca: marca,
+      categoriaID: selectedCategoryId,
+      subCategoriaID: selectedSubCategoryId,
+      familiaID: selectedFamilyId,
+      subFamilia: selectedSubFamilyId,
+      nombre: nombre,
     };
     console.log("Step 1 Dataa:", stepData); // Log the data for this step
     onNext(stepData);
@@ -121,6 +125,14 @@ const Step1Component = ({ data, onNext }) => {
   const handleSubFamilySelect = (subFamilyId) => {
     setSelectedSubFamilyId(subFamilyId);
   };
+
+  const handleMarcaSelect = (MarcaId) => {
+    setSelectedMarcaId(MarcaId);
+    const selectedMarca = marcas.find((marca) => marca.id === MarcaId);
+    if (selectedMarca) {
+      setMarca(selectedMarca.nombre); // Assuming 'nombre' holds the 'marca' value
+    }
+  };
   const handleCreateCategory = () => {
     // Implement the logic to create a new category here.
     // You can use the newCategory state to get the input value.
@@ -149,6 +161,21 @@ const Step1Component = ({ data, onNext }) => {
     // After creating the category, you can close the dialog.
     setOpenDialog4(false);
   };
+  useEffect(() => {
+    async function fetchMarcas() {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/Marcas/GetAllMarcas"
+        );
+        setMarcas(response.data.marcas);
+        console.log(response.data.marcas);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchMarcas();
+  }, []);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -224,17 +251,22 @@ const Step1Component = ({ data, onNext }) => {
     <Paper
       elevation={3}
       style={{
-        paddingTop: "16px",
+        padding: "20px",
         width: "750px",
         display: "flex",
         justifyContent: "center",
+    
       }}
     >
       <Box>
         <Typography>¿Este producto requiere trazabilidad?</Typography>
-        <div style={{ display: "flex", marginLeft: "10px" }}>
-          <FormControl component="fieldset">
-            <RadioGroup value={respuestaSINO} onChange={handleRespuesta}>
+        <div style={{ display: "flex",marginLeft: "10px" }}>
+          
+          <FormControl
+            component="fieldset"
+           
+          >
+            <RadioGroup  value={respuestaSINO} onChange={handleRespuesta}>
               <FormControlLabel value="Sí" control={<Radio />} label="Sí" />
               <FormControlLabel value="No" control={<Radio />} label="No" />
             </RadioGroup>
@@ -321,18 +353,27 @@ const Step1Component = ({ data, onNext }) => {
         />
 
         <InputLabel>Ingrese Marca</InputLabel>
-        <TextField
-          sx={{ marginTop: "5px", width: "700px", marginBottom: "12px" }}
-          label="Ingresa Marca"
+        <Select
+          sx={{ width: "700px" }}
           fullWidth
-          value={marca}
-          onChange={(e) => setMarca(e.target.value)}
-        />
-        <Button 
-        sx={{ marginLeft: "40px",marginTop: "5px",  marginBottom: "12px" }}
-        variant="contained"
-        color="secondary"
-        onClick={handleNext}>Guardar y continuar</Button>
+          value={selectedMarcaId}
+          onChange={(e) => handleMarcaSelect(e.target.value)}
+          label="Selecciona Marca"
+        >
+          {marcas.map((marca) => (
+            <MenuItem key={marca.id} value={marca.id}>
+              {marca.nombre}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button
+          sx={{ marginLeft: "40px", marginTop: "5px", marginBottom: "12px" }}
+          variant="contained"
+          color="secondary"
+          onClick={handleNext}
+        >
+          Guardar y continuar
+        </Button>
       </Box>
 
       <Dialog open={openDialog1} onClose={handleCloseDialog1}>

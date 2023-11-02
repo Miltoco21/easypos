@@ -19,7 +19,9 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-// import EditarCategoria from "./EditarCategoria";
+
+import EditProducto from "../Productos/EditProducto";
+
 
 const ITEMS_PER_PAGE = 10;
 const SearchListProducts = () => {
@@ -33,6 +35,8 @@ const SearchListProducts = () => {
   const [editproductData, setEditproductData] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
+
+  const [selectedProduct, setSelectedProduct] = useState(null)
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -120,7 +124,7 @@ const SearchListProducts = () => {
   };
 
   const handleEdit = (product) => {
-    setEditproductData(product, product.descripcion);
+    setSelectedProduct(product);
     setOpenEditModal(true);
   };
 
@@ -177,7 +181,7 @@ const SearchListProducts = () => {
 
                     <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleEdit(product)}>
+                      <IconButton onClick={() => handleEdit(product.idProducto)}>
                         <EditIcon />
                       </IconButton>
                       <IconButton
@@ -207,9 +211,9 @@ const SearchListProducts = () => {
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody key={product.idProducto}>
+            <TableBody key={product.id}>
               {pageproduct.length === 0 ? (
-                <TableRow>
+                <TableRow >
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
                 </TableRow>
               ) : (
@@ -243,11 +247,15 @@ const SearchListProducts = () => {
         showLastButton
       />
       {/* ModalEditar */}
-      {/* <EditarCategoria
-        product={editproductData}
+      <EditProducto
+        product={selectedProduct}
         open={openEditModal}
-        handleClose={handleCloseEditModal}
-      /> */}
+        // handleClose={handleCloseEditModal}
+        handleClose={() => {
+          setOpenEditModal(false);
+          setSelectedProduct(null); // Reset selected product on modal close
+        }}
+      />
     </Box>
   );
 };

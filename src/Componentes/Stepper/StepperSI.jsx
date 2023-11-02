@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 // StepperComponent.js
 import React, { useState, useEffect } from "react";
-import { Button, Container, Step, StepLabel, Stepper } from "@mui/material";
+import { Button, Container, Step, StepLabel, Stepper,Paper,Typography } from "@mui/material";
 import axios from "axios";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
@@ -114,6 +114,9 @@ const StepperSI = () => {
 
   return (
     <Container>
+      <Paper sx={{ display: "flex", justifyContent: "center" ,marginBottom:"5px"}}>
+        <Typography variant="h5"> PRODUCTOS CON CÓDIGO</Typography>
+      </Paper>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map((label) => (
           <Step key={label}>
