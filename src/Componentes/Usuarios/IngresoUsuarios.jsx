@@ -32,6 +32,7 @@ export default function IngresoUsuarios() {
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
+  const [selectedRol,setSelectedRol] = useState("");
 
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
@@ -63,6 +64,8 @@ export default function IngresoUsuarios() {
   const [comunaOptions, setComunaOptions] = useState([]);
 
   const regions = regionsData;
+
+  const roles = [{id:1,rol:"ADM"},{id:2,rol:"SUPERVISOR"},{id:3,rol:"CAJERO"}]
 
   useEffect(() => {
     // Extraer regiones 
@@ -124,7 +127,7 @@ export default function IngresoUsuarios() {
     }
     if (!correo) {
       errors.correo = "Favor completar email ";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correo)) {
+    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{1,}$/.test(correo)) {
       errors.correo = "Formato de correo no es válido";
     }
     if (!direccion) {
@@ -175,6 +178,7 @@ export default function IngresoUsuarios() {
         clave,
         remuneracion,
         credito,
+        
       };
       console.log(usuario);
 
@@ -381,6 +385,23 @@ export default function IngresoUsuarios() {
                   ),
                 }}
               />
+              <TextField
+                id="Rol"
+                select
+                label="Rol"
+                value={selectedRol}
+                onChange={(e) => setSelectedRol(e.target.value)}
+                error={Boolean(errors.selectedRol)}
+                helperText={errors.selectedRol}
+                sx={{ marginTop: 2 }}
+                fullWidth
+              >
+                {roles.map((rol) => (
+                  <MenuItem key={rol.id} value={rol.rol}>
+                    {rol.rol}
+                  </MenuItem>
+                ))}
+              </TextField>
               <TextField
                 id="region"
                 select
