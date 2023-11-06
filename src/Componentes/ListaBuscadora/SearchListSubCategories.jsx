@@ -81,7 +81,8 @@ const SearchListSubCategories = () => {
     if (Array.isArray(subcategories)) {
       setFilteredSubCategories(
         subcategories.filter((subcategory) =>
-          subcategory.descripcion && subcategory.descripcion.trim().toLowerCase().includes(searchTerm.toLowerCase())
+        subcategory.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+          // subcategory.descripcion && subcategory.descripcion.trim().toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
@@ -105,7 +106,7 @@ const SearchListSubCategories = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4 }}>
-      <TextField label="Search subcategory..." value={searchTerm} onChange={handleSearch} />
+      <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
       <Box sx={{ mt: 2 }}>
         <TextField
           select

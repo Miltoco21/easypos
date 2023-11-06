@@ -32,7 +32,9 @@ export default function IngresoUsuarios() {
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [selectedRol,setSelectedRol] = useState("");
+
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  
 
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
@@ -54,6 +56,7 @@ export default function IngresoUsuarios() {
     clave: "",
     remuneracion: "",
     credito: "",
+    rol:""
   });
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -62,10 +65,30 @@ export default function IngresoUsuarios() {
   const [selectedComuna, setSelectedComuna] = useState("");
   const [regionOptions, setRegionOptions] = useState([]);
   const [comunaOptions, setComunaOptions] = useState([]);
+  const [selectedRol, setSelectedRol] = useState("");
 
   const regions = regionsData;
 
-  const roles = [{id:1,rol:"ADM"},{id:2,rol:"SUPERVISOR"},{id:3,rol:"CAJERO"}]
+  const roles = [{id:1,rol:"ADMIN"},{id:2,rol:"SUPERVISOR"},{id:3,rol:"CAJERO"}]
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const inputEmail = e.target.value;
+    setCorreo(inputEmail);
+    setIsEmailValid(validateEmail(inputEmail));
+    if (!inputEmail) {
+      setErrors({ correo: 'Favor completar email' });
+    } else if (!validateEmail(inputEmail)) {
+      setErrors({ correo: 'Formato de correo no es válido' });
+    } else {
+      setErrors({ correo: '' });
+    }
+  };
+
 
   useEffect(() => {
     // Extraer regiones 
@@ -96,6 +119,7 @@ export default function IngresoUsuarios() {
     setDireccion("");
     setSelectedRegion("");
     setSelectedComuna("");
+    setSelectedRol("");
     setCodigoPostal("");
     setRut("");
     setCodigoUsuario("");
@@ -127,9 +151,9 @@ export default function IngresoUsuarios() {
     }
     if (!correo) {
       errors.correo = "Favor completar email ";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{1,}$/.test(correo)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       errors.correo = "Formato de correo no es válido";
-    }
+    } 
     if (!direccion) {
       errors.direccion = "Favor completar dirección ";
     }
@@ -178,6 +202,7 @@ export default function IngresoUsuarios() {
         clave,
         remuneracion,
         credito,
+        rol:selectedRol,
         
       };
       console.log(usuario);
@@ -320,20 +345,27 @@ export default function IngresoUsuarios() {
                 autoComplete="correo"
                 autoFocus
                 value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
+                onChange={handleEmailChange}
                 error={Boolean(errors.correo)}
                 helperText={errors.correo}
+                // InputProps={{
+                //   endAdornment: (
+                //     <InputAdornment position="end">
+                //       {errors.correo ? null : (
+                //         <Tooltip title="Correo válido">
+                //           <CheckCircleIcon />
+                //         </Tooltip>
+                //       )}
+                //     </InputAdornment>
+                //   ),
+                // }}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.correo ? null : (
-                        <Tooltip title="Correo válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
+                  endAdornment: isEmailValid ? (
+                    <CheckCircleIcon style={{ color: 'green' }} />
+                  ) : null,
+                  style: { backgroundColor: errors.correo ? 'lightcoral' : 'white' },
                 }}
+        
               />
               <TextField
                 margin="normal"
@@ -587,7 +619,12 @@ export default function IngresoUsuarios() {
     >
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          {modalContent.description}
+        {Object.keys(errors).map((key) => (
+      <DialogContentText key={key} id={`alert-dialog-description-${key}`}>
+        {errors[key]}
+      </DialogContentText>
+    ))}
+
         </DialogContentText>
       </DialogContent>
       <DialogActions>

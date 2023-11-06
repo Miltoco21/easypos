@@ -201,6 +201,7 @@ const SearchList = () => {
         region,
         codigoPostal,
         rut,
+        rol,
         codigoUsuario,
         clave,
         remuneracion,
@@ -243,6 +244,7 @@ const SearchList = () => {
             <TableCell>Dirección</TableCell>
 
             <TableCell>Teléfono</TableCell>
+            
             <TableCell>Crédito</TableCell>
 
             <TableCell>Acciones</TableCell>
@@ -263,6 +265,8 @@ const SearchList = () => {
                   <span>{user.apellidos}</span>
                   <br />
                   <span>{user.correo}</span>
+                  <br />
+                  <span>{user.rol}</span>
                 </TableCell>
                 <TableCell>{user.rut}</TableCell>
                 <TableCell>

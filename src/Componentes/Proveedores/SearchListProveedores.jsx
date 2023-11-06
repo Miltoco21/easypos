@@ -31,6 +31,7 @@ const SearchListProveedores = () => {
   const [editProveedorData, setEditProveedorData] = useState({});
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageProveedores, setPageProveedores] = useState([]);
   const [isEditSuccessful, setIsEditSuccessful] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -42,11 +43,25 @@ const SearchListProveedores = () => {
     setSelectedTab(newValue);
   };
 
+  // useEffect(() => {
+  //   if (proveedores) {
+  //     setTotalPages(Math.ceil(proveedores.length / ITEMS_PER_PAGE));
+  //   }
+  // }, [proveedores]);
+
   useEffect(() => {
     if (proveedores) {
-      setTotalPages(Math.ceil(proveedores.length / ITEMS_PER_PAGE));
+      const filtered = proveedores.filter((proveedor) =>
+        proveedor.nombreResponsable.toLowerCase().includes(searchTermProveedores.toLowerCase())
+      );
+      setPageProveedores(
+        filtered.slice(
+          ITEMS_PER_PAGE * (currentPage - 1),
+          ITEMS_PER_PAGE * currentPage
+        )
+      );
     }
-  }, [proveedores]);
+  }, [proveedores, searchTermProveedores, currentPage]);
 
  ///////proveedores data
   useEffect(() => {
@@ -75,15 +90,15 @@ const SearchListProveedores = () => {
  ///////Codigo de busqueda
  useEffect(() => {
   if (Array.isArray(proveedores)) {
-    setFilteredProveedoresByResponsable(
-      proveedores.filter((proveedor) =>
-        proveedor.nombreResponsable.toLowerCase().includes(searchTermProveedores.toLowerCase())
-      )
+    const filtered = proveedores.filter((proveedor) =>
+      proveedor.nombreResponsable.toLowerCase().includes(searchTermProveedores.toLowerCase())
     );
-    setPageCount(filteredProveedoresByResponsable.length);
+    setPageProveedores(filtered.slice(0, ITEMS_PER_PAGE));
+    setPageCount(filtered.length);
     setCurrentPage(1); // Reset current page when the search term changes
   }
 }, [searchTermProveedores, proveedores]);
+
 
 
   const handleSearchProveedores = (event) => {
@@ -170,7 +185,7 @@ const SearchListProveedores = () => {
             </TableHead>
             <TableBody>
 
-              {filteredProveedoresByResponsable?.map((proveedor) => (
+              {pageProveedores?.map((proveedor) => (
                 <TableRow key={proveedor.codigoProveedor}>
                   <TableCell>{proveedor.codigoProveedor}</TableCell>
                   <TableCell>
