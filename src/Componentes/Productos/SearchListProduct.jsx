@@ -2,6 +2,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -19,24 +20,19 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-
-import EditProducto from "../Productos/EditProducto";
-
+import Editp2 from "../Productos/Editp2";
 
 const ITEMS_PER_PAGE = 10;
 const SearchListProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [product, setproduct] = useState([]);
-  const [filteredproduct, setFilteredproduct] = useState([]);
+  const [product, setProduct] = useState([]);
+  const [filteredProduct, setFilteredProduct] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [pageproduct, setPageproduct] = useState([]);
+  const [pageProduct, setPageProduct] = useState([]);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [editproductData, setEditproductData] = useState({});
-  const [refresh, setRefresh] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
-
-  const [selectedProduct, setSelectedProduct] = useState(null)
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -51,38 +47,29 @@ const SearchListProducts = () => {
     }
   };
 
-  const updatePageData = () => {
-    setPageproduct(
-      filteredproduct.slice(
-        ITEMS_PER_PAGE * (currentPage - 1),
-        ITEMS_PER_PAGE * currentPage
-      )
-    );
-  };
-
   useEffect(() => {
-    const fetchproduct = async () => {
+    const fetchProduct = async () => {
       try {
         const response = await axios.get(
           "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
         );
-        console.log("API Response:", response.data.productos);
+        console.log("API Response:", response.data);
         if (Array.isArray(response.data.productos)) {
-          setproduct(response.data.productos);
+          setProduct(response.data.productos);
           setPageCount(response.data.cantidadRegistros);
-          setPageproduct(response.data.productos);
+          setPageProduct(response.data.productos);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
       }
     };
 
-    fetchproduct();
-  }, [refresh]);
+    fetchProduct();
+  }, []);
 
   useEffect(() => {
     if (Array.isArray(product)) {
-      setFilteredproduct(
+      setFilteredProduct(
         product.filter(
           (product) =>
             product.descripcion &&
@@ -95,23 +82,18 @@ const SearchListProducts = () => {
     }
   }, [searchTerm, product]);
 
-  // useEffect(() => {
-  //   updatePageData();
-  // }, [searchTerm, product, currentPage, filteredproduct]);
-
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
 
-  //
   useEffect(() => {
-    const totalPages = Math.ceil(filteredproduct.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(filteredProduct.length / ITEMS_PER_PAGE);
     if (!isNaN(totalPages)) {
       setTotalPages(totalPages);
     } else {
-      console.error("Invalid filtered product length:", filteredproduct.length);
+      console.error("Invalid filtered product length:", filteredProduct.length);
     }
-  }, [filteredproduct]);
+  }, [filteredProduct]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -124,13 +106,15 @@ const SearchListProducts = () => {
   };
 
   const handleEdit = (product) => {
+    console.log("Edit button pressed for product:", product);
+    
     setSelectedProduct(product);
+    console.log("selected prod",selectedProduct);
     setOpenEditModal(true);
   };
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
-    setRefresh((prevRefresh) => !prevRefresh); // Toggle refresh
   };
 
   return (
@@ -158,12 +142,12 @@ const SearchListProducts = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {pageproduct.length === 0 ? (
+              {pageProduct.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
                 </TableRow>
               ) : (
-                pageproduct.map((product) => (
+                pageProduct.map((product) => (
                   <TableRow key={product.idProducto}>
                     <TableCell>{product.idProducto}</TableCell>
                     <TableCell>{product.nombre}</TableCell>
@@ -181,7 +165,9 @@ const SearchListProducts = () => {
 
                     <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleEdit(product.idProducto)}>
+                      <IconButton
+                        onClick={() => handleEdit(product)}
+                      >
                         <EditIcon />
                       </IconButton>
                       <IconButton
@@ -211,17 +197,19 @@ const SearchListProducts = () => {
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody key={product.id}>
-              {pageproduct.length === 0 ? (
-                <TableRow >
+            <TableBody>
+              {pageProduct.length === 0 ? (
+                <TableRow>
                   <TableCell colSpan={2}>No se encontraron productos</TableCell>
                 </TableRow>
               ) : (
-                pageproduct.map((product) => (
+                pageProduct.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>{product.nombre}</TableCell>
                     <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
+                      
+
                       <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
@@ -246,16 +234,13 @@ const SearchListProducts = () => {
         showFirstButton
         showLastButton
       />
-      {/* ModalEditar */}
-      <EditProducto
-        product={selectedProduct}
-        open={openEditModal}
-        // handleClose={handleCloseEditModal}
-        handleClose={() => {
-          setOpenEditModal(false);
-          setSelectedProduct(null); // Reset selected product on modal close
-        }}
-      />
+      {openEditModal && selectedProduct &&(
+        <Editp2
+          product={selectedProduct}
+          open={openEditModal}
+          handleClose={handleCloseEditModal}
+        />
+      )}
     </Box>
   );
 };

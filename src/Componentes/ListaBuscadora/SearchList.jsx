@@ -46,6 +46,7 @@ const SearchList = () => {
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
+  const [rol,setRol]= useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [refresh, setRefresh] = useState(false);
@@ -115,6 +116,7 @@ const SearchList = () => {
     setClave(user.clave || "");
     setRemuneracion(user.remuneracion || "");
     setCredito(user.credito || "");
+    setRol(user.rol || "");
     setModalOpen(true);
   };
 
@@ -266,7 +268,7 @@ const SearchList = () => {
                   <br />
                   <span>{user.correo}</span>
                   <br />
-                  <span>{user.rol}</span>
+                  <span>Rol:{user.rol}</span>
                 </TableCell>
                 <TableCell>{user.rut}</TableCell>
                 <TableCell>

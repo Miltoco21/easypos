@@ -1,11 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
-import { regionsData } from "./data.js";
+
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import { Button,Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import Dialog from "@mui/material/Dialog";
 
@@ -34,7 +35,6 @@ export default function IngresoUsuarios() {
   const [direccion, setDireccion] = useState("");
 
   const [isEmailValid, setIsEmailValid] = useState(false);
-  
 
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
@@ -56,7 +56,7 @@ export default function IngresoUsuarios() {
     clave: "",
     remuneracion: "",
     credito: "",
-    rol:""
+    rol: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -66,10 +66,43 @@ export default function IngresoUsuarios() {
   const [regionOptions, setRegionOptions] = useState([]);
   const [comunaOptions, setComunaOptions] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
+  const [roles, setRoles] = useState([]);
 
-  const regions = regionsData;
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
+        );
 
-  const roles = [{id:1,rol:"ADMIN"},{id:2,rol:"SUPERVISOR"},{id:3,rol:"CAJERO"}]
+        // Store both ID and region name in regionOptions
+        setRegionOptions(response.data.regiones);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    const fetchComunas = async () => {
+      if (selectedRegion) {
+        try {
+          const response = await axios.get(
+            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+          );
+          setComunaOptions(response.data.comunas.map((comuna) => comuna.comunaNombre));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+  
+    fetchComunas();
+  }, [selectedRegion]);
+
+  // const roles = [{idRol:1,rol:"ADMIN"},{idRol:2,rol:"SUPERVISOR"},{idRol:3,rol:"CAJERO"}]
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,33 +114,29 @@ export default function IngresoUsuarios() {
     setCorreo(inputEmail);
     setIsEmailValid(validateEmail(inputEmail));
     if (!inputEmail) {
-      setErrors({ correo: 'Favor completar email' });
+      setErrors({ correo: "Favor completar email" });
     } else if (!validateEmail(inputEmail)) {
-      setErrors({ correo: 'Formato de correo no es válido' });
+      setErrors({ correo: "Formato de correo no es válido" });
     } else {
-      setErrors({ correo: '' });
+      setErrors({ correo: "" });
     }
   };
 
-
   useEffect(() => {
-    // Extraer regiones 
-    const regions = regionsData.map((region) => region.name);
-    setRegionOptions(regions);
-  }, []);
-
-  useEffect(() => {
-    // Extraer comuna segun  region seleccionada
-    const selectedRegionData = regionsData.find(
-      (region) => region.name === selectedRegion
-    );
-    if (selectedRegionData) {
-      const comunas = selectedRegionData.communes.map((comuna) => comuna.name);
-      setComunaOptions(comunas);
-    } else {
-      setComunaOptions([]);
+    async function fetchRoles() {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/Usuarios/GetAllRolUsuario"
+        );
+        console.log("API response:", response.data.usuarios);
+        setRoles(response.data.usuarios);
+      } catch (error) {
+        console.log(error);
+      }
     }
-  }, [selectedRegion]);
+
+    fetchRoles();
+  }, []);
 
   const closeModal = () => {
     setModalOpen(false);
@@ -153,7 +182,7 @@ export default function IngresoUsuarios() {
       errors.correo = "Favor completar email ";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       errors.correo = "Formato de correo no es válido";
-    } 
+    }
     if (!direccion) {
       errors.direccion = "Favor completar dirección ";
     }
@@ -184,6 +213,7 @@ export default function IngresoUsuarios() {
     if (!credito) {
       errors.credito = "Favor completar crédito ";
     }
+    console.log("Selected Region:", selectedRegion,"Selected Comuna:",selectedComuna);
 
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
@@ -202,8 +232,7 @@ export default function IngresoUsuarios() {
         clave,
         remuneracion,
         credito,
-        rol:selectedRol,
-        
+        rol: selectedRol,
       };
       console.log(usuario);
 
@@ -212,17 +241,23 @@ export default function IngresoUsuarios() {
           "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
           usuario
         );
-        console.log(response.data.descripcion, "DATA OK");
+        console.log(response.data, "DATA OK");
         setModalContent({
           description: response.data.descripcion,
           positive: true,
+          message: "Usuario creado con éxito!",
         });
         setModalOpen(true);
       } catch (error) {
         console.log(error.response.data, "Leer Error");
+        if (error.response.status === 409) {
+          // Handle conflict error here
+          // For example, you could set an error message to inform the user that the username or email already exists
+        }
         setModalContent({
           description: error.response.data.descripcion,
           positive: false,
+          message: "Usuario no creado, favor intentar otra vez ",
         });
         setModalOpen(true);
       }
@@ -245,7 +280,7 @@ export default function IngresoUsuarios() {
         >
           <Box
             sx={{
-              my: 8,
+              
               mx: 4,
               display: "flex",
               flexDirection: "column",
@@ -263,7 +298,6 @@ export default function IngresoUsuarios() {
                 margin="normal"
                 required
                 sx={{ marginRight: 2 }}
-                
                 id="rut"
                 label="Rut"
                 name="rut"
@@ -288,7 +322,6 @@ export default function IngresoUsuarios() {
               <TextField
                 margin="normal"
                 required
-              
                 id="nombres"
                 label="Nombres"
                 name="nombres"
@@ -361,11 +394,12 @@ export default function IngresoUsuarios() {
                 // }}
                 InputProps={{
                   endAdornment: isEmailValid ? (
-                    <CheckCircleIcon style={{ color: 'green' }} />
+                    <CheckCircleIcon style={{ color: "green" }} />
                   ) : null,
-                  style: { backgroundColor: errors.correo ? 'lightcoral' : 'white' },
+                  style: {
+                    backgroundColor: errors.correo ? "lightcoral" : "white",
+                  },
                 }}
-        
               />
               <TextField
                 margin="normal"
@@ -429,25 +463,27 @@ export default function IngresoUsuarios() {
                 fullWidth
               >
                 {roles.map((rol) => (
-                  <MenuItem key={rol.id} value={rol.rol}>
+                  <MenuItem key={rol.idRol} value={rol.rol}>
                     {rol.rol}
                   </MenuItem>
                 ))}
               </TextField>
               <TextField
+               sx={{ marginTop: 2 }}
+               fullWidth
                 id="region"
                 select
                 label="Región"
                 value={selectedRegion}
-                onChange={(e) => setSelectedRegion(e.target.value)}
-                error={Boolean(errors.selectedRegion)}
-                helperText={errors.selectedRegion}
-                sx={{ marginTop: 2 }}
-                fullWidth
+                onChange={(e) => {
+                  const regionID = e.target.value; // Extract ID based on the selected name
+                  setSelectedRegion(regionID);
+                }}
+                // Other attributes...
               >
                 {regionOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.regionNombre}
                   </MenuItem>
                 ))}
               </TextField>
@@ -461,7 +497,6 @@ export default function IngresoUsuarios() {
                 onChange={(e) => setSelectedComuna(e.target.value)}
                 error={Boolean(errors.comuna)}
                 helperText={errors.comuna}
-               
               >
                 {comunaOptions.map((option) => (
                   <MenuItem key={option} value={option}>
@@ -473,12 +508,10 @@ export default function IngresoUsuarios() {
                 margin="normal"
                 required
                 sx={{ marginRight: 2 }}
-              
                 id="codigoPostal"
                 label="Código Postal"
                 name="codigoPostal"
                 autoComplete="codigoPostal"
-                
                 autoFocus
                 value={codigoPostal}
                 onChange={(e) => setCodigoPostal(e.target.value)}
@@ -524,7 +557,6 @@ export default function IngresoUsuarios() {
               <TextField
                 margin="normal"
                 required
-               
                 id="clave"
                 label="Clave"
                 name="clave"
@@ -540,97 +572,96 @@ export default function IngresoUsuarios() {
                     <InputAdornment position="end">
                       {errors.clave ? null : (
                         <Tooltip title="Clave válida">
-                        <CheckCircleIcon />
-                      </Tooltip>
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              margin="normal"
-              required
-              
-              id="remuneracion"
-              label="Remuneración"
-              name="remuneracion"
-              autoComplete="remuneracion"
-              autoFocus
-              value={remuneracion}
-              onChange={(e) => setRemuneracion(e.target.value)}
-              error={Boolean(errors.remuneracion)}
-              helperText={errors.remuneracion}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {errors.remuneracion ? null : (
-                      <Tooltip title="Remuneración válida">
-                        <CheckCircleIcon />
-                      </Tooltip>
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              margin="normal"
-              required
-            
-              id="credito"
-              label="Crédito"
-              name="credito"
-              autoComplete="credito"
-              autoFocus
-              value={credito}
-              onChange={(e) => setCredito(e.target.value)}
-              error={Boolean(errors.credito)}
-              helperText={errors.credito}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {errors.credito ? null : (
-                      <Tooltip title="Crédito válido">
-                        <CheckCircleIcon />
-                      </Tooltip>
-                    )}
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Registrar
-            </Button>
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                id="remuneracion"
+                label="Remuneración"
+                name="remuneracion"
+                autoComplete="remuneracion"
+                autoFocus
+                value={remuneracion}
+                onChange={(e) => setRemuneracion(e.target.value)}
+                error={Boolean(errors.remuneracion)}
+                helperText={errors.remuneracion}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.remuneracion ? null : (
+                        <Tooltip title="Remuneración válida">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                id="credito"
+                label="Crédito"
+                name="credito"
+                autoComplete="credito"
+                autoFocus
+                value={credito}
+                onChange={(e) => setCredito(e.target.value)}
+                error={Boolean(errors.credito)}
+                helperText={errors.credito}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {errors.credito ? null : (
+                        <Tooltip title="Crédito válido">
+                          <CheckCircleIcon />
+                        </Tooltip>
+                      )}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Registrar
+              </Button>
+            </Box>
           </Box>
-        </Box>
+        </Grid>
       </Grid>
-      
-     
-    </Grid>
-    <Dialog
-      open={modalOpen}
-      onClose={closeModal}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-        {Object.keys(errors).map((key) => (
-      <DialogContentText key={key} id={`alert-dialog-description-${key}`}>
-        {errors[key]}
-      </DialogContentText>
-    ))}
-
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={closeModal}>Ok</Button>
-      </DialogActions>
-    </Dialog>
-  </ThemeProvider>
-);
+      <Dialog
+        open={modalOpen}
+        onClose={closeModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {modalContent.message}
+            {Object.keys(errors).map((key) => (
+              <DialogContentText
+                key={key}
+                id={`alert-dialog-description-${key}`}
+              >
+                {errors[key]}
+              </DialogContentText>
+            ))}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeModal}>Ok</Button>
+        </DialogActions>
+      </Dialog>
+    </ThemeProvider>
+  );
 }
