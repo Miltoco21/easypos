@@ -155,7 +155,7 @@ const Step3Component = ({ data, onNext }) => {
             label="Ingresa Unidad de Compra"
             fullWidth
             value={newUnidad}
-            onChange={(e) => setNewUnidad(+e.target.value)}
+            onChange={(e) => setNewUnidad(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -172,3 +172,5 @@ const Step3Component = ({ data, onNext }) => {
 };
 
 export default Step3Component;
+
+   

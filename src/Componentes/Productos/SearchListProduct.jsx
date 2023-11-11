@@ -107,9 +107,9 @@ const SearchListProducts = () => {
 
   const handleEdit = (product) => {
     console.log("Edit button pressed for product:", product);
-    
+
     setSelectedProduct(product);
-    console.log("selected prod",selectedProduct);
+    console.log("selected prod", selectedProduct);
     setOpenEditModal(true);
   };
 
@@ -137,7 +137,12 @@ const SearchListProducts = () => {
                 <TableCell>ID Productos </TableCell>
                 <TableCell>Nombre</TableCell>
                 <TableCell>Mercado Lógico</TableCell>
-                <TableCell>Descripción</TableCell>
+                <TableCell>Precios </TableCell>
+
+                <TableCell>Stock</TableCell>
+                <TableCell>Impuestos</TableCell>
+                <TableCell>Bodega</TableCell>
+                <TableCell>Proveedor</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -150,7 +155,10 @@ const SearchListProducts = () => {
                 pageProduct.map((product) => (
                   <TableRow key={product.idProducto}>
                     <TableCell>{product.idProducto}</TableCell>
-                    <TableCell>{product.nombre}</TableCell>
+                    <TableCell>{product.nombre}
+                    {/* <span style={{ color: "purple" }}>Marca: </span>
+                      {product.marca} <br></br> */}
+                    </TableCell>
 
                     <TableCell>
                       <span style={{ color: "purple" }}>Categoría: </span>
@@ -163,11 +171,25 @@ const SearchListProducts = () => {
                       {product.subFamilia} <br></br>
                     </TableCell>
 
-                    <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      <IconButton
-                        onClick={() => handleEdit(product)}
-                      >
+                      <span style={{ color: "purple" }}>Precio Costo: </span>
+                      {product.precioCosto} <br></br>
+                      <span style={{ color: "purple" }}>Precio Venta: </span>
+                      {product.precioVenta} <br></br>
+                    </TableCell>
+
+                    <TableCell>
+                      {" "}
+                      <span style={{ color: "purple" }}>Stock Inical: </span>
+                      {product.stockInicial} <br></br>
+                      <span style={{ color: "purple" }}>Stock Crítico: </span>
+                      {product.stockCritico} <br></br>
+                    </TableCell>
+                    <TableCell>{product.impuesto}</TableCell>
+                    <TableCell>{product.bodega}</TableCell>
+                <TableCell>{product.proveedor}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
                       <IconButton
@@ -208,8 +230,6 @@ const SearchListProducts = () => {
                     <TableCell>{product.nombre}</TableCell>
                     <TableCell>{product.descripcion}</TableCell>
                     <TableCell>
-                      
-
                       <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
@@ -234,7 +254,7 @@ const SearchListProducts = () => {
         showFirstButton
         showLastButton
       />
-      {openEditModal && selectedProduct &&(
+      {openEditModal && selectedProduct && (
         <Editp2
           product={selectedProduct}
           open={openEditModal}
