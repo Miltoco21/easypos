@@ -9,6 +9,7 @@ import {
   TextField,
   Button,
   Grid,
+  Select,
   Modal,
   Dialog,
   MenuItem,
@@ -20,13 +21,18 @@ import axios from "axios";
 import PropTypes from "prop-types";
 
 const UserDetailsModal = ({ selectedUser, open, handleClose }) => {
-  const [editedUser, setEditedUser] = useState(selectedUser || {});
+  const [editedUser, setEditedUser] = useState(selectedUser );
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [regionOptions, setRegionOptions] = useState([]);
   const [comunaOptions, setComunaOptions] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
   const [roles, setRoles] = useState([]);
+  const [nombres, setNombre] = useState("");
+
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedComuna, setSelectedComuna] = useState("");
+
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -45,54 +51,41 @@ const UserDetailsModal = ({ selectedUser, open, handleClose }) => {
 
   useEffect(() => {
     const fetchComunas = async () => {
-      try {
-        if (editedUser.region) {
+      if (selectedRegion) {
+        try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?idRegion=${editedUser.region.id}`
+            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
-          setComunaOptions(response.data.comunas);
-        } else {
-          setComunaOptions([]);
+          setComunaOptions(response.data.comunas.map((comuna) => comuna.comunaNombre));
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
       }
     };
-
+  
     fetchComunas();
-  }, [editedUser.region]);
+  }, [selectedRegion]);
 
 
 
   const handleInputChange = async (event) => {
-    const { name, value } = event.target;
-    if (name === 'region') {
-      const selectedRegion = regionOptions.find((option) => option.regionNombre === value);
+    
+    setEditedUser((prevEditedUser) => ({ ...prevEditedUser}));
   
-      try {
-        const response = await axios.get(`https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?idRegion=${selectedRegion.id}`);
-        setComunaOptions(response.data.comunas);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  
-    // Handle setting the value in your state (editedUser or similar)
-    // For example:
-    // setEditedUser((prevEditedUser) => ({ ...prevEditedUser, [name]: value }));
+    
   };
   
 
   const handleSubmit = async () => {
     const updatedUser = {
       codigoUsuario: editedUser.codigoUsuario || 0,
-      nombres: editedUser.nombres || "",
+      nombres: editedUser.nombres,
       apellidos: editedUser.apellidos || "",
       telefono: editedUser.telefono || "",
       direccion: editedUser.direccion || "",
       codigoPostal: editedUser.codigoPostal || "",
       comuna: editedUser.comuna || "",
-      region: editedUser.region.toString() || "",
+      region: editedUser.region || "",
       clave: editedUser.clave || "",
       correo: editedUser.correo || "",
       rol: editedUser.rol || "",
@@ -218,18 +211,39 @@ const UserDetailsModal = ({ selectedUser, open, handleClose }) => {
               </TextField>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
+            <TextField
+               sx={{ marginTop: 2 }}
+               fullWidth
                 id="region"
                 select
                 label="Región"
-                name="region"
-                value={editedUser.region || ""} //editedUser.region || ""
-                onChange={handleInputChange}
-                fullWidth
+                value={selectedRegion}
+                onChange={(e) => {
+                  const regionID = e.target.value; // Extract ID based on the selected name
+                  setSelectedRegion(regionID);
+                }}
+                // Other attributes...
               >
                 {regionOptions.map((option) => (
-                  <MenuItem key={option.id} value={option.regionNombre}>
+                  <MenuItem key={option.id} value={option.id}>
                     {option.regionNombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                sx={{ marginTop: 2 }}
+                id="comuna"
+                select
+                fullWidth
+                label="Comuna"
+                value={selectedComuna}
+                onChange={(e) => setSelectedComuna(e.target.value)}
+                error={Boolean(errors.comuna)}
+                helperText={errors.comuna}
+              >
+                {comunaOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
                   </MenuItem>
                 ))}
               </TextField>

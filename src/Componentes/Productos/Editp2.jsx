@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
@@ -33,14 +34,10 @@ const Editp2 = ({ product, open, handleClose }) => {
   const [subcategories, setSubCategories] = useState([]);
   const [families, setFamilies] = useState([]);
   const [subfamilies, setSubFamilies] = useState([]);
-  const [descripcionSubFamilia, setDescripcionSubFamilia] = useState("");
+
   const [marcas, setMarcas] = useState([]);
-  const [selectedBodegaId, setSelectedBodegaId] = useState(
-    product.bodega || ""
-  );
-  const [selectedProveedorId, setSelectedProveedorId] = useState(
-    product.proveedor || ""
-  );
+  const [selectedBodegaId, setSelectedBodegaId] = useState("");
+  const [selectedProveedorId, setSelectedProveedorId] = useState("");
 
   const [bodegas, setBodegas] = useState([]);
   const [proveedor, setProveedor] = useState([]);
@@ -53,72 +50,11 @@ const Editp2 = ({ product, open, handleClose }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [successMessage, setSuccessMessage] = useState("");
-
+  //INICIADOR DE DATOS
   useEffect(() => {
-    async function fetchProveedores() {
-      try {
-        const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
-        );
-        console.log("API response:", response.data.proveedores);
-        setProveedores(response.data.proveedores);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetchProveedores();
-  }, [refresh]);
-
-  const handleProveedorSelect = (proveedorId) => {
-    const selectedProveedor = proveedores.find((proveedor) => proveedor.id === proveedorId);
-    if (selectedProveedor) {
-      setSelectedProveedorId(selectedProveedor.nombreResponsable);
-    }
-  };
-
-  const handleMarcaSelect = (MarcaId) => {
-    setSelectedMarcaId(MarcaId);
-    const selectedMarca = marcas.find((marca) => marca.id === MarcaId);
-    if (selectedMarca) {
-      setMarcas(selectedMarca.nombre); // Assuming 'nombre' holds the 'marca' value
-    }
-  };
-  useEffect(() => {
-    async function fetchMarcas() {
-      try {
-        const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Marcas/GetAllMarcas"
-        );
-        setMarcas(response.data.marcas);
-        console.log(response.data.marcas);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetchMarcas();
+    // Initialize editedProduct when the component mounts
+    setEditedProduct(product);
   }, []);
-
-  useEffect(() => {
-    setSelectedMarcaId(editedProduct.marca || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedCategoryId(editedProduct.categoria || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedSubCategoryId(editedProduct.subCategoria || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedFamilyId(editedProduct.familia || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedSubFamilyId(editedProduct.subFamilia || "");
-  }, [editedProduct]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -138,12 +74,12 @@ const Editp2 = ({ product, open, handleClose }) => {
 
   useEffect(() => {
     const fetchSubCategories = async () => {
-      if (selectedCategoryId !== "") {
+      if (selectedCategoryId ) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
           );
-
+          
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
         } catch (error) {
@@ -155,26 +91,107 @@ const Editp2 = ({ product, open, handleClose }) => {
     fetchSubCategories();
   }, [selectedCategoryId]);
 
-  //&& selectedFamilyId!= ""
+  // useEffect(() => {
+  //   const fetchSubCategories = async () => {
+  //     if (selectedCategoryId !== "") {
+  //       try {
+  //         const response = await axios.get(
+  //           `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+  //         );
+          
+  //         console.log("Subcategories Response:", response.data.subCategorias);
+  //         setSubCategories(response.data.subCategorias);
+  //       } catch (error) {
+  //         console.error("Error fetching subcategories:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchSubCategories();
+  // }, [selectedCategoryId]);
+
+  // useEffect(() => {
+  //   async function fetchCategories() {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+  //       );
+  //       console.log("n3 API response Categorias:", response.data.categorias); // Add this line
+  //       setCategories(response.data.categorias);
+
+  //       const responseSubC = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllSubCategorias"
+  //       );
+  //       console.log("n3 API response SubCategorias:", response.data.categorias); // Add this line
+  //       setSubCategoriesFind(responseSubC.data.subCategorias);
+
+  //       const responseFam = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllFamilias"
+  //       );
+  //       console.log("n3 API response Familias:", response.data.categorias); // Add this line
+  //       setFamiliesFind(responseFam.data.familias);
+
+  //       const responseSubFam = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllSubFamilias"
+  //       );
+  //       console.log("n3 API response SubFamilias:", response.data.categorias); // Add this line
+  //       setSubFamiliesFind(responseSubFam.data.subFamilias);
+
+  //     } catch (error) {
+  //       console.error("Error fetching Categorias:", error);
+  //     }
+  //   }
+
+  //   fetchCategories();
+  // }, []);
+  // useEffect(() => {
+  //   const fetchSubCategories = async () => {
+  //     if (selectedCategoryId !== "") {
+  //       try {
+  //         console.log("selectedCategoryId",selectedCategoryId);
+  //         console.log("categories",categories);
+  //         const idCategoriaFind = categories.find(categoria=> categoria.descripcion ===selectedCategoryId);
+
+  //         const response = await axios.get(
+  //           `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
+  //         );
+
+  //         console.log("n4 API response SubCategoria:", response.data.subCategorias);
+  //         setSubCategories(response.data.subCategorias);
+  //       } catch (error) {
+  //         console.error("Error fetching subcategories:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchSubCategories();
+  // }, [selectedCategoryId]);
 
   useEffect(() => {
     const fetchFamilies = async () => {
       if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
         try {
+          console.log("selectedSubCategoryId", selectedSubCategoryId)
+          console.log("subcategories", subcategories)
+          const SubCategoriaFind = subcategoriesFind.find(sc=> sc.descripcion === selectedSubCategoryId);
+          console.log("idCategoriaFind", SubCategoriaFind)
+
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
+            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${SubCategoriaFind.idSubcategoria}`
           );
 
-          console.log("Families Response:", response.data.familias);
+          console.log("n5 Families Response:", response.data.familias);
           setFamilies(response.data.familias);
         } catch (error) {
-          console.error("Error fetching subcategories:", error);
+          console.error("Error fetching Families:", error);
         }
       }
     };
 
     fetchFamilies();
   }, [selectedSubCategoryId]);
+
+  
 
   useEffect(() => {
     const fetchSubFamilies = async () => {
@@ -184,14 +201,19 @@ const Editp2 = ({ product, open, handleClose }) => {
         selectedSubCategoryId !== ""
       ) {
         try {
+          console.log("selectedFamilyId", selectedFamilyId)
+          console.log("families", families)
+          const familiaFind = familiesFind.find(f=> f.descripcion === selectedFamilyId)
+          console.log("familiaFind", familiaFind)
+
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
+            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${familiaFind.idFamilia}`
           );
 
-          console.log("SubFamilies Response:", response.data.subFamilias);
+          console.log("n6 SubFamilies Response:", response.data.subFamilias);
           setSubFamilies(response.data.subFamilias);
         } catch (error) {
-          console.error("Error fetching subcategories:", error);
+          console.error("Error fetching SubFamilies:", error);
         }
       }
     };
@@ -199,12 +221,68 @@ const Editp2 = ({ product, open, handleClose }) => {
     fetchSubFamilies();
   }, [selectedFamilyId]);
 
-  useEffect(() => {
-    // Set the edited product state when the product changes
-    setEditedProduct(product);
-  }, [product]);
+  // useEffect(() => {
+  //   const fetchProveedores = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
+  //       );
+  //       console.log("API response:", response.data.proveedores);
+  //       setProveedores(response.data.proveedores);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-  console.log("test", product);
+  //   fetchProveedores();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchMarcas = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/Marcas/GetAllMarcas"
+  //       );
+  //       setMarcas(response.data.marcas);
+  //       console.log(response.data.marcas);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   fetchMarcas();
+  // }, [refresh]);
+
+  ////Datos iniciales de edicion
+
+  // useEffect(() => {
+  //   setSelectedMarcaId(editedProduct.marca || "");
+  // }, [editedProduct]);
+
+  // useEffect(() => {
+  //   setSelectedProveedorId(editedProduct.proveedor || "");
+  // }, [editedProduct]);
+
+  useEffect(() => {
+    setSelectedCategoryId(editedProduct.categoria || "");
+  }, [editedProduct]);
+
+  // useEffect(() => {
+  //   setSelectedSubCategoryId(editedProduct.subCategoria || "");
+  // }, [editedProduct]);
+
+  // useEffect(() => {
+  //   setSelectedFamilyId(editedProduct.familia || "");
+  // }, [editedProduct]);
+
+  // useEffect(() => {
+  //   setSelectedSubFamilyId(editedProduct.subFamilia || "");
+  // }, [editedProduct]);
+
+  
+ 
+  
+ 
 
   const handleFieldChange = (e) => {
     // Update the edited product state on field change
@@ -221,58 +299,63 @@ const Editp2 = ({ product, open, handleClose }) => {
 
   const handleSave = async (event) => {
     event.preventDefault();
-  
+
+    const idCategoria = categories.find(categoria=> categoria.descripcion ===editedProduct.categoria);
+    const idSubCategoriaFind = subcategoriesFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
+    const idFamiliaFind = familiesFind.find(fam=> fam.descripcion === editedProduct.familia);
+    const idSubFamiliaFind = subfamiliesFind.find(sf=> sf.descripcion === editedProduct.subFamilia)
+
+    if(idCategoria){
+      console.log("idFamiliaFind", idFamiliaFind);
+      const idCategoriaFil = idCategoria.idCategoria;
+      const idSubCategoriaFil = idSubCategoriaFind.idSubcategoria;
+      const idFamiliaFil = idFamiliaFind.idFamilia;
+      const idSubFamiliaFil = idSubFamiliaFind.idSubFamilia;
+
+
+      var nuevoObjetoActualizado = {
+        ...editedProduct,
+        categoria: idCategoriaFil,
+        subCategoria: idSubCategoriaFil,
+        familia: idFamiliaFil,
+        subFamilia: idSubFamiliaFil
+
+      };
+      console.log("putnuevoobjeto", nuevoObjetoActualizado);
+    }else{
+      var nuevoObjetoActualizado = {
+        ...editedProduct,
+      };
+    }
+
+    
+
     try {
       const response = await axios.put(
-        'https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto',
-        editedProduct
-
-        
-
+        "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto", nuevoObjetoActualizado
       );
-      console.log('API Response:', response.data);
-  
+      console.log("API Response:", response.data);
+
       if (response.status === 201) {
         console.log("Producto updated successfully:", response.data);
         setIsEditSuccessful(true);
         setSuccessDialogOpen(true);
         setSuccessMessage(response.data.message);
+        setRefresh((prevRefresh) => !prevRefresh);
       }
     } catch (error) {
-      console.error('Error updating producto:', error);
-  console.log('Full error object:', error);
+      console.error("Error updating producto:", error);
+      console.log("Full error object:", error);
+      console.log("Validation Errors:", error.response.data.errors);
 
-  if (error.response) {
-    console.log('Server Response:', error.response.data);
-  }
+      if (error.response) {
+        console.log("Server Response:", error.response.data);
+      }
 
-  setErrorMessage(error.message);
-  setOpenErrorDialog(true);
-      // if (error.response) {
-      //   // The request was made and the server responded with a status code
-      //   // that falls out of the range of 2xx
-      //   console.log(error.response.data);
-      //   console.log(error.response.status);
-      //   console.log(error.response.headers);
-      // } else if (error.request) {
-      //   // The request was made but no response was received
-      //   // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      //   // http.ClientRequest in Node.js
-      //   console.log(error.request);
-      // } else {
-      //   // Something happened in setting up the request that triggered an Error
-      //   console.log('Error', error.message);
-      // }
-      // console.error("Error updating producto:", error);
-      // console.error("Server Response:", error.response);
-      // if (error.response && error.response.data && error.response.data.errors) {
-      //   const { $, value } = error.response.data.errors;
-      //   console.error("Validation Errors:", $, value);
-      // }
-      // setErrorMessage(error.message);
-      // setOpenErrorDialog(true);
+      setErrorMessage(error.message);
+      setOpenErrorDialog(true);
     }
-  
+
     console.log("Edited Product:", editedProduct);
     // Additional logic to update the product in the database can be added here
     handleClose();
@@ -289,7 +372,14 @@ const Editp2 = ({ product, open, handleClose }) => {
               name="nombre"
               label="Nombre Producto"
               value={editedProduct.nombre || ""}
-              onChange={handleFieldChange}
+              onChange={(e) => {
+                // setSelectedCategoryId(e.target.value);
+                // // setEditedProduct.categoria=e.target.value;
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  nombre: e.target.value,
+                }));
+              }}
               fullWidth
             />
           </Grid>
@@ -299,26 +389,29 @@ const Editp2 = ({ product, open, handleClose }) => {
             <Select
               fullWidth
               value={selectedCategoryId}
+              key={selectedCategoryId}
+              
               onChange={(e) => {
-                setSelectedCategoryId(e.target.value);
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
-                  categoria: e.target.value, // Update the categoria property
+                 
+                  // categoria: e.target.value,
+                  // categoriaDes: e.target.name, // Update the categoria property
                 }));
               }}
-              
               label="Selecciona Categoría"
             >
               <MenuItem
-                key={editedProduct.id}
-                value={editedProduct.categoria || ""}
+                  key={selectedCategoryId}
+                  value={editedProduct.categoria || ""}
+                  name={editedProduct.categoria}
               >
                 {editedProduct.categoria}
               </MenuItem>
               {categories.map((category) => (
                 <MenuItem
                   key={category.idCategoria}
-                  value={category.idCategoria}
+                  value={category.descripcion}
                 >
                   {category.descripcion}
                 </MenuItem>
@@ -330,8 +423,13 @@ const Editp2 = ({ product, open, handleClose }) => {
             <InputLabel>Selecciona Sub-Categoría</InputLabel>
             <Select
               fullWidth
-              value={selectedSubCategoryId}
-              onChange={(e) => setSelectedSubCategoryId(e.target.value)}
+              value={editedProduct.subCategoria || ""}
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  subCategoria: e.target.value,
+                }));
+              }}
               label="Selecciona Sub-Categoría"
             >
               <MenuItem
@@ -356,7 +454,12 @@ const Editp2 = ({ product, open, handleClose }) => {
             <Select
               fullWidth
               value={selectedFamilyId}
-              onChange={(e) => setSelectedFamilyId(e.target.value)}
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  familia: e.target.value,
+                }));
+              }}
               label="Selecciona Familia"
             >
               <MenuItem
@@ -378,8 +481,13 @@ const Editp2 = ({ product, open, handleClose }) => {
             <Select
               fullWidth
               value={selectedSubFamilyId}
-              onChange={(e) => setSelectedSubFamilyId(e.target.value)}
-              label="Selecciona Familia"
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  subFamilia: e.target.value,
+                }));
+              }}
+              label="Selecciona SubFamilia"
             >
               <MenuItem
                 key={editedProduct.id}
@@ -388,7 +496,10 @@ const Editp2 = ({ product, open, handleClose }) => {
                 {editedProduct.subFamilia}
               </MenuItem>
               {subfamilies.map((subfamily) => (
-                <MenuItem key={subfamily.idFamilia} value={subfamily.idFamilia}>
+                <MenuItem
+                  key={subfamily.idSubFamilia}
+                  value={subfamily.idSubFamilia}
+                >
                   {subfamily.descripcion}
                 </MenuItem>
               ))}
@@ -400,15 +511,25 @@ const Editp2 = ({ product, open, handleClose }) => {
             <Select
               fullWidth
               value={selectedMarcaId}
-              onChange={(e) => handleMarcaSelect(e.target.value)}
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  marca: e.target.value,
+                }));
+              }}
               label="Selecciona Marca"
             >
-              {Array.isArray(marcas) &&
-                marcas.map((marca) => (
-                  <MenuItem key={marca.id} value={marca.id}>
-                    {marca.nombre}
-                  </MenuItem>
-                ))}
+              <MenuItem
+                key={editedProduct.id}
+                value={editedProduct.marca || ""}
+              >
+                {editedProduct.marca}
+              </MenuItem>
+              {marcas.map((marca) => (
+                <MenuItem key={marca.id} value={marca.nombre}>
+                  {marca.nombre}
+                </MenuItem>
+              ))}
             </Select>
           </Grid>
 
@@ -417,9 +538,17 @@ const Editp2 = ({ product, open, handleClose }) => {
             <Select
               fullWidth
               value={selectedProveedorId}
-              onChange={(e) => handleProveedorSelect(e.target.value)}
-              label="Selecciona Sub-Categoría"
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  proveedor: e.target.value,
+                }));
+              }}
+              label="Selecciona Proveedor"
             >
+              <MenuItem value={editedProduct.id || ""}>
+                {editedProduct.proveedor}
+              </MenuItem>
               {proveedores.map((proveedor) => (
                 <MenuItem
                   key={proveedor.id}
@@ -436,7 +565,14 @@ const Editp2 = ({ product, open, handleClose }) => {
               name="precioCosto"
               label="Precio Costo"
               value={editedProduct.precioCosto || ""}
-              onChange={handleFieldChange}
+              onChange={(e) => {
+                // setSelectedCategoryId(e.target.value);
+                // // setEditedProduct.categoria=e.target.value;
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  precioCosto: e.target.value,
+                }));
+              }}
               fullWidth
             />
           </Grid>
@@ -446,7 +582,12 @@ const Editp2 = ({ product, open, handleClose }) => {
               name="precioVenta"
               label="Precio Venta"
               value={editedProduct.precioVenta || ""}
-              onChange={handleFieldChange}
+              onChange={(e) => {
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  precioVenta: e.target.value,
+                }));
+              }}
               fullWidth
             />
           </Grid>
@@ -456,7 +597,14 @@ const Editp2 = ({ product, open, handleClose }) => {
               name="stockInicial"
               label="Stock Inicial"
               value={editedProduct.stockInicial || ""}
-              onChange={handleFieldChange}
+              onChange={(e) => {
+                // setSelectedCategoryId(e.target.value);
+                // // setEditedProduct.categoria=e.target.value;
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  stockInicial: e.target.value,
+                }));
+              }}
               fullWidth
             />
           </Grid>
@@ -466,7 +614,14 @@ const Editp2 = ({ product, open, handleClose }) => {
               name="stockCritico"
               label="Stock Crítico"
               value={editedProduct.stockCritico || ""}
-              onChange={handleFieldChange}
+              onChange={(e) => {
+                // setSelectedCategoryId(e.target.value);
+                // // setEditedProduct.categoria=e.target.value;
+                setEditedProduct((prevProduct) => ({
+                  ...prevProduct,
+                  stockCritico: e.target.value,
+                }));
+              }}
               fullWidth
             />
           </Grid>

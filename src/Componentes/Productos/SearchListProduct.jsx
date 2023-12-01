@@ -33,6 +33,7 @@ const SearchListProducts = () => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [refresh, setRefresh] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -115,6 +116,8 @@ const SearchListProducts = () => {
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
+    setRefresh((prevRefresh) => !prevRefresh);
+
   };
 
   return (
@@ -136,6 +139,8 @@ const SearchListProducts = () => {
               <TableRow>
                 <TableCell>ID Productos </TableCell>
                 <TableCell>Nombre</TableCell>
+                
+
                 <TableCell>Mercado Lógico</TableCell>
                 <TableCell>Precios </TableCell>
 
@@ -155,9 +160,9 @@ const SearchListProducts = () => {
                 pageProduct.map((product) => (
                   <TableRow key={product.idProducto}>
                     <TableCell>{product.idProducto}</TableCell>
-                    <TableCell>{product.nombre}
-                    {/* <span style={{ color: "purple" }}>Marca: </span>
-                      {product.marca} <br></br> */}
+                    <TableCell>{product.nombre}<br></br>
+                    <span style={{ color: "purple" }}>Marca: </span>
+                      {product.marca} <br></br>
                     </TableCell>
 
                     <TableCell>

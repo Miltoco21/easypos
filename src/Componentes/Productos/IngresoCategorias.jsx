@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+
 /* eslint-disable no-unused-vars */
 import React, { useState,useEffect } from "react";
 import axios from "axios";
@@ -11,13 +12,17 @@ import {
   CssBaseline,
   Paper,
   TextField,
-  ThemeProvider,
+  
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   DialogContentText,
 } from "@mui/material";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme();
+
 
 const IngresoCategorias = ({ onSubmitSuccess }) => {
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
@@ -73,7 +78,7 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
   };
 
   return (
-    <ThemeProvider >
+    <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: "60vh", width: "60vw" }}>
         <CssBaseline />
 
@@ -136,7 +141,7 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
         open={responseDialogOpen}
         onClose={() => setResponseDialogOpen(false)}
       >
-        <DialogTitle>Response</DialogTitle>
+       
         <DialogContent>
           <DialogContentText>{responseMessage}</DialogContentText>
         </DialogContent>
