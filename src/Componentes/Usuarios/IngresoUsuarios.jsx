@@ -33,9 +33,7 @@ export default function IngresoUsuarios() {
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
-
   const [isEmailValid, setIsEmailValid] = useState(false);
-
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
   const [codigoUsuario, setCodigoUsuario] = useState("");
@@ -59,7 +57,6 @@ export default function IngresoUsuarios() {
     rol: "",
   });
   const [modalOpen, setModalOpen] = useState(false);
-
   const [modalContent, setModalContent] = useState({});
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedComuna, setSelectedComuna] = useState("");
@@ -67,6 +64,8 @@ export default function IngresoUsuarios() {
   const [comunaOptions, setComunaOptions] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
   const [roles, setRoles] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -98,11 +97,25 @@ export default function IngresoUsuarios() {
         }
       }
     };
-  
+
     fetchComunas();
   }, [selectedRegion]);
 
-  // const roles = [{idRol:1,rol:"ADMIN"},{idRol:2,rol:"SUPERVISOR"},{idRol:3,rol:"CAJERO"}]
+  useEffect(() => {
+    async function fetchRoles() {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/Usuarios/GetAllRolUsuario"
+        );
+        console.log("API response:", response.data.usuarios);
+        setRoles(response.data.usuarios);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchRoles();
+  }, []);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -157,6 +170,8 @@ export default function IngresoUsuarios() {
     setCredito("");
     // Clear errors
     setErrors({});
+    setIsEditing(false);
+    setUserId(null);
   };
 
   const handleSubmit = async (event) => {
@@ -176,7 +191,7 @@ export default function IngresoUsuarios() {
       errors.nombres = "Favor completar nombres ";
     }
     if (!apellidos) {
-      errors.apellidos = "Favor completar apeliidos ";
+      errors.apellidos = "Favor completar apellidos ";
     }
     if (!correo) {
       errors.correo = "Favor completar email ";
@@ -237,17 +252,26 @@ export default function IngresoUsuarios() {
       console.log(usuario);
 
       try {
-        const response = await axios.post(
-          "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
-          usuario
-        );
-        console.log(response.data, "DATA OK");
-        setModalContent({
-          description: response.data.descripcion,
-          positive: true,
-          message: "Usuario creado con éxito!",
-        });
-        setModalOpen(true);
+        if (isEditing) {
+          // Update user if in edit mode
+          await axios.put(
+            `https://www.easyposdev.somee.com/Usuarios/UpdateUsuario/${userId}`,
+            usuario
+          );
+        } else {
+          // Add new user if not in edit mode
+          const response = await axios.post(
+            "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
+            usuario
+          );
+          console.log(response.data, "DATA OK");
+          setModalContent({
+            description: response.data.descripcion,
+            positive: true,
+            message: "Usuario creado con éxito!",
+          });
+          setModalOpen(true);
+        }
       } catch (error) {
         console.log(error.response.data, "Leer Error");
         if (error.response.status === 409) {
@@ -280,7 +304,6 @@ export default function IngresoUsuarios() {
         >
           <Box
             sx={{
-              
               mx: 4,
               display: "flex",
               flexDirection: "column",
@@ -633,7 +656,7 @@ export default function IngresoUsuarios() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Registrar
+                {isEditing ? "Actualizar" : "Registrar"}
               </Button>
             </Box>
           </Box>

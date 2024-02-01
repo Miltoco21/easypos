@@ -19,7 +19,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import EditarUsuario from "./EditUsuario";
+import EditUsuario from "./EditUsuario";
 
 export const defaultTheme = createTheme();
 
@@ -46,7 +46,7 @@ const SearchList = () => {
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
-  const [rol,setRol]= useState("");
+  const [rol, setRol] = useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [refresh, setRefresh] = useState(false);
@@ -246,7 +246,7 @@ const SearchList = () => {
             <TableCell>Dirección</TableCell>
 
             <TableCell>Teléfono</TableCell>
-            
+
             <TableCell>Crédito</TableCell>
 
             <TableCell>Acciones</TableCell>
@@ -305,10 +305,10 @@ const SearchList = () => {
         </Button>
       ))}
 
-      <EditarUsuario
+      <EditUsuario 
         selectedUser={selectedUser}
-        open={modalEditOpen} // You can use the same modal state or a separate one
-        handleClose={closeModal} // Use the same handleClose function
+        open={modalEditOpen}
+        handleCloseEditModal={handleCloseEditModal}
       />
     </Box>
   );
