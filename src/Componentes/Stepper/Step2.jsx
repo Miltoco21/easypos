@@ -44,19 +44,16 @@ const Step2Component = ({ data, onNext }) => {
   };
 
   const listasbodegas = [
-    {id:1,nombre:"bodega1"},
+    {id:1,nombre:"RRLX59"},
     {id:2,nombre:"bodega2"},
-    {id:3,nombre:"bodega3"},
-    {id:4,nombre:"bodega4"},
-    {id:5,nombre:"bodega5"},
+    
+    
 
   ]
   const listasproveedores = [
-    {id:1,nombre:"proveedor1"},
-    {id:2,nombre:"proveedor2"},
-    {id:3,nombre:"proveedor3"},
-    {id:4,nombre:"proveedor4"},
-    {id:5,nombre:"proveedor5"},
+    {id:1,nombre:"Panificadora Marcelo"},
+   
+    
 
   ]
  
