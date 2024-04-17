@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
 } from "@mui/material";
 import axios from "axios";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -44,6 +45,10 @@ export default function IngresoUsuarios() {
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [userId, setUserId] = useState(null);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -178,9 +183,9 @@ export default function IngresoUsuarios() {
     if (!validarRutChileno(rut)) {
       errors.rut = "El RUT ingresado NO es válido.";
     }
-    if (!codigoUsuario) {
-      errors.codigoUsuario = "Favor completar código  ";
-    }
+    // if (!codigoUsuario) {
+    //   errors.codigoUsuario = "Favor completar código  ";
+    // }
     if (!clave) {
       errors.clave = "Favor completar clave ";
     }
@@ -214,36 +219,61 @@ export default function IngresoUsuarios() {
       try {
         if (isEditing) {
           // Update user if in edit mode
-          await axios.put(
-            `https://www.easyposdev.somee.com/Usuarios/UpdateUsuario/${userId}`,
+          const response = await axios.put(
+            `https://www.easyposdev.somee.com/api/Usuarios/UpdateUsuario/${userId}`,
             usuario
           );
+          if (response.status === 200) {
+            setSnackbarMessage("Usuario actualizado exitosamente");
+           
+            setSnackbarOpen(true);
+          }
         } else {
           // Add new user if not in edit mode
           const response = await axios.post(
-            "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
+            "https://www.easyposdev.somee.com/api/Usuarios/AddUsuario",
             usuario
           );
-          setModalContent({
-            description: response.data.descripcion,
-            positive: true,
-            message: "Usuario creado con éxito!",
-          });
-          setModalOpen(true);
+          if (response.status === 200) {
+            setSnackbarMessage("Usuario creado exitosamente");
+           
+            setSnackbarOpen(true);
+          }
         }
       } catch (error) {
         if (error.response.status === 409) {
-          // Handle conflict error here
-          // For example, you could set an error message to inform the user that the username or email already exists
+          setSnackbarMessage("Usuario no creado, favor intentar otra vez ");
+          setSnackbarOpen(true);
         }
-        setModalContent({
-          description: error.response.data.descripcion,
-          positive: false,
-          message: "Usuario no creado, favor intentar otra vez ",
-        });
+        
+          
+          
+        
         setModalOpen(true);
+      } finally {
+        setNombre("");
+        setApellido("");
+        setCorreo("");
+        setTelefono("");
+        setDireccion("");
+        setSelectedRegion("");
+        setSelectedComuna("");
+        setSelectedRol("");
+        setCodigoPostal("");
+        setRut("");
+        setCodigoUsuario("");
+        setClave("");
+        setRemuneracion("");
+        setCredito("");
+        setErrores({});
+        setIsEditing(false);
+        setUserId(null);
       }
     }
+  };
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+    setSnackbarMessage("");
   };
 
   const closeModal = () => {
@@ -269,44 +299,14 @@ export default function IngresoUsuarios() {
   };
 
   return (
-    <>
-      <Grid container component="main" sx={{ height: "70vh", width: "100%" }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={12}
-          sm={8}
-          md={12}
-          lg={12}
-          component={Paper}
-          elevation={6}
-          square
-        >
-          <Box
-            sx={{
-              mx: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            {/* {Object.keys(errores).length > 0 && (
-    <div style={{ color: "red", marginBottom: "1rem" }}>
-      Por favor, corrija los siguientes errores antes de continuar:
-      <ul>
-        {Object.values(errores).map((error, index) => (
-          <li key={index}>{error}</li>
-        ))}
-      </ul>
-    </div>
-  )} */}
-            <h2>Ingreso Usuarios</h2>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit}
-              sx={{ mt: 1 }}
-            >
+    <div style={{ overflow: "auto" }}>
+      <Grid item xs={12} container>
+        <Paper elevation={16} square>
+          <Grid container spacing={2} sx={{ padding: "2%" }}>
+            <Grid item xs={12}>
+              <h2>Ingreso Usuarios</h2>
+            </Grid>
+            <Grid item xs={12} md={12}>
               {Object.keys(errores).length > 0 && (
                 <div
                   style={{ color: "red", marginBottom: "1%", marginTop: "1%" }}
@@ -314,267 +314,261 @@ export default function IngresoUsuarios() {
                   <ul>{Object.values(errores)[0]}</ul>
                 </div>
               )}
+            </Grid>
 
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa rut sin puntos y con guión
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    sx={{ marginRight: 2 }}
-                    id="rut"
-                    label="ej: 11111111-1"
-                    name="rut"
-                    autoComplete="rut"
-                    autoFocus
-                    value={rut}
-                    onChange={(e) => setRut(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Nombre
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="nombres"
-                    label="Nombres"
-                    name="nombres"
-                    autoComplete="nombres"
-                    autoFocus
-                    value={nombres}
-                    onChange={(e) => setNombre(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Apellidos
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="apellidos"
-                    label="Apellidos"
-                    name="apellidos"
-                    autoComplete="apellidos"
-                    autoFocus
-                    value={apellidos}
-                    onChange={(e) => setApellido(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Correo Electrónico
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="correo"
-                    label="Correo Electrónico"
-                    name="correo"
-                    autoComplete="correo"
-                    autoFocus
-                    value={correo}
-                    onChange={handleEmailChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Teléfono
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="telefono"
-                    label="Teléfono"
-                    name="telefono"
-                    autoComplete="telefono"
-                    autoFocus
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Dirección
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="direccion"
-                    label="Dirección"
-                    name="direccion"
-                    autoComplete="direccion"
-                    autoFocus
-                    value={direccion}
-                    onChange={(e) => setDireccion(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel sx={{ marginBottom: "4%" }}>
-                    Selecciona Región
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    id="region"
-                    select
-                    label="Región"
-                    value={selectedRegion}
-                    onChange={(e) => {
-                  
-                      setSelectedRegion(e.target.value);
-                      // Actualizar el valor en formData
-                      
-                    }}
-                  >
-                    {regionOptions.map((option) => (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.regionNombre}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel sx={{ marginBottom: "4%" }}>
-                    Selecciona Comuna
-                  </InputLabel>
-                  <TextField
-                    id="comuna"
-                    select
-                    fullWidth
-                    label="Comuna"
-                    value={selectedComuna}
-                    onChange={(e) => {
-                      const comunaValue = e.target.value;
-                      setSelectedComuna(e.target.value);
-                      // Actualizar el valor en formData.comuna (sin sucursal)
-                      
-                    }}
-                  >
-                    {comunaOptions.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Código Postal
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="codigoPostal"
-                    label="Código Postal"
-                    name="codigoPostal"
-                    autoComplete="codigoPostal"
-                    autoFocus
-                    value={codigoPostal}
-                    onChange={(e) => setCodigoPostal(e.target.value)}
-                  />
-                </Grid>
-              
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Clave
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="clave"
-                    label="Clave"
-                    name="clave"
-                    type="password"
-                    autoComplete="new-password"
-                    autoFocus
-                    value={clave}
-                    onChange={(e) => setClave(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Remuneración
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="remuneracion"
-                    select
-                    label="Remuneración"
-                    name="remuneracion"
-                    autoComplete="remuneracion"
-                    autoFocus
-                    value={remuneracion}
-                    onChange={(e) => setRemuneracion(e.target.value)}
-                  >
-                    <MenuItem value="Diario">Diario</MenuItem>
-                    <MenuItem value="Semanal">Semanal</MenuItem>
-                    <MenuItem value="Mensual">Mensual</MenuItem>
-                    {/* Agrega más opciones según sea necesario */}
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "4%" }}>
-                    Ingresa Crédito
-                  </InputLabel>
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    required
-                    id="credito"
-                    label="Crédito"
-                    name="credito"
-                    autoComplete="credito"
-                    autoFocus
-                    value={credito}
-                    onChange={(e) => setCredito(e.target.value)}
-                  />
-                </Grid>
-              </Grid>
-              <Button
-                type="submit"
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%", fontSize: "0.9rem" }}>
+                Ingresa rut sin puntos y con guión
+              </InputLabel>
+              <TextField
                 fullWidth
-                onSubmit={handleSubmit}
-                variant="contained"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2 }}
+                margin="normal"
+                required
+                id="rut"
+                label="ej: 11111111-1"
+                name="rut"
+                autoComplete="rut"
+                autoFocus
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Nombre
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                type="text"
+                id="nombres"
+                label="Nombres"
+                name="nombres"
+                autoComplete="nombres"
+                autoFocus
+                value={nombres}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Apellidos
+              </InputLabel>
+              <TextField
+                type="text"
+                fullWidth
+                margin="normal"
+                required
+                id="apellidos"
+                label="Apellidos"
+                name="apellidos"
+                autoComplete="apellidos"
+                autoFocus
+                value={apellidos}
+                onChange={(e) => setApellido(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Correo Electrónico
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                type="email"
+                id="correo"
+                label="Correo Electrónico"
+                name="correo"
+                autoComplete="correo"
+                autoFocus
+                value={correo}
+                onChange={handleEmailChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Teléfono
+              </InputLabel>
+              <TextField
+                fullWidth
+                type="number"
+                margin="normal"
+                required
+                id="telefono"
+                label="Teléfono"
+                name="telefono"
+                autoComplete="telefono"
+                autoFocus
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Dirección
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                id="direccion"
+                label="Dirección"
+                name="direccion"
+                autoComplete="direccion"
+                autoFocus
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Selecciona Región
+              </InputLabel>
+              <TextField
+                required
+                fullWidth
+                id="region"
+                select
+                label="Región"
+                value={selectedRegion}
+                onChange={(e) => {
+                  setSelectedRegion(e.target.value);
+                }}
               >
-                {loading ? (
-                  <>
-                    <CircularProgress size={20} /> Procesando...
-                  </>
-                ) : (
-                  "Registrar usuario"
-                )}
-              </Button>
-            </Box>
-          </Box>
-        </Grid>
+                {regionOptions.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.regionNombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Selecciona Comuna
+              </InputLabel>
+              <TextField
+                required
+                id="comuna"
+                select
+                fullWidth
+                label="Comuna"
+                value={selectedComuna}
+                onChange={(e) => {
+                  const comunaValue = e.target.value;
+                  setSelectedComuna(e.target.value);
+                }}
+              >
+                {comunaOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Código Postal
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                type="number"
+                id="codigoPostal"
+                label="Código Postal"
+                name="codigoPostal"
+                autoComplete="codigoPostal"
+                autoFocus
+                value={codigoPostal}
+                onChange={(e) => setCodigoPostal(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>Ingresa Clave</InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                id="clave"
+                label="Clave"
+                name="clave"
+                type="password"
+                autoComplete="new-password"
+                autoFocus
+                value={clave}
+                onChange={(e) => setClave(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Remuneración
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                id="remuneracion"
+                select
+                label="Remuneración"
+                name="remuneracion"
+                autoComplete="remuneracion"
+                autoFocus
+                value={remuneracion}
+                onChange={(e) => setRemuneracion(e.target.value)}
+              >
+                <MenuItem value="Diario">Diario</MenuItem>
+                <MenuItem value="Semanal">Semanal</MenuItem>
+                <MenuItem value="Mensual">Mensual</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Crédito
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                id="credito"
+                label="Crédito"
+                ß
+                name="credito"
+                autoComplete="credito"
+                autoFocus
+                value={credito}
+                onChange={(e) => setCredito(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              onClick={handleSubmit}
+              sx={{ mt: 3, mb: 2 }}
+            >
+              {loading ? (
+                <>
+                  <CircularProgress size={20} /> Procesando...
+                </>
+              ) : (
+                "Registrar usuario"
+              )}
+            </Button>
+          </Grid>
+        </Paper>
       </Grid>
-      <Dialog
-        open={modalOpen}
-        onClose={closeModal}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogContent>{modalContent.message}</DialogContent>
-        <DialogActions>
-          <Button onClick={closeModal}>Ok</Button>
-        </DialogActions>
-      </Dialog>
-    </>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+      
+      />
+    </div>
   );
 }

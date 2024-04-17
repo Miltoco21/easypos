@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Button, MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
@@ -11,9 +11,7 @@ const SearchList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser]= useState([]);
-
   const [modalEditOpen, setModalOpen] = useState(false);
-
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
@@ -29,10 +27,6 @@ const SearchList = () => {
 
     fetchUsers();
   }, [refresh]);
-
-  
-
-
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -61,6 +55,11 @@ const SearchList = () => {
     setRefresh(!refresh); // Refresh the users list after editing
   };
 
+  // Filter users based on search term
+  const filteredUsers = users.filter((user) =>
+    user.nombres.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Box sx={{ p: 2, mb: 4, border: "4px" }}>
       <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
@@ -77,12 +76,12 @@ const SearchList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6}>No se encontraron usuarios</TableCell>
             </TableRow>
           ) : (
-            users.map((user) => (
+            filteredUsers.map((user) => (
               <TableRow key={user.codigoUsuario}>
                 <TableCell>{user.codigoUsuario}</TableCell>
                 <TableCell>
@@ -117,9 +116,6 @@ const SearchList = () => {
           )}
         </TableBody>
       </Table>
-      {/* Pagination */}
-    
-
       <EditUsuario 
         selectedUser={selectedUser}
         open={modalEditOpen}
