@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from 'react'
+import React from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -9,6 +9,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
 import Paper from "@mui/material/Paper";
+import MenuItem from "@mui/material/MenuItem";
 
 import Grid from "@mui/material/Grid";
 import { Tooltip } from "@mui/material";
@@ -31,6 +32,7 @@ const IngresoCL = () => {
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [comuna, setComuna] = useState("");
+  const [region, setRegion] = useState("");
   const [sucursal, setSucursal] = useState("");
   const [pagina, setUlrPagina] = useState("");
   const [formaPago, setFormaPago] = useState("");
@@ -38,11 +40,10 @@ const IngresoCL = () => {
   const [correoResponsable, setcorreoResponsable] = useState("");
   const [telefonoResponsable, setTelefonoResponsable] = useState("");
   const [errors, setErrors] = useState({}); //error como objetos
- 
+
   const [response, setResponse] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
 
   const theme = createTheme();
 
@@ -67,6 +68,7 @@ const IngresoCL = () => {
           setEmail(firstDataRow.email || "");
           setDireccion(firstDataRow.direccion || "");
           setTelefono(firstDataRow.telefono || "");
+          setRegion(firstDataRow.region || "");
           setComuna(firstDataRow.comuna || "");
           setSucursal(firstDataRow.sucursal || "");
           setUlrPagina(firstDataRow.pagina || "");
@@ -91,6 +93,7 @@ const IngresoCL = () => {
         direccion: direccion,
         telefono: telefono,
         comuna: comuna,
+        region: region,
         sucursal: sucursal,
         pagina: pagina,
         formaPago: formaPago,
@@ -124,6 +127,39 @@ const IngresoCL = () => {
     setShowModal(false); // Close the success modal
     setFormSubmitted(false); // Reset formSubmitted state
   };
+  const [regiones, setRegiones] = useState([]);
+  const [comunas, setComunas] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedComuna, setSelectedComuna] = useState("");
+
+  useEffect(() => {
+    // Obtener regiones
+    axios
+      .get("https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones")
+      .then((response) => {
+        setRegiones(response.data.regiones);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las regiones:", error);
+      });
+  }, []);
+
+  const handleRegionChange = (event) => {
+    const selectedRegionId = event.target.value;
+    setSelectedRegion(selectedRegionId);
+
+    // Obtener comunas para la región seleccionada
+    axios
+      .get(
+        `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegionId}`
+      )
+      .then((response) => {
+        setComunas(response.data.comunas);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las comunas:", error);
+      });
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -154,6 +190,9 @@ const IngresoCL = () => {
     }
     if (!telefono) {
       errors.telefono = "Favor completar campo ";
+    }
+    if (!region) {
+      errors.region = "Favor completar campo ";
     }
     if (!comuna) {
       errors.comuna = "Favor completar campo ";
@@ -194,6 +233,7 @@ const IngresoCL = () => {
         direccion,
         telefono,
         comuna,
+        region,
         pagina,
         formaPago,
         rut,
@@ -210,7 +250,6 @@ const IngresoCL = () => {
         );
         setResponse(response.data);
         setFormSubmitted(true);
-        
 
         console.log(response, "debugMiltoco");
 
@@ -223,6 +262,7 @@ const IngresoCL = () => {
         setComuna("");
         setUlrPagina("");
         setFormaPago("");
+        setRegion("");
         setRut("");
         setNombreResponsable("");
         setcorreoResponsable("");
@@ -239,7 +279,6 @@ const IngresoCL = () => {
     }
   };
   return (
-   
     <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: "100vh", width: "90vw" }}>
         <CssBaseline />
@@ -380,17 +419,35 @@ const IngresoCL = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
-                    error={!!errors.comuna}
-                    helperText={errors.comuna}
-                    required
+                    select
+                    label="Región"
+                    value={selectedRegion}
+                    onChange={handleRegionChange}
                     fullWidth
-                    name="comuna"
+                  >
+                    {regiones.map((region) => (
+                      <MenuItem key={region.id} value={region.id}>
+                        {region.regionNombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField
+                    error={!!errors.comuna}
+                    select
                     label="Comuna"
-                    type="text"
-                    id="comuna"
-                    value={comuna}
-                    onChange={(e) => setComuna(e.target.value)}
-                  />
+                    value={selectedComuna}
+                    onChange={(e) => setSelectedComuna(e.target.value)}
+                    fullWidth
+                  >
+                    {comunas.map((comuna) => (
+                      <MenuItem key={comuna.id} value={comuna.id}>
+                        {comuna.comunaNombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
@@ -525,8 +582,6 @@ const IngresoCL = () => {
             {response && (
               <div>
                 <p>Código de Proveedor: {response.codigoProveedor}</p>
-                
-              
 
                 {/* Add other properties as needed */}
               </div>
@@ -547,7 +602,7 @@ const IngresoCL = () => {
           </div>
         ))}
     </ThemeProvider>
-  )
-}
+  );
+};
 
-export default IngresoCL
+export default IngresoCL;

@@ -1,27 +1,34 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import Buscador from "./Buscador";
-import Buscador2 from "./Buscador2";
-import Typography from "@mui/material/Typography";
+
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import TablaNivel from "./TablaNivel";
 
 import Textarea from "@mui/joy/Textarea";
 import PercentIcon from "@mui/icons-material/Percent";
 import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
 
-import TextField from "@mui/material/TextField";
 import axios from "axios";
+import {
+  Box,
+  Grid,
+  Paper,
+  TextField,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+} from "@mui/material";
 
 import InputAdornment from "@mui/material/InputAdornment";
-import Paper from "@mui/material/Paper";
 
-import Grid from "@mui/material/Grid";
 import { Tooltip } from "@mui/material";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -34,6 +41,35 @@ const PreciosGenerales = () => {
     e.preventDefault();
     // Handle form submission logic here
   };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}`
+        );
+        setProducts(response.data.productos);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setErrorMessage("Error al buscar el producto por descripción");
+      }
+    };
+
+    if (searchTerm.trim() !== "") {
+      fetchProducts();
+    } else {
+      setProducts([]);
+    }
+  }, [searchTerm]);
+
+  const handleSelectProduct = (product) => {
+    onSelectProduct(product);
+    setSearchTerm(""); // Limpiar el término de búsqueda después de seleccionar un producto
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" sx={{ height: "90vh", width: "190vh" }}>
@@ -66,10 +102,67 @@ const PreciosGenerales = () => {
             >
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6} md={11}>
-                  <Buscador />
-                  <br />
-                  <Buscador2 />
-                  <br />
+                  <Paper
+                    elevation={1}
+                    style={{
+                      background: "#859398",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      margin: "5px",
+                    }}
+                  >
+                    <TextField
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: "5px",
+                        marginBottom: "10px",
+                      }}
+                      fullWidth
+                      placeholder="Buscar por descripción"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {errorMessage && (
+                      <Typography variant="body4" color="error">
+                        {errorMessage}
+                      </Typography>
+                    )}
+                    <TableContainer
+                      component={Paper}
+                      style={{ overflowX: "auto", maxHeight: "200px" }}
+                    >
+                      <Table>
+                        <TableHead
+                          style={{ background: "white", height: "30%" }}
+                        >
+                          <TableRow>
+                            <TableCell>Descripción</TableCell>
+                            <TableCell>Plu</TableCell>
+                            <TableCell>Agregar</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {products.map((product) => (
+                            <TableRow key={product.id}>
+                              <TableCell>{product.nombre}</TableCell>
+                              <TableCell>{product.idProducto}</TableCell>
+                              <TableCell>{product.precioCosto}</TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="contained"
+                                  color="secondary"
+                                  onClick={() => handleSelectProduct(product)}
+                                >
+                                  Agregar
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Paper>
                 </Grid>
               </Grid>
               <Grid container spacing={2}>
@@ -127,7 +220,7 @@ const PreciosGenerales = () => {
                     sx={{ marginTop: "15px" }}
                   >
                     <TablaNivel />
-                    <TablaPrecios/>
+                    <TablaPrecios />
                   </Box>
                 </Grid>
               </Grid>

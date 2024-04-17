@@ -19,6 +19,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import PolylineIcon from '@mui/icons-material/Polyline';
 import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
 import SchemaOutlinedIcon from '@mui/icons-material/SchemaOutlined';
+import GroupsIcon from '@mui/icons-material/Groups';
 
 
 const drawerWidth = 200;
@@ -28,6 +29,7 @@ const menuItems = [
   { text: "Usuarios", link: "/usuarios", icon: <PeopleAltIcon /> },
   { text: "Precios", link: "/precios", icon: <PriceChangeIcon /> },
   { text: "Proveedores", link: "/proveedores", icon: <LocalShippingIcon /> },
+  { text: "Clientes", link: "/clientes", icon: <GroupsIcon/> },
   {
     text: "Productos",
     link: "/productos",

@@ -1,29 +1,22 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-refresh/only-export-components */
-/* eslint-disable no-unused-vars */
-
 import React, { useState, useEffect } from "react";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import { Button, Typography } from "@mui/material";
+
+import {
+  Grid,
+  Paper,
+  Box,
+  TextField,
+  Button,
+  CircularProgress,
+  MenuItem,
+  InputLabel,
+  CssBaseline,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import axios from "axios";
-import Dialog from "@mui/material/Dialog";
-
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
-
-import InputAdornment from "@mui/material/InputAdornment";
-import Paper from "@mui/material/Paper";
-import { MenuItem } from "@mui/material";
-
-import Grid from "@mui/material/Grid";
-import { Tooltip } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-//
 
 export const defaultTheme = createTheme();
 
@@ -33,29 +26,14 @@ export default function IngresoUsuarios() {
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
-  const [isEmailValid, setIsEmailValid] = useState(false);
   const [codigoPostal, setCodigoPostal] = useState("");
   const [rut, setRut] = useState("");
   const [codigoUsuario, setCodigoUsuario] = useState("");
   const [clave, setClave] = useState("");
   const [remuneracion, setRemuneracion] = useState("");
   const [credito, setCredito] = useState("");
-  const [errors, setErrors] = useState({
-    rut: "",
-    nombres: "",
-    apellidos: "",
-    correo: "",
-    direccion: "",
-    telefono: "",
-    comuna: "",
-    selectedRegion: "",
-    codigoPostal: "",
-    codigoUsuario: "",
-    clave: "",
-    remuneracion: "",
-    credito: "",
-    rol: "",
-  });
+  const [loading, setLoading] = useState(false);
+  const [errores, setErrores] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({});
   const [selectedRegion, setSelectedRegion] = useState("");
@@ -73,8 +51,6 @@ export default function IngresoUsuarios() {
         const response = await axios.get(
           "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
         );
-
-        // Store both ID and region name in regionOptions
         setRegionOptions(response.data.regiones);
       } catch (error) {
         console.error(error);
@@ -91,7 +67,9 @@ export default function IngresoUsuarios() {
           const response = await axios.get(
             `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
-          setComunaOptions(response.data.comunas.map((comuna) => comuna.comunaNombre));
+          setComunaOptions(
+            response.data.comunas.map((comuna) => comuna.comunaNombre)
+          );
         } catch (error) {
           console.error(error);
         }
@@ -107,7 +85,6 @@ export default function IngresoUsuarios() {
         const response = await axios.get(
           "https://www.easyposdev.somee.com/Usuarios/GetAllRolUsuario"
         );
-        console.log("API response:", response.data.usuarios);
         setRoles(response.data.usuarios);
       } catch (error) {
         console.log(error);
@@ -125,53 +102,35 @@ export default function IngresoUsuarios() {
   const handleEmailChange = (e) => {
     const inputEmail = e.target.value;
     setCorreo(inputEmail);
-    setIsEmailValid(validateEmail(inputEmail));
-    if (!inputEmail) {
-      setErrors({ correo: "Favor completar email" });
-    } else if (!validateEmail(inputEmail)) {
-      setErrors({ correo: "Formato de correo no es válido" });
-    } else {
-      setErrors({ correo: "" });
-    }
+    setErrores((prevErrores) => ({
+      ...prevErrores,
+      correo: !inputEmail
+        ? "Favor completar email"
+        : !validateEmail(inputEmail)
+        ? "Formato de correo no es válido"
+        : "",
+    }));
   };
 
-  useEffect(() => {
-    async function fetchRoles() {
-      try {
-        const response = await axios.get(
-          "https://www.easyposdev.somee.com/Usuarios/GetAllRolUsuario"
-        );
-        console.log("API response:", response.data.usuarios);
-        setRoles(response.data.usuarios);
-      } catch (error) {
-        console.log(error);
-      }
+  const validarRutChileno = (rut) => {
+    if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut)) {
+      return false;
     }
 
-    fetchRoles();
-  }, []);
+    const partesRut = rut.split("-");
+    const digitoVerificador = partesRut[1].toUpperCase();
+    const numeroRut = partesRut[0];
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalContent("");
-    setNombre("");
-    setApellido("");
-    setCorreo("");
-    setTelefono("");
-    setDireccion("");
-    setSelectedRegion("");
-    setSelectedComuna("");
-    setSelectedRol("");
-    setCodigoPostal("");
-    setRut("");
-    setCodigoUsuario("");
-    setClave("");
-    setRemuneracion("");
-    setCredito("");
-    // Clear errors
-    setErrors({});
-    setIsEditing(false);
-    setUserId(null);
+    const calcularDigitoVerificador = (T) => {
+      let M = 0;
+      let S = 1;
+      for (; T; T = Math.floor(T / 10)) {
+        S = (S + (T % 10) * (9 - (M++ % 6))) % 11;
+      }
+      return S ? String(S - 1) : "K";
+    };
+
+    return calcularDigitoVerificador(numeroRut) === digitoVerificador;
   };
 
   const handleSubmit = async (event) => {
@@ -216,6 +175,9 @@ export default function IngresoUsuarios() {
     if (!rut) {
       errors.rut = "Favor completar rut ";
     }
+    if (!validarRutChileno(rut)) {
+      errors.rut = "El RUT ingresado NO es válido.";
+    }
     if (!codigoUsuario) {
       errors.codigoUsuario = "Favor completar código  ";
     }
@@ -228,10 +190,9 @@ export default function IngresoUsuarios() {
     if (!credito) {
       errors.credito = "Favor completar crédito ";
     }
-    console.log("Selected Region:", selectedRegion,"Selected Comuna:",selectedComuna);
 
     if (Object.keys(errors).length > 0) {
-      setErrors(errors);
+      setErrores(errors);
     } else {
       const usuario = {
         nombres,
@@ -249,7 +210,6 @@ export default function IngresoUsuarios() {
         credito,
         rol: selectedRol,
       };
-      console.log(usuario);
 
       try {
         if (isEditing) {
@@ -264,7 +224,6 @@ export default function IngresoUsuarios() {
             "https://www.easyposdev.somee.com/Usuarios/AddUsuario",
             usuario
           );
-          console.log(response.data, "DATA OK");
           setModalContent({
             description: response.data.descripcion,
             positive: true,
@@ -273,7 +232,6 @@ export default function IngresoUsuarios() {
           setModalOpen(true);
         }
       } catch (error) {
-        console.log(error.response.data, "Leer Error");
         if (error.response.status === 409) {
           // Handle conflict error here
           // For example, you could set an error message to inform the user that the username or email already exists
@@ -288,8 +246,30 @@ export default function IngresoUsuarios() {
     }
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalContent("");
+    setNombre("");
+    setApellido("");
+    setCorreo("");
+    setTelefono("");
+    setDireccion("");
+    setSelectedRegion("");
+    setSelectedComuna("");
+    setSelectedRol("");
+    setCodigoPostal("");
+    setRut("");
+    setCodigoUsuario("");
+    setClave("");
+    setRemuneracion("");
+    setCredito("");
+    setErrores({});
+    setIsEditing(false);
+    setUserId(null);
+  };
+
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <>
       <Grid container component="main" sx={{ height: "70vh", width: "100%" }}>
         <CssBaseline />
         <Grid
@@ -310,353 +290,275 @@ export default function IngresoUsuarios() {
               alignItems: "center",
             }}
           >
-            Ingreso Usuarios
+            {/* {Object.keys(errores).length > 0 && (
+    <div style={{ color: "red", marginBottom: "1rem" }}>
+      Por favor, corrija los siguientes errores antes de continuar:
+      <ul>
+        {Object.values(errores).map((error, index) => (
+          <li key={index}>{error}</li>
+        ))}
+      </ul>
+    </div>
+  )} */}
+            <h2>Ingreso Usuarios</h2>
             <Box
               component="form"
               noValidate
               onSubmit={handleSubmit}
               sx={{ mt: 1 }}
             >
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="rut"
-                label="Rut"
-                name="rut"
-                autoComplete="rut"
-                autoFocus
-                value={rut}
-                onChange={(e) => setRut(e.target.value)}
-                error={Boolean(errors.rut)}
-                helperText={errors.rut}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.rut ? null : (
-                        <Tooltip title="Rut válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                id="nombres"
-                label="Nombres"
-                name="nombres"
-                autoComplete="nombres"
-                autoFocus
-                value={nombres}
-                onChange={(e) => setNombre(e.target.value)}
-                error={Boolean(errors.nombres)}
-                helperText={errors.nombres}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.nombres ? null : (
-                        <Tooltip title="Nombres válidos">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="apellidos"
-                label="Apellidos"
-                name="apellidos"
-                autoComplete="apellidos"
-                autoFocus
-                value={apellidos}
-                onChange={(e) => setApellido(e.target.value)}
-                error={Boolean(errors.apellidos)}
-                helperText={errors.apellidos}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.apellidos ? null : (
-                        <Tooltip title="Apellidos válidos">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="correo"
-                label="Correo"
-                name="correo"
-                autoComplete="correo"
-                autoFocus
-                value={correo}
-                onChange={handleEmailChange}
-                error={Boolean(errors.correo)}
-                helperText={errors.correo}
-                // InputProps={{
-                //   endAdornment: (
-                //     <InputAdornment position="end">
-                //       {errors.correo ? null : (
-                //         <Tooltip title="Correo válido">
-                //           <CheckCircleIcon />
-                //         </Tooltip>
-                //       )}
-                //     </InputAdornment>
-                //   ),
-                // }}
-                InputProps={{
-                  endAdornment: isEmailValid ? (
-                    <CheckCircleIcon style={{ color: "green" }} />
-                  ) : null,
-                  style: {
-                    backgroundColor: errors.correo ? "lightcoral" : "white",
-                  },
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="direccion"
-                label="Dirección"
-                name="direccion"
-                autoComplete="direccion"
-                autoFocus
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                error={Boolean(errors.direccion)}
-                helperText={errors.direccion}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.direccion ? null : (
-                        <Tooltip title="Dirección válida">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="telefono"
-                label="Teléfono"
-                name="telefono"
-                autoComplete="telefono"
-                autoFocus
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                error={Boolean(errors.telefono)}
-                helperText={errors.telefono}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.telefono ? null : (
-                        <Tooltip title="Teléfono válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                id="Rol"
-                select
-                label="Rol"
-                value={selectedRol}
-                onChange={(e) => setSelectedRol(e.target.value)}
-                error={Boolean(errors.selectedRol)}
-                helperText={errors.selectedRol}
-                sx={{ marginTop: 2 }}
-                fullWidth
-              >
-                {roles.map((rol) => (
-                  <MenuItem key={rol.idRol} value={rol.rol}>
-                    {rol.rol}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-               sx={{ marginTop: 2 }}
-               fullWidth
-                id="region"
-                select
-                label="Región"
-                value={selectedRegion}
-                onChange={(e) => {
-                  const regionID = e.target.value; // Extract ID based on the selected name
-                  setSelectedRegion(regionID);
-                }}
-                // Other attributes...
-              >
-                {regionOptions.map((option) => (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.regionNombre}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                sx={{ marginTop: 2 }}
-                id="comuna"
-                select
-                fullWidth
-                label="Comuna"
-                value={selectedComuna}
-                onChange={(e) => setSelectedComuna(e.target.value)}
-                error={Boolean(errors.comuna)}
-                helperText={errors.comuna}
-              >
-                {comunaOptions.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="codigoPostal"
-                label="Código Postal"
-                name="codigoPostal"
-                autoComplete="codigoPostal"
-                autoFocus
-                value={codigoPostal}
-                onChange={(e) => setCodigoPostal(e.target.value)}
-                error={Boolean(errors.codigoPostal)}
-                helperText={errors.codigoPostal}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.codigoPostal ? null : (
-                        <Tooltip title="Código Postal válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                sx={{ marginRight: 2 }}
-                id="codigoUsuario"
-                label="Código Usuario"
-                name="codigoUsuario"
-                autoComplete="codigoUsuario"
-                autoFocus
-                value={codigoUsuario}
-                onChange={(e) => setCodigoUsuario(e.target.value)}
-                error={Boolean(errors.codigoUsuario)}
-                helperText={errors.codigoUsuario}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.codigoUsuario ? null : (
-                        <Tooltip title="Código Usuario válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                id="clave"
-                label="Clave"
-                name="clave"
-                sx={{ marginRight: 2 }}
-                autoComplete="clave"
-                autoFocus
-                value={clave}
-                onChange={(e) => setClave(e.target.value)}
-                error={Boolean(errors.clave)}
-                helperText={errors.clave}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.clave ? null : (
-                        <Tooltip title="Clave válida">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                id="remuneracion"
-                label="Remuneración"
-                name="remuneracion"
-                autoComplete="remuneracion"
-                autoFocus
-                value={remuneracion}
-                onChange={(e) => setRemuneracion(e.target.value)}
-                error={Boolean(errors.remuneracion)}
-                helperText={errors.remuneracion}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.remuneracion ? null : (
-                        <Tooltip title="Remuneración válida">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                id="credito"
-                label="Crédito"
-                name="credito"
-                autoComplete="credito"
-                autoFocus
-                value={credito}
-                onChange={(e) => setCredito(e.target.value)}
-                error={Boolean(errors.credito)}
-                helperText={errors.credito}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {errors.credito ? null : (
-                        <Tooltip title="Crédito válido">
-                          <CheckCircleIcon />
-                        </Tooltip>
-                      )}
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {Object.keys(errores).length > 0 && (
+                <div
+                  style={{ color: "red", marginBottom: "1%", marginTop: "1%" }}
+                >
+                  <ul>{Object.values(errores)[0]}</ul>
+                </div>
+              )}
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa rut sin puntos y con guión
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    sx={{ marginRight: 2 }}
+                    id="rut"
+                    label="ej: 11111111-1"
+                    name="rut"
+                    autoComplete="rut"
+                    autoFocus
+                    value={rut}
+                    onChange={(e) => setRut(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Nombre
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="nombres"
+                    label="Nombres"
+                    name="nombres"
+                    autoComplete="nombres"
+                    autoFocus
+                    value={nombres}
+                    onChange={(e) => setNombre(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Apellidos
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="apellidos"
+                    label="Apellidos"
+                    name="apellidos"
+                    autoComplete="apellidos"
+                    autoFocus
+                    value={apellidos}
+                    onChange={(e) => setApellido(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Correo Electrónico
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="correo"
+                    label="Correo Electrónico"
+                    name="correo"
+                    autoComplete="correo"
+                    autoFocus
+                    value={correo}
+                    onChange={handleEmailChange}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Teléfono
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="telefono"
+                    label="Teléfono"
+                    name="telefono"
+                    autoComplete="telefono"
+                    autoFocus
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Dirección
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="direccion"
+                    label="Dirección"
+                    name="direccion"
+                    autoComplete="direccion"
+                    autoFocus
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputLabel sx={{ marginBottom: "4%" }}>
+                    Selecciona Región
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    id="region"
+                    select
+                    label="Región"
+                    value={selectedRegion}
+                    onChange={(e) => {
+                  
+                      setSelectedRegion(e.target.value);
+                      // Actualizar el valor en formData
+                      
+                    }}
+                  >
+                    {regionOptions.map((option) => (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.regionNombre}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputLabel sx={{ marginBottom: "4%" }}>
+                    Selecciona Comuna
+                  </InputLabel>
+                  <TextField
+                    id="comuna"
+                    select
+                    fullWidth
+                    label="Comuna"
+                    value={selectedComuna}
+                    onChange={(e) => {
+                      const comunaValue = e.target.value;
+                      setSelectedComuna(e.target.value);
+                      // Actualizar el valor en formData.comuna (sin sucursal)
+                      
+                    }}
+                  >
+                    {comunaOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Código Postal
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="codigoPostal"
+                    label="Código Postal"
+                    name="codigoPostal"
+                    autoComplete="codigoPostal"
+                    autoFocus
+                    value={codigoPostal}
+                    onChange={(e) => setCodigoPostal(e.target.value)}
+                  />
+                </Grid>
+              
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Clave
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="clave"
+                    label="Clave"
+                    name="clave"
+                    type="password"
+                    autoComplete="new-password"
+                    autoFocus
+                    value={clave}
+                    onChange={(e) => setClave(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Remuneración
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="remuneracion"
+                    select
+                    label="Remuneración"
+                    name="remuneracion"
+                    autoComplete="remuneracion"
+                    autoFocus
+                    value={remuneracion}
+                    onChange={(e) => setRemuneracion(e.target.value)}
+                  >
+                    <MenuItem value="Diario">Diario</MenuItem>
+                    <MenuItem value="Semanal">Semanal</MenuItem>
+                    <MenuItem value="Mensual">Mensual</MenuItem>
+                    {/* Agrega más opciones según sea necesario */}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                    Ingresa Crédito
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    required
+                    id="credito"
+                    label="Crédito"
+                    name="credito"
+                    autoComplete="credito"
+                    autoFocus
+                    value={credito}
+                    onChange={(e) => setCredito(e.target.value)}
+                  />
+                </Grid>
+              </Grid>
               <Button
                 type="submit"
                 fullWidth
+                onSubmit={handleSubmit}
                 variant="contained"
+                disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
               >
-                {isEditing ? "Actualizar" : "Registrar"}
+                {loading ? (
+                  <>
+                    <CircularProgress size={20} /> Procesando...
+                  </>
+                ) : (
+                  "Registrar usuario"
+                )}
               </Button>
             </Box>
           </Box>
@@ -668,23 +570,11 @@ export default function IngresoUsuarios() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {modalContent.message}
-            {Object.keys(errors).map((key) => (
-              <DialogContentText
-                key={key}
-                id={`alert-dialog-description-${key}`}
-              >
-                {errors[key]}
-              </DialogContentText>
-            ))}
-          </DialogContentText>
-        </DialogContent>
+        <DialogContent>{modalContent.message}</DialogContent>
         <DialogActions>
           <Button onClick={closeModal}>Ok</Button>
         </DialogActions>
       </Dialog>
-    </ThemeProvider>
+    </>
   );
 }

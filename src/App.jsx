@@ -13,6 +13,7 @@ import Precios from "./Pages/Precios";
 import Proveedores from "./Pages/Proveedores";
 import SideBar from "./Componentes/NavBar/SideBar"
 import Productos from "./Pages/Productos"
+import Clientes from "./Pages/Clientes"
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -32,6 +33,7 @@ function App() {
       <Route path="/usuarios" element={<Usuarios />} />
       <Route path="/precios" element={<Precios />} />
       <Route path="/proveedores" element={<Proveedores />} />
+      <Route path="/clientes" element={<Clientes />} />
       <Route path="/productos" element={<Productos />} />
       <Route path="/categorias" element={<Categorias />} />
       <Route path="/subcategorias" element={<SubCategorias />} />
