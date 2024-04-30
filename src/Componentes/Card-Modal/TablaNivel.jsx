@@ -49,7 +49,7 @@ function TablaNivel() {
 
   return (
     <Grid container spacing={1}>
-      <Grid item xs={12} sm={6} md={12}  sx={{ marginRight: "10px" }}>
+      <Grid item xs={12} sm={6} md={12}  >
         <TableContainer component={Paper}
          sx={{ marginRight: "4px" }}>
         <h5>Precios por Unidad o kg</h5>

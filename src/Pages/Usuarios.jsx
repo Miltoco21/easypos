@@ -64,7 +64,7 @@ export default function Usuarios() {
         >
             <Grid container justifyContent="center" alignItems="center" style={{ height: '90%' }}>
           <Grid item xs={12} sm={12} md={12} lg={12}>
-            <IngresoUsuarios />
+            <IngresoUsuarios onClose={handleCloseModal} />
           </Grid>
         </Grid>
         </Grid>

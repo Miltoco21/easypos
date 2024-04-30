@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Button } from "@mui/material";
+import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Button, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
 
 const SearchList = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [perPage, setPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser]= useState([]);
+  const [selectedUser, setSelectedUser] = useState([]);
   const [modalEditOpen, setModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const perPage = 5;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,6 +60,12 @@ const SearchList = () => {
     user.nombres.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredUsers.length / perPage);
+
   return (
     <Box sx={{ p: 2, mb: 4, border: "4px" }}>
       <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
@@ -76,12 +82,12 @@ const SearchList = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {filteredUsers.length === 0 ? (
+          {paginatedUsers.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6}>No se encontraron usuarios</TableCell>
             </TableRow>
           ) : (
-            filteredUsers.map((user) => (
+            paginatedUsers.map((user) => (
               <TableRow key={user.codigoUsuario}>
                 <TableCell>{user.codigoUsuario}</TableCell>
                 <TableCell>
@@ -116,6 +122,25 @@ const SearchList = () => {
           )}
         </TableBody>
       </Table>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+        <Typography variant="body2">
+          Página {currentPage} de {totalPages}
+        </Typography>
+        <Box>
+          <Button
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Anterior
+          </Button>
+          <Button
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Siguiente
+          </Button>
+        </Box>
+      </Box>
       <EditUsuario 
         selectedUser={selectedUser}
         open={modalEditOpen}

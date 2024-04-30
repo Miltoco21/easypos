@@ -21,7 +21,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export const defaultTheme = createTheme();
 
-export default function IngresoUsuarios() {
+export default function IngresoUsuarios({ onClose}) {
   const [nombres, setNombre] = useState("");
   const [apellidos, setApellido] = useState("");
   const [correo, setCorreo] = useState("");
@@ -41,14 +41,13 @@ export default function IngresoUsuarios() {
   const [selectedComuna, setSelectedComuna] = useState("");
   const [regionOptions, setRegionOptions] = useState([]);
   const [comunaOptions, setComunaOptions] = useState([]);
+  const [rolesOptions, setRolesOptions] = useState([]);
   const [selectedRol, setSelectedRol] = useState("");
-  const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [userId, setUserId] = useState(null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -88,9 +87,10 @@ export default function IngresoUsuarios() {
     async function fetchRoles() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/Usuarios/GetAllRolUsuario"
+          "https://www.easyposdev.somee.com/api/Usuarios/GetAllRolUsuario"
         );
-        setRoles(response.data.usuarios);
+        setRolesOptions(response.data.usuarios);
+        console.log("ROLES", response.data.usuarios);
       } catch (error) {
         console.log(error);
       }
@@ -183,9 +183,12 @@ export default function IngresoUsuarios() {
     if (!validarRutChileno(rut)) {
       errors.rut = "El RUT ingresado NO es válido.";
     }
-    // if (!codigoUsuario) {
-    //   errors.codigoUsuario = "Favor completar código  ";
-    // }
+    if (!selectedRol) {
+      errors.selectedRol = "Favor completar rol";
+    }
+    if (!codigoUsuario) {
+      errors.codigoUsuario = "Favor completar código  ";
+    }
     if (!clave) {
       errors.clave = "Favor completar clave ";
     }
@@ -200,57 +203,47 @@ export default function IngresoUsuarios() {
       setErrores(errors);
     } else {
       const usuario = {
-        nombres,
-        apellidos,
-        correo,
-        direccion,
-        telefono,
-        region: selectedRegion,
+        nombres: nombres,
+        apellidos: apellidos,
+        correo: correo,
+        direccion: direccion,
+        telefono: telefono,
+        region: selectedRegion.toString(),
         comuna: selectedComuna,
-        codigoPostal,
-        rut,
-        codigoUsuario,
-        clave,
-        remuneracion,
-        credito,
-        rol: selectedRol,
+        codigoPostal: codigoPostal,
+        rut: rut,
+    
+        codigoUsuario: codigoUsuario,
+        clave: clave,
+        // remuneracion: remuneracion,
+        // credito: credito,
+        rol: selectedRol.toString(),
       };
-
+      console.log("Datos antes de enviar:", usuario);
       try {
-        if (isEditing) {
-          // Update user if in edit mode
-          const response = await axios.put(
-            `https://www.easyposdev.somee.com/api/Usuarios/UpdateUsuario/${userId}`,
-            usuario
-          );
-          if (response.status === 200) {
-            setSnackbarMessage("Usuario actualizado exitosamente");
-           
-            setSnackbarOpen(true);
-          }
-        } else {
-          // Add new user if not in edit mode
-          const response = await axios.post(
-            "https://www.easyposdev.somee.com/api/Usuarios/AddUsuario",
-            usuario
-          );
-          if (response.status === 200) {
-            setSnackbarMessage("Usuario creado exitosamente");
-           
-            setSnackbarOpen(true);
-          }
-        }
-      } catch (error) {
-        if (error.response.status === 409) {
-          setSnackbarMessage("Usuario no creado, favor intentar otra vez ");
+        setLoading(true);
+        const response = await axios.post(
+          
+          "https://www.easyposdev.somee.com/api/Usuarios/AddUsuario",
+          usuario
+        );
+        console.log("Respuesta de la solicitud:", response);
+
+        if (response.status === 201) {
+          setSnackbarMessage("Usuario creado exitosamente");
           setSnackbarOpen(true);
         }
-        
-          
-          
-        
-        setModalOpen(true);
+      } catch (error) {
+        if ( error.response.status === 409) {
+          setSnackbarMessage(error.response.descripcion);
+          setSnackbarOpen(true);
+        } else {
+          console.error("Error:", error);
+          setModalOpen(true);
+        }
       } finally {
+        setLoading(false);
+        console.log("Datos después de enviar:", usuario);
         setNombre("");
         setApellido("");
         setCorreo("");
@@ -266,11 +259,17 @@ export default function IngresoUsuarios() {
         setRemuneracion("");
         setCredito("");
         setErrores({});
-        setIsEditing(false);
+       
         setUserId(null);
+
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+       
       }
     }
   };
+
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
     setSnackbarMessage("");
@@ -317,7 +316,7 @@ export default function IngresoUsuarios() {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%", fontSize: "0.9rem" }}>
+              <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
                 Ingresa rut sin puntos y con guión
               </InputLabel>
               <TextField
@@ -334,7 +333,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Nombre
               </InputLabel>
               <TextField
@@ -352,7 +351,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Apellidos
               </InputLabel>
               <TextField
@@ -370,7 +369,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Correo Electrónico
               </InputLabel>
               <TextField
@@ -388,7 +387,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Teléfono
               </InputLabel>
               <TextField
@@ -406,7 +405,25 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
+                Ingresa Código Usuario
+              </InputLabel>
+              <TextField
+                fullWidth
+                type="number"
+                margin="normal"
+                required
+                id="Código Cliente"
+                label="Código Usuario"
+                name="Código Cliente"
+                autoComplete="Código Cliente"
+                autoFocus
+                value={codigoUsuario}
+                onChange={(e) => setCodigoUsuario(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Dirección
               </InputLabel>
               <TextField
@@ -423,10 +440,11 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Selecciona Región
               </InputLabel>
               <TextField
+                margin="normal"
                 required
                 fullWidth
                 id="region"
@@ -445,10 +463,11 @@ export default function IngresoUsuarios() {
               </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Selecciona Comuna
               </InputLabel>
               <TextField
+                margin="normal"
                 required
                 id="comuna"
                 select
@@ -468,7 +487,29 @@ export default function IngresoUsuarios() {
               </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
+                Selecciona Rol
+              </InputLabel>
+              <TextField
+                fullWidth
+                margin="normal"
+                required
+                id="rol"
+                select
+                label="Rol"
+                name="rol"
+                value={selectedRol}
+                onChange={(e) => setSelectedRol(e.target.value)}
+              >
+                {rolesOptions.map((rol) => (
+                  <MenuItem key={rol.idRol} value={rol.rol}>
+                    {rol.rol}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Código Postal
               </InputLabel>
               <TextField
@@ -486,7 +527,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>Ingresa Clave</InputLabel>
+              <InputLabel sx={{ marginBottom: "2%" }}>Ingresa Clave</InputLabel>
               <TextField
                 fullWidth
                 margin="normal"
@@ -502,7 +543,7 @@ export default function IngresoUsuarios() {
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Remuneración
               </InputLabel>
               <TextField
@@ -524,7 +565,7 @@ export default function IngresoUsuarios() {
               </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "4%" }}>
+              <InputLabel sx={{ marginBottom: "2%" }}>
                 Ingresa Crédito
               </InputLabel>
               <TextField
@@ -533,7 +574,7 @@ export default function IngresoUsuarios() {
                 required
                 id="credito"
                 label="Crédito"
-                ß
+                
                 name="credito"
                 autoComplete="credito"
                 autoFocus
@@ -567,7 +608,6 @@ export default function IngresoUsuarios() {
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         message={snackbarMessage}
-      
       />
     </div>
   );
