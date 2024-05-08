@@ -59,7 +59,7 @@ const Proveedores = () => {
         </Button>
 
         {/* CLIENTES Button */}
-        <Button
+        {/* <Button
           variant="outlined"
           color="primary"
           sx={{
@@ -70,7 +70,7 @@ const Proveedores = () => {
           onClick={handleOpenModalCL}
         >
           CLIENTES
-        </Button>
+        </Button> */}
 
         <SearchListProveedores/>
 

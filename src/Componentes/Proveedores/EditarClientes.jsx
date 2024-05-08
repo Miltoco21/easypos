@@ -23,7 +23,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
     setSelectedRegion(cliente.regionId); // Actualizamos la región seleccionada
     setSelectedComuna(cliente.comunaId); // Actualizamos la comuna seleccionada
   }, [cliente]);
-
+   
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setEditedCliente((prevCliente) => ({
@@ -77,7 +77,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
         apellido: editedCliente.apellido || "",
         direccion: editedCliente.direccion || "",
         telefono: editedCliente.telefono || "",
-        region: selectedRegion || "", // Incluir región seleccionada
+        region: (selectedRegion || "").toString(),
         comuna: selectedComuna || "", // Incluir comuna seleccionada
         correo: editedCliente.correo || "",
         giro: editedCliente.giro || "",
@@ -181,7 +181,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
                 margin="normal"
                 select
                 label="Región"
-                value={selectedRegion}
+                value={editedCliente.region}
                 onChange={handleRegionChange}
                 fullWidth
               >
@@ -198,7 +198,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
                 error={!!errors.comuna}
                 select
                 label="Comuna"
-                value={selectedComuna}
+                value={editedCliente.comuna}
                 onChange={(e) => setSelectedComuna(e.target.value)}
                 fullWidth
               >

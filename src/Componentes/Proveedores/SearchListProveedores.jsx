@@ -160,7 +160,7 @@ const SearchListProveedores = () => {
       <div>
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label="Proovedores" />
-          <Tab label="Clientes" />
+          {/* <Tab label="Clientes" /> */}
         </Tabs>
         <div style={{ p: 2, mt: 4 }} role="tabpanel" hidden={selectedTab !== 0}>
           <TextField

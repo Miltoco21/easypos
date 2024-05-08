@@ -8,6 +8,7 @@ import Add from '@mui/icons-material/Add';
 import SideBar from '../Componentes/NavBar/SideBar.jsx';
 import AsocCliente from '../Componentes/Card-Modal/AsocCliente.jsx';
 import PreciosGenerales from '../Componentes/Card-Modal/PreciosGenerales.jsx';
+import BoxBuscador from '../Componentes/Card-Modal/BoxBuscador.jsx';
 
 export const defaultTheme = createTheme();
 
@@ -62,7 +63,7 @@ const Precios = () => {
       </Box>
 
       <Dialog open={openAsocClientes} onClose={handleCloseModalAsoClientes}>
-        <AsocCliente />
+        <BoxBuscador onClosePreciosClientes={handleCloseModalAsoClientes}  />
       </Dialog>
 
       <Dialog open={openPrecios} onClose={handleCloseModal}>
