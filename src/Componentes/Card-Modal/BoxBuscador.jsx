@@ -109,9 +109,10 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   const handleInputChange = (e) => {
     setSearchText(e.target.value);
     if (e.target.value.trim() === "") {
-      setSearchResults([]);
+      setSearchResults([]); // Limpiar los resultados de búsqueda cuando el campo de búsqueda esté vacío
     }
   };
+  
 
   const handleKeyDown = (event, field) => {
     if (field === "marca") {
@@ -346,6 +347,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
         inputProps={{
           inputMode: "numeric",
           pattern: "[0-9]*",
+          maxLength: 7,
         }}
       />
     </TableCell>

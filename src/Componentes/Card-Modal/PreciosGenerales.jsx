@@ -16,18 +16,26 @@ import {
   InputLabel,
   Snackbar,
   Alert,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export const defaultTheme = createTheme();
 
-const PreciosGenerales = () => {
+const PreciosGenerales = ({onClose}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [selectedProductIndex, setSelectedProductIndex] = useState(0);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null); 
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -35,6 +43,7 @@ const PreciosGenerales = () => {
           "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
         );
         setProducts(response.data.productos);
+        console.log(response.data.productos);
       } catch (error) {
         console.error("Error fetching products:", error);
         setErrorMessage("Error al buscar el producto por descripción");
@@ -69,10 +78,6 @@ const PreciosGenerales = () => {
     }
   };
 
-  const handleSelectProduct = (index) => {
-    setSelectedProductIndex(index); // Actualiza el índice del producto seleccionado
-  };
-
   const handlePrecioChange = (e, index) => {
     const { value } = e.target;
     setProducts((prevProducts) => {
@@ -84,50 +89,94 @@ const PreciosGenerales = () => {
       return updatedProducts;
     });
   };
+
+  const handleGuardarClick = async (selectedProduct) => {
+    try {
+      console.log("Datos antes de la actualización:", selectedProduct);
   
-  const handleGuardarClick = async () => {
-    // Verifica si hay un producto seleccionado
-    if (products.length > 0) {
-      try {
-        const selectedProduct = products[selectedProductIndex];
-        console.log("Datos antes de la actualización:", selectedProduct);
-
-        const response = await axios.put(
-          "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto",
-          {
-            idProducto: selectedProduct.id,
-            nombre: selectedProduct.nombre,
-            precioVenta: selectedProduct.precioVenta,
-            bodega: selectedProduct.bodega, // Agrega los demás campos aquí
-            impuesto: selectedProduct.impuesto,
-            marca: selectedProduct.marca,
-            nota: selectedProduct.nota,
-            proveedor: selectedProduct.proveedor,
-            // Agrega otros campos necesarios
-          }
-        );
-        console.log("Respuesta del servidor:", response.data);
-        // Aquí puedes agregar lógica adicional si es necesario, como mostrar un mensaje de éxito
-        if (response.status === 201) {
-          setSuccessMessage("Precio editado exitosamente");
-          setOpenSnackbar(true);
+      const editedProduct = {
+        ...selectedProduct,
+        categoria: selectedProduct.categoria === "" ? 0 : selectedProduct.categoria,
+        subCategoria: selectedProduct.subCategoria === "" ? 0 : selectedProduct.subCategoria,
+        familia: selectedProduct.familia === "" ? 0 : selectedProduct.familia,
+        subFamilia: selectedProduct.subFamilia === "" ? 0 : selectedProduct.subFamilia,
+      };
+  
+      const response = await axios.put(
+        "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto",
+        {
+          idProducto: editedProduct.idProducto,
+          nombre: editedProduct.nombre,
+          categoria: editedProduct.categoria,
+          subCategoria: editedProduct.subCategoria,
+          familia: editedProduct.familia,
+          subFamilia: editedProduct.subFamilia,
+          precioVenta: editedProduct.precioVenta,
+          bodega: editedProduct.bodega,
+          impuesto: editedProduct.impuesto,
+          marca: editedProduct.marca,
+          nota: editedProduct.nota,
+          proveedor: editedProduct.proveedor,
         }
-        console.log("Datos después de la actualización:", response.data);
-
-      } catch (error) {
-        console.error("Error al actualizar el producto:", error);
-        setErrorMessage("Error al actualizar el producto");
+      );
+  
+      console.log("Respuesta del servidor:", response.data);
+  
+      if (response.data.statusCode === 201) {
+        setSuccessMessage("Precio editado exitosamente");
         setOpenSnackbar(true);
+        // Actualizar la lista de productos después de la edición
+        // const updatedProducts = products.map((product) => {
+        //   if (product.id === editedProduct.id) {
+        //     return editedProduct;
+        //   } else {
+        //     return product;
+        //   }
+        // });
+        // setProducts(updatedProducts);
+        setTimeout(() => {
+          onClose();
+        }, 2000);
       }
-    } else {
-      console.error("No hay ningún producto seleccionado");
-      // Agrega lógica adicional si es necesario, como mostrar un mensaje de error
+    } catch (error) {
+      console.error("Error al actualizar el producto:", error);
+      setErrorMessage("Error al actualizar el producto");
+      setOpenSnackbar(true);
     }
   };
   
   
+
+  const handleEliminarClick = (product) => {
+    setProductToDelete(product); 
+    setOpenDialog(true); 
+  };
+
+  const confirmarEliminar = async () => {
+    setOpenDialog(false); 
   
+    try {
+      console.log("ID del producto a eliminar:", productToDelete.idProducto); // Usar el nombre correcto del campo del ID
   
+      const response = await axios.delete(
+        `https://www.easyposdev.somee.com/api/ProductosTmp/DeleteProducto?id=${productToDelete.idProducto}` // Usar el nombre correcto del campo del ID
+      );
+  
+      if (response.status === 200) {
+        setSuccessMessage("Producto eliminado exitosamente");
+        setOpenSnackbar(true);
+        const updatedProducts = products.filter(product => product.idProducto !== productToDelete.idProducto); // Usar el nombre correcto del campo del ID
+        setProducts(updatedProducts);
+      }
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error);
+      setErrorMessage("Error al eliminar el producto");
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    }
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -138,7 +187,14 @@ const PreciosGenerales = () => {
               Precios Generales
             </Typography>
             <div style={{ alignItems: "center" }}>
-              <Grid item xs={12} sm={12} md={12} lg={12} sx={{ display: "flex", margin: 1 }}>
+              <Grid
+                item
+                xs={12}
+                sm={12}
+                md={12}
+                lg={12}
+                sx={{ display: "flex", margin: 1 }}
+              >
                 <InputLabel
                   sx={{
                     display: "flex",
@@ -207,16 +263,25 @@ const PreciosGenerales = () => {
                           variant="outlined"
                           fullWidth
                           value={product.precioVenta}
-                          onChange={(e) => handlePrecioChange(e, index)} // Actualiza el precio específico del producto
+                          onChange={(e) => handlePrecioChange(e, index)}
                         />
                       </TableCell>
                       <TableCell>
                         <Button
-                           onClick={handleGuardarClick} /// Selecciona el producto por su índice
+                          onClick={() => handleGuardarClick(product)}
                           variant="contained"
                           color="secondary"
                         >
                           Guardar
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleEliminarClick(product)}
+                          variant="contained"
+                          color="error"
+                        >
+                          Eliminar
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -250,6 +315,28 @@ const PreciosGenerales = () => {
           </Alert>
         )}
       </Snackbar>
+      {/* Diálogo de confirmación */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            ¿Estás seguro de que deseas eliminar este producto?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmarEliminar} color="primary" autoFocus>
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider>
   );
 };

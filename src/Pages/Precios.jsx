@@ -67,7 +67,7 @@ const Precios = () => {
       </Dialog>
 
       <Dialog open={openPrecios} onClose={handleCloseModal}>
-        <PreciosGenerales />
+        <PreciosGenerales onClose={handleCloseModal}/>
       </Dialog>
     </ThemeProvider>
   );
