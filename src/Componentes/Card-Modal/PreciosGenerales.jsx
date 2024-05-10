@@ -6,12 +6,14 @@ import {
   Paper,
   TextField,
   Typography,
+  TablePagination,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  Checkbox,
   Button,
   InputLabel,
   Snackbar,
@@ -20,21 +22,137 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export const defaultTheme = createTheme();
 
-const PreciosGenerales = ({onClose}) => {
+const PreciosGenerales = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
-  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null); 
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [clientes, setClientes] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedClientes, setSelectedClientes] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [searchClienteTerm, setSearchClienteTerm] = useState("");
+  const [filteredClientes, setFilteredClientes] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null); // Estado para mantener el producto seleccionado
+
+  const handleSearchCliente = (e) => {
+    setSearchClienteTerm(e.target.value);
+  };
+
+  const startIndex = page * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, clientes.length);
+  const clientesPaginados = clientes.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/Clientes/GetAllClientes"
+        );
+        setClientes(response.data.cliente);
+        console.log("clientes:", response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSelectAll = (event) => {
+    setSelectAll(event.target.checked);
+    if (event.target.checked) {
+      setSelectedClientes(clientes);
+    } else {
+      setSelectedClientes([]);
+    }
+  };
+
+  const handleProductSelection = (product) => {
+    setSelectedProduct(product);
+    setOpenDialog(true);
+  };
+
+  // const handleCheckboxChange = (cliente) => {
+  //   const selectedIndex = selectedClientes.findIndex(
+  //     (selectedCliente) =>
+  //       selectedCliente.codigoCliente === cliente.codigoCliente
+  //   );
+
+  //   let newSelectedClientes = [];
+
+  //   if (selectedIndex === -1) {
+  //     newSelectedClientes = newSelectedClientes.concat(
+  //       selectedClientes,
+  //       cliente
+  //     );
+  //   } else if (selectedIndex === 0) {
+  //     newSelectedClientes = newSelectedClientes.concat(
+  //       selectedClientes.slice(1)
+  //     );
+  //   } else if (selectedIndex === selectedClientes.length - 1) {
+  //     newSelectedClientes = newSelectedClientes.concat(
+  //       selectedClientes.slice(0, -1)
+  //     );
+  //   } else if (selectedIndex > 0) {
+  //     newSelectedClientes = newSelectedClientes.concat(
+  //       selectedClientes.slice(0, selectedIndex),
+  //       selectedClientes.slice(selectedIndex + 1)
+  //     );
+  //   }
+
+  //   setSelectedClientes(newSelectedClientes);
+  // };
+  const handleCheckboxChange = (cliente) => {
+    const selectedIndex = selectedClientes.findIndex(
+      (selectedCliente) =>
+        selectedCliente.codigoCliente === cliente.codigoCliente
+    );
+  
+    let newSelectedClientes = [];
+  
+    if (selectedIndex === -1) {
+      newSelectedClientes = newSelectedClientes.concat(
+        selectedClientes,
+        cliente
+      );
+    } else if (selectedIndex === 0) {
+      newSelectedClientes = newSelectedClientes.concat(
+        selectedClientes.slice(1)
+      );
+    } else if (selectedIndex === selectedClientes.length - 1) {
+      newSelectedClientes = newSelectedClientes.concat(
+        selectedClientes.slice(0, -1)
+      );
+    } else if (selectedIndex > 0) {
+      newSelectedClientes = newSelectedClientes.concat(
+        selectedClientes.slice(0, selectedIndex),
+        selectedClientes.slice(selectedIndex + 1)
+      );
+    }
+  
+    setSelectedClientes(newSelectedClientes);
+  
+    // Actualizar los códigos de cliente seleccionados
+    const selectedClientCodes = newSelectedClientes.map(
+      (cliente) => cliente.codigoCliente
+    );
+    setSelectedClientCodes(selectedClientCodes);
+    console.log("selectedClientCodes:", selectedClientCodes);
+  };
+  
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -93,15 +211,20 @@ const PreciosGenerales = ({onClose}) => {
   const handleGuardarClick = async (selectedProduct) => {
     try {
       console.log("Datos antes de la actualización:", selectedProduct);
-  
+
       const editedProduct = {
         ...selectedProduct,
-        categoria: selectedProduct.categoria === "" ? 0 : selectedProduct.categoria,
-        subCategoria: selectedProduct.subCategoria === "" ? 0 : selectedProduct.subCategoria,
+        categoria:
+          selectedProduct.categoria === "" ? 0 : selectedProduct.categoria,
+        subCategoria:
+          selectedProduct.subCategoria === ""
+            ? 0
+            : selectedProduct.subCategoria,
         familia: selectedProduct.familia === "" ? 0 : selectedProduct.familia,
-        subFamilia: selectedProduct.subFamilia === "" ? 0 : selectedProduct.subFamilia,
+        subFamilia:
+          selectedProduct.subFamilia === "" ? 0 : selectedProduct.subFamilia,
       };
-  
+
       const response = await axios.put(
         "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto",
         {
@@ -119,21 +242,12 @@ const PreciosGenerales = ({onClose}) => {
           proveedor: editedProduct.proveedor,
         }
       );
-  
+
       console.log("Respuesta del servidor:", response.data);
-  
-      if (response.data.statusCode === 201) {
+
+      if (response.data.statusCode === 200) {
         setSuccessMessage("Precio editado exitosamente");
         setOpenSnackbar(true);
-        // Actualizar la lista de productos después de la edición
-        // const updatedProducts = products.map((product) => {
-        //   if (product.id === editedProduct.id) {
-        //     return editedProduct;
-        //   } else {
-        //     return product;
-        //   }
-        // });
-        // setProducts(updatedProducts);
         setTimeout(() => {
           onClose();
         }, 2000);
@@ -144,39 +258,58 @@ const PreciosGenerales = ({onClose}) => {
       setOpenSnackbar(true);
     }
   };
-  
-  
 
-  const handleEliminarClick = (product) => {
-    setProductToDelete(product); 
-    setOpenDialog(true); 
-  };
-
-  const confirmarEliminar = async () => {
-    setOpenDialog(false); 
-  
+  // Función para manejar el clic del botón "Asociar"
+  const handleAsociarClick = async () => {
     try {
-      console.log("ID del producto a eliminar:", productToDelete.idProducto); // Usar el nombre correcto del campo del ID
-  
-      const response = await axios.delete(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/DeleteProducto?id=${productToDelete.idProducto}` // Usar el nombre correcto del campo del ID
+      // Obtener el producto seleccionado desde la lista de productos
+
+      const selectedClientCodes = selectedClientes.map(
+        (cliente) => cliente.codigoCliente
       );
-  
-      if (response.status === 200) {
-        setSuccessMessage("Producto eliminado exitosamente");
+      console.log("selectedClientCodes:", selectedClientCodes);
+      // Verificar si el producto seleccionado existe
+      if (!selectedProduct) {
+        setErrorMessage("Seleccione un producto válido");
         setOpenSnackbar(true);
-        const updatedProducts = products.filter(product => product.idProducto !== productToDelete.idProducto); // Usar el nombre correcto del campo del ID
-        setProducts(updatedProducts);
+        return;
       }
+
+      const response = await axios.post(
+        "https://www.easyposdev.somee.com/api/ProductosTmp/AsociarProductoCliente",
+        {
+          idProducto: selectedProduct.idProducto,
+          nombre: selectedProduct.nombre,
+          precioCosto: selectedProduct.precioCosto,
+          precioVenta: selectedProduct.precioVenta,
+          codigoCliente: selectedClientCodes,
+        }
+      );
+
+      if (response.status === 200) {
+        setSuccessMessage("Producto asociado exitosamente");
+        setOpenSnackbar(true);
+      } else {
+        setErrorMessage("Error al asociar producto");
+        setOpenSnackbar(true);
+      }
+
+      // Resto del código para asociar el producto con los clientes...
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      setErrorMessage("Error al eliminar el producto");
+      console.error("Error al asociar producto:", error);
+      setErrorMessage("Error al asociar producto");
       setOpenSnackbar(true);
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     }
   };
+
+  console.log("selectedproduct", selectedProduct);
+
+  useEffect(() => {
+    const filtered = clientes.filter((cliente) =>
+      cliente.nombre.toLowerCase().includes(searchClienteTerm.toLowerCase())
+    );
+    setFilteredClientes(filtered);
+  }, [searchClienteTerm, clientes]);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -277,11 +410,11 @@ const PreciosGenerales = ({onClose}) => {
                       </TableCell>
                       <TableCell>
                         <Button
-                          onClick={() => handleEliminarClick(product)}
+                          onClick={() => handleProductSelection(product)}
                           variant="contained"
                           color="error"
                         >
-                          Eliminar
+                          Asociar
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -315,25 +448,88 @@ const PreciosGenerales = ({onClose}) => {
           </Alert>
         )}
       </Snackbar>
-      {/* Diálogo de confirmación */}
       <Dialog
+        sx={{ width: "90%" }}
         open={openDialog}
         onClose={() => setOpenDialog(false)}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Confirmación</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Asociación de precios</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            ¿Estás seguro de que deseas eliminar este producto?
-          </DialogContentText>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Buscar cliente"
+              value={searchClienteTerm}
+              onChange={handleSearchCliente}
+            />
+            {filteredClientes.length > 0 && (
+              <TableContainer component={Paper}>
+                <Table aria-label="Clientes table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          color="primary"
+                        />
+                      </TableCell>
+                      <TableCell>Cliente</TableCell>
+                      <TableCell>Correo</TableCell>
+                      <TableCell>Teléfono</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredClientes.map((cliente) => (
+                      <TableRow key={cliente.codigoCliente}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedClientes.includes(cliente)}
+                            onChange={() => handleCheckboxChange(cliente)}
+                            color="primary"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {cliente.nombre}
+                          <br />
+                          {cliente.rut}
+                        </TableCell>
+                        <TableCell>{cliente.correo}</TableCell>
+                        <TableCell>{cliente.telefono}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                 
+                </Grid>
+              </TableContainer>
+            )}
+            <TablePagination
+              component="div"
+              count={clientes.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(event, newPage) => setPage(newPage)}
+              rowsPerPageOptions={[]}
+              labelRowsPerPage="Por página"
+            />
+          </Grid>
         </DialogContent>
         <DialogActions>
+        <Button
+                    sx={{ margin: "1px" }}
+                    variant="contained"
+                 
+                    color="secondary"
+                    onClick={handleAsociarClick}
+                  >
+                    Guardar asociacion
+                  </Button>
           <Button onClick={() => setOpenDialog(false)} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={confirmarEliminar} color="primary" autoFocus>
-            Confirmar
+            Cerrar
           </Button>
         </DialogActions>
       </Dialog>

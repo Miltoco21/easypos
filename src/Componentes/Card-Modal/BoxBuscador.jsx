@@ -39,7 +39,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   const [loadingProduct, setLoadingProduct] = useState(null); // Estado para manejar el estado de carga de cada producto
   const [selectedItem, setSelectedItem] = useState(null);
 
-
   const codigoCliente = selectedClient ? selectedClient.codigoCliente : null;
   const codigoClienteSucursal = selectedClient
     ? selectedClient.codigoClienteSucursal
@@ -112,7 +111,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
       setSearchResults([]); // Limpiar los resultados de búsqueda cuando el campo de búsqueda esté vacío
     }
   };
-  
 
   const handleKeyDown = (event, field) => {
     if (field === "marca") {
@@ -150,7 +148,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   ) => {
     try {
       setLoadingProduct(idProducto); // Establecer el estado de carga solo para el producto actual
-  
+
       const requestBody = {
         codigoCliente: codigoCliente,
         codigoClienteSucursal: codigoClienteSucursal,
@@ -161,32 +159,32 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
           },
         ],
       };
-  
+
       const response = await axios.put(
         "https://www.easyposdev.somee.com/api/Clientes/PutClientesProductoActualizarPrecioByIdCliente",
         requestBody
       );
-  
+
       if (response.status === 200) {
         // Restablecer el estado de carga después de un tiempo de espera
         setTimeout(() => {
           setLoadingProduct(null);
         }, 3000); // Tiempo extendido de espera en milisegundos (en este caso, 3000 ms o 3 segundos)
-  
+
         const updatePrecios = await axios.get(
           `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
-  
+
         setSnackbarMessage(response.data.descripcion);
         setSnackbarOpen(true);
-  
+
         const deudasResponse = await axios.get(
           `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
-  
-        setTimeout(() => {
-          onClosePreciosClientes();
-        }, 2000);
+
+        // setTimeout(() => {
+        //   onClosePreciosClientes();
+        // }, 2000);
       }
     } catch (error) {
       console.error("Error al actualizar los precios:", error);
@@ -196,8 +194,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
       }, 3000); // Tiempo extendido de espera en milisegundos (en este caso, 3000 ms o 3 segundos)
     }
   };
-  
-  
 
   // Calcular los resultados paginados basados en los resultados filtrados y la configuración de paginación
   const startIndex = page * rowsPerPage;
@@ -310,6 +306,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Producto</TableCell>
+
                 <TableCell>Precio Venta</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
@@ -328,51 +325,58 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
               </TableRow>
               {/* Mostrar los productos filtrados en la tabla */}
               {paginatedResults.map((product) => (
-  <TableRow key={product.idProducto}>
-    <TableCell>{product.nombre}</TableCell>
-    <TableCell>
-      <TextField
-        name="precio"
-        onKeyDown={(event) => handleKeyDown(event, "precio")}
-        variant="outlined"
-        fullWidth
-        value={
-          preciosModificados[product.idProducto] !== undefined
-            ? preciosModificados[product.idProducto]
-            : product.precio
-        }
-        onChange={(e) =>
-          handlePrecioChange(e, product.idProducto)
-        }
-        inputProps={{
-          inputMode: "numeric",
-          pattern: "[0-9]*",
-          maxLength: 7,
-        }}
-      />
-    </TableCell>
-    <TableCell>
-      <Button
-        variant="contained"
-        onClick={() =>
-          handleSaveChanges(
-            product.idProducto,
-            codigoCliente,
-            codigoClienteSucursal
-          )
-        }
-        sx={{
-          backgroundColor: "#2196f3",
-          color: "white",
-          opacity: loadingProduct === product.idProducto ? 0.5 : 1, // Reducir la opacidad del botón mientras se carga solo si es el producto actual
-        }}
-        disabled={loadingProduct === product.idProducto} // Deshabilitar el botón mientras se carga solo si es el producto actual
-      >
-        {loadingProduct === product.idProducto ? "Guardando..." : "Guardar"}
-      </Button>
-    </TableCell>
-  </TableRow>
-))}
+                <TableRow key={product.idProducto}>
+                  <TableCell>
+                    {product.nombre} <br />
+                    PLU: {product.idProducto}{" "}
+                  </TableCell>
+
+                  <TableCell>
+                    <TextField
+                      name="precio"
+                      onKeyDown={(event) => handleKeyDown(event, "precio")}
+                      variant="outlined"
+                      fullWidth
+                      value={
+                        preciosModificados[product.idProducto] !== undefined
+                          ? preciosModificados[product.idProducto]
+                          : product.precio
+                      }
+                      onChange={(e) =>
+                        handlePrecioChange(e, product.idProducto)
+                      }
+                      inputProps={{
+                        inputMode: "numeric",
+                        pattern: "[0-9]*",
+                        maxLength: 7,
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      onClick={() =>
+                        handleSaveChanges(
+                          product.idProducto,
+                          codigoCliente,
+                          codigoClienteSucursal
+                        )
+                      }
+                      sx={{
+                        backgroundColor: "#2196f3",
+                        color: "white",
+                        opacity:
+                          loadingProduct === product.idProducto ? 0.5 : 1, // Reducir la opacidad del botón mientras se carga solo si es el producto actual
+                      }}
+                      disabled={loadingProduct === product.idProducto} // Deshabilitar el botón mientras se carga solo si es el producto actual
+                    >
+                      {loadingProduct === product.idProducto
+                        ? "Guardando..."
+                        : "Guardar"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
               {/* {paginatedResults.map((product) => (
                 <TableRow key={product.idProducto}>
                   <TableCell>{product.nombre}</TableCell>
