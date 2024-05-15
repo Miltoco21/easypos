@@ -31,12 +31,12 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   const [products, setProducts] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
   const [editedPrices, setEditedPrices] = useState("");
-  const [productSearchText, setProductSearchText] = useState(""); // Estado para el texto de búsqueda de productos
-  const [filteredProducts, setFilteredProducts] = useState([]); // Estado para almacenar los productos filtrados
-  const [page, setPage] = useState(0); // Estado para el número de página actual
-  const rowsPerPage = 10; // Número de filas por página (estático)
+  const [productSearchText, setProductSearchText] = useState(""); 
+  const [filteredProducts, setFilteredProducts] = useState([]); 
+  const [page, setPage] = useState(0); 
+  const rowsPerPage = 5; // Mostrar solo 5 filas por página
   const [preciosModificados, setPreciosModificados] = useState({});
-  const [loadingProduct, setLoadingProduct] = useState(null); // Estado para manejar el estado de carga de cada producto
+  const [loadingProduct, setLoadingProduct] = useState(null); 
   const [selectedItem, setSelectedItem] = useState(null);
 
   const codigoCliente = selectedClient ? selectedClient.codigoCliente : null;
@@ -52,10 +52,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
     try {
       const response = await axios.get(
         `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${result.codigoCliente}&codigoClienteSucursal=${result.codigoClienteSucursal}`
-      );
-      console.log(
-        "Productos obtenidos:",
-        response.data.clientesProductoPrecioMostrar
       );
       setProducts(response.data.clientesProductoPrecioMostrar);
     } catch (error) {
@@ -98,7 +94,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   };
 
   useEffect(() => {
-    // Filtrar la lista de productos según el texto de búsqueda
     const filtered = products.filter((product) =>
       product.nombre.toLowerCase().includes(productSearchText.toLowerCase())
     );
@@ -108,7 +103,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   const handleInputChange = (e) => {
     setSearchText(e.target.value);
     if (e.target.value.trim() === "") {
-      setSearchResults([]); // Limpiar los resultados de búsqueda cuando el campo de búsqueda esté vacío
+      setSearchResults([]);
     }
   };
 
@@ -126,7 +121,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
       }
     }
     if (field === "precio") {
-      // Validar si la tecla presionada es un signo menos
       if (!/^\d+$/.test(event.key) && event.key !== "Backspace") {
         event.preventDefault();
       }
@@ -147,7 +141,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
     codigoClienteSucursal
   ) => {
     try {
-      setLoadingProduct(idProducto); // Establecer el estado de carga solo para el producto actual
+      setLoadingProduct(idProducto);
 
       const requestBody = {
         codigoCliente: codigoCliente,
@@ -166,10 +160,9 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
       );
 
       if (response.status === 200) {
-        // Restablecer el estado de carga después de un tiempo de espera
         setTimeout(() => {
           setLoadingProduct(null);
-        }, 3000); // Tiempo extendido de espera en milisegundos (en este caso, 3000 ms o 3 segundos)
+        }, 3000);
 
         const updatePrecios = await axios.get(
           `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
@@ -181,24 +174,23 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
         const deudasResponse = await axios.get(
           `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
-
-        // setTimeout(() => {
-        //   onClosePreciosClientes();
-        // }, 2000);
       }
     } catch (error) {
       console.error("Error al actualizar los precios:", error);
-      // Restablecer el estado de carga en caso de error
       setTimeout(() => {
         setLoadingProduct(null);
-      }, 3000); // Tiempo extendido de espera en milisegundos (en este caso, 3000 ms o 3 segundos)
+      }, 3000);
     }
   };
 
-  // Calcular los resultados paginados basados en los resultados filtrados y la configuración de paginación
+  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage);
   const startIndex = page * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const paginatedResults = filteredProducts.slice(startIndex, endIndex);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
   return (
     <Grid container item xs={12} md={12} lg={12}>
@@ -211,7 +203,6 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
         }}
         alignItems="center"
       >
-        {" "}
         <InputLabel
           sx={{
             display: "flex",
@@ -239,7 +230,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
               placeholder="Ingrese Nombre Apellido"
               value={searchText}
               onChange={handleInputChange}
-              onKeyDown={handleKeyDown} // Agregar el controlador de eventos keyDown
+              onKeyDown={handleKeyDown}
               sx={{
                 backgroundColor: "white",
                 borderRadius: "5px",
@@ -280,7 +271,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
                 onClick={() => handleChipClick(result)}
                 sx={{
                   backgroundColor: "#2196f3",
-                  margin: "5px", // Ajusta el espacio entre los chips
+                  margin: "5px",
                 }}
               />
             </ListItem>
@@ -293,7 +284,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
               icon={<CheckCircleIcon />}
               sx={{
                 backgroundColor: "#A8EB12",
-                margin: "5px", // Ajusta el espacio entre los chips
+                margin: "5px",
               }}
             />
           </ListItem>
@@ -306,13 +297,11 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Producto</TableCell>
-
                 <TableCell>Precio Venta</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* Agregar el buscador de nombres de productos */}
               <TableRow>
                 <TableCell colSpan={3}>
                   <TextField
@@ -323,14 +312,12 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
                   />
                 </TableCell>
               </TableRow>
-              {/* Mostrar los productos filtrados en la tabla */}
               {paginatedResults.map((product) => (
                 <TableRow key={product.idProducto}>
                   <TableCell>
                     {product.nombre} <br />
                     PLU: {product.idProducto}{" "}
                   </TableCell>
-
                   <TableCell>
                     <TextField
                       name="precio"
@@ -366,9 +353,9 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
                         backgroundColor: "#2196f3",
                         color: "white",
                         opacity:
-                          loadingProduct === product.idProducto ? 0.5 : 1, // Reducir la opacidad del botón mientras se carga solo si es el producto actual
+                          loadingProduct === product.idProducto ? 0.5 : 1,
                       }}
-                      disabled={loadingProduct === product.idProducto} // Deshabilitar el botón mientras se carga solo si es el producto actual
+                      disabled={loadingProduct === product.idProducto}
                     >
                       {loadingProduct === product.idProducto
                         ? "Guardando..."
@@ -377,62 +364,16 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
                   </TableCell>
                 </TableRow>
               ))}
-              {/* {paginatedResults.map((product) => (
-                <TableRow key={product.idProducto}>
-                  <TableCell>{product.nombre}</TableCell>
-                  <TableCell>
-                    <TextField
-                      name="precio"
-                      onKeyDown={(event) => handleKeyDown(event, "precio")}
-                      variant="outlined"
-                      fullWidth
-                      value={
-                        preciosModificados[product.idProducto] !== undefined
-                          ? preciosModificados[product.idProducto]
-                          : product.precio
-                      }
-                      onChange={(e) =>
-                        handlePrecioChange(e, product.idProducto)
-                      }
-                      inputProps={{
-                        inputMode: "numeric",
-                        pattern: "[0-9]*",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      onClick={() =>
-                        handleSaveChanges(
-                          product.idProducto,
-                          codigoCliente,
-                          codigoClienteSucursal
-                        )
-                      }
-                      sx={{
-                        backgroundColor: "#2196f3",
-                        color: "white",
-                        opacity: loading ? 0.5 : 1, // Reducir la opacidad del botón mientras se carga
-                      }}
-                      disabled={loading} // Deshabilitar el botón mientras se carga
-                    >
-                      {loading ? "Guardando..." : "Guardar"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))} */}
             </TableBody>
           </Table>
-          {/* Paginación */}
           <TablePagination
             component="div"
-            count={filteredProducts.length} // Número total de resultados
+            count={filteredProducts.length}
             rowsPerPage={rowsPerPage}
             page={page}
-            onPageChange={(event, newPage) => setPage(newPage)}
-            rowsPerPageOptions={[]} // Eliminar completamente las opciones de selección del número de filas por página
-            labelRowsPerPage="Por página" // Cambiar el texto "rows per page" a "por página" en español
+            onPageChange={handleChangePage}
+            rowsPerPageOptions={[]}
+            labelRowsPerPage="Por página"
           />
         </TableContainer>
       )}

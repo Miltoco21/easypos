@@ -14,6 +14,7 @@ import Proveedores from "./Pages/Proveedores";
 import SideBar from "./Componentes/NavBar/SideBar"
 import Productos from "./Pages/Productos"
 import Clientes from "./Pages/Clientes"
+import IngresoDocumento from "./Pages/IngresoDocumentoProvedor"
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -35,10 +36,11 @@ function App() {
       <Route path="/proveedores" element={<Proveedores />} />
       <Route path="/clientes" element={<Clientes />} />
       <Route path="/productos" element={<Productos />} />
-      <Route path="/categorias" element={<Categorias />} />
-      <Route path="/subcategorias" element={<SubCategorias />} />
-      <Route path="/familias" element={<Familias />} />
-      <Route path="/subfamilias" element={<SubFamilias />} />
+      <Route path="/productos/categorias" element={<Categorias />} />
+      <Route path="/productos/subcategorias" element={<SubCategorias />} />
+      <Route path="/productos/familias" element={<Familias />} />
+      <Route path="/productos/subfamilias" element={<SubFamilias />} />
+      <Route path="/proveedores/ingresodocumento" element={<IngresoDocumento />} />
 
     </Routes>
   );

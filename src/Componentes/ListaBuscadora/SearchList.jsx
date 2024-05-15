@@ -4,6 +4,7 @@ import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Butto
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
+import PaymentsIcon from '@mui/icons-material/Payments';
 
 const SearchList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -116,6 +117,7 @@ const SearchList = () => {
                   <Button onClick={() => handleEdit(user)}>
                     <EditIcon />
                   </Button>
+                  
                 </TableCell>
               </TableRow>
             ))

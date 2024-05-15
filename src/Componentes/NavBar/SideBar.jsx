@@ -20,35 +20,46 @@ import PolylineIcon from '@mui/icons-material/Polyline';
 import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
 import SchemaOutlinedIcon from '@mui/icons-material/SchemaOutlined';
 import GroupsIcon from '@mui/icons-material/Groups';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 
-const drawerWidth = 200;
+const drawerWidth = 210;
 
 const menuItems = [
   { text: "Home", link: "/", icon: <HomeIcon /> },
   { text: "Usuarios", link: "/usuarios", icon: <PeopleAltIcon /> },
   { text: "Precios", link: "/precios", icon: <PriceChangeIcon /> },
-  { text: "Proveedores", link: "/proveedores", icon: <LocalShippingIcon /> },
+  {
+    text: "Proveedores",
+    link: "/proveedores",
+    icon: <LocalShippingIcon />,
+    subMenuItems: [
+      { text: "Ingreso Documento", link: "/proveedores/ingresodocumento", icon: <ReceiptIcon /> },
+    ],
+  },
   { text: "Clientes", link: "/clientes", icon: <GroupsIcon/> },
   {
     text: "Productos",
     link: "/productos",
     icon: <CategoryIcon />,
     subMenuItems: [
-      { text: "Categorias", link: "/categorias",icon: <CategoryIcon />},
-      { text: "Sub-Categorias", link: "/subcategorias",icon: <PolylineIcon /> },
-      { text: "Familia", link: "/familias",icon:<StackedBarChartIcon/> },
-      { text: "Sub-Familia", link: "/subfamilias",icon:<SchemaOutlinedIcon/> },
+      { text: "Categorias", link: "/productos/categorias",icon: <CategoryIcon />},
+      { text: "Sub-Categorias", link: "/productos/subcategorias",icon: <PolylineIcon /> },
+      { text: "Familia", link: "/productos/familias",icon:<StackedBarChartIcon/> },
+      { text: "Sub-Familia", link: "/productos/subfamilias",icon:<SchemaOutlinedIcon/> },
       // Add more sub-menu items as needed
     ],
   },
 ];
 
 export default function PermanentDrawerLeft() {
-  const [openSubMenu, setOpenSubMenu] = React.useState(false);
+  const [openSubMenu, setOpenSubMenu] = React.useState({});
 
-  const handleSubMenuClick = () => {
-    setOpenSubMenu(!openSubMenu);
+  const handleSubMenuClick = (text) => {
+    setOpenSubMenu((prevOpenSubMenu) => ({
+      ...prevOpenSubMenu,
+      [text]: !prevOpenSubMenu[text],
+    }));
   };
 
   return (
@@ -70,43 +81,42 @@ export default function PermanentDrawerLeft() {
         <Divider />
         <List>
           {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <Link
-                to={item.link}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <ListItemButton onClick={item.text === "Productos" ? handleSubMenuClick : undefined}>
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                  {item.text === "Productos" ? (
-                    openSubMenu ? <ExpandLess /> : <ExpandMore />
-                  ) : null}
-                </ListItemButton>
-              </Link>
-            </ListItem>
+            <React.Fragment key={item.text}>
+              <ListItem disablePadding>
+                <Link
+                  to={item.link}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <ListItemButton onClick={() => handleSubMenuClick(item.text)}>
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.text} />
+                    {item.subMenuItems ? (
+                      openSubMenu[item.text] ? <ExpandLess /> : <ExpandMore />
+                    ) : null}
+                  </ListItemButton>
+                </Link>
+              </ListItem>
+              {item.subMenuItems && openSubMenu[item.text] && (
+                <List component="div" disablePadding>
+                  {item.subMenuItems.map((subItem) => (
+                    <ListItem key={subItem.text} disablePadding>
+                      <Link
+                        to={subItem.link}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <ListItemButton>
+                          <ListItemIcon />
+                          <ListItemIcon>{subItem.icon}</ListItemIcon>
+                          <ListItemText primary={subItem.text} />
+                        </ListItemButton>
+                      </Link>
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </React.Fragment>
           ))}
         </List>
-        {menuItems.find((item) => item.text === "Productos" && openSubMenu) && (
-          <List component="div" disablePadding>
-            {menuItems
-              .find((item) => item.text === "Productos")
-              .subMenuItems.map((subItem) => (
-                <ListItem key={subItem.text} disablePadding>
-                  <Link
-                    to={subItem.link}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <ListItemButton>
-                      <ListItemIcon />
-                      <ListItemIcon>{subItem.icon}</ListItemIcon>
-                      <ListItemText primary={subItem.text} />
-                      
-                    </ListItemButton>
-                  </Link>
-                </ListItem>
-              ))}
-          </List>
-        )}
       </Drawer>
     </Box>
   );
