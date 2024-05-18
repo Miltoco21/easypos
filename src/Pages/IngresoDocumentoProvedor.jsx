@@ -202,20 +202,51 @@ const IngresoDocumentoProveedor = () => {
       return;
     }
     
-    try {
-      // Primero intenta buscar por código numérico
-      const responseByCodigo = await axios.get(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
-      );
+    // Verificar si el término de búsqueda es numérico
+    const isNumeric = !isNaN(parseFloat(searchTermProd)) && isFinite(searchTermProd);
   
-      if (responseByCodigo.data && responseByCodigo.data.cantidadRegistros > 0) {
-        handleSearchSuccess(responseByCodigo, "PLU");
-      } else {
-        // Si no se encuentran resultados por código numérico, busca por descripción
-        const responseByDescripcion = await axios.get(
-          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd }&codigoCliente=${0}`
+    try {
+      if (isNumeric) {
+        // Si el término de búsqueda es numérico, buscar en el endpoint de código
+        const responseByCodigo = await axios.get(
+          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
         );
-        handleSearchSuccess(responseByDescripcion, "Descripción");
+  
+        if (responseByCodigo.data && responseByCodigo.data.cantidadRegistros > 0) {
+          handleSearchSuccess(responseByCodigo, "PLU");
+        } else {
+          // Si no se encuentran resultados por código numérico, buscar por descripción
+          const responseByDescripcion = await axios.get(
+            `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd}&codigoCliente=${0}`
+          );
+  
+          if (responseByDescripcion.data && responseByDescripcion.data.cantidadRegistros > 0) {
+            handleSearchSuccess(responseByDescripcion, "Descripción");
+          } else {
+            // Si no hay resultados para la búsqueda por descripción, mostrar mensaje de error
+            setSnackbarMessage(`No se encontraron resultados para "${searchTermProd}"`);
+            setOpenSnackbar(true);
+            setTimeout(() => {
+              setOpenSnackbar(false);
+            }, 3000);
+          }
+        }
+      } else {
+        // Si el término de búsqueda no es numérico, buscar directamente por descripción
+        const responseByDescripcion = await axios.get(
+          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd}&codigoCliente=${0}`
+        );
+  
+        if (responseByDescripcion.data && responseByDescripcion.data.cantidadRegistros > 0) {
+          handleSearchSuccess(responseByDescripcion, "Descripción");
+        } else {
+          // Si no hay resultados para la búsqueda por descripción, mostrar mensaje de error
+          setSnackbarMessage(`No se encontraron resultados para "${searchTermProd}"`);
+          setOpenSnackbar(true);
+          setTimeout(() => {
+            setOpenSnackbar(false);
+          }, 3000);
+        }
       }
     } catch (error) {
       console.error("Error al buscar el producto:", error);
@@ -227,6 +258,7 @@ const IngresoDocumentoProveedor = () => {
       }, 3000);
     }
   };
+  
   
   const handleSearchSuccess = (response, searchType) => {
     if (response.data && response.data.cantidadRegistros > 0) {
