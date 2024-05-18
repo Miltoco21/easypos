@@ -351,6 +351,7 @@ const IngresoDocumentoProveedor = () => {
       setDescripcion("");
       setCantidad("");
       setSelectedProducts([]);
+      setSearchResults([]);
    
       setErrorMessage(""); 
       setTimeout(() => {
