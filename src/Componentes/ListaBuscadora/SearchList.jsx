@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, TextField, Table, TableBody, TableCell, TableHead, TableRow, Button, Typography } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
@@ -13,6 +27,8 @@ const SearchList = () => {
   const [selectedUser, setSelectedUser] = useState([]);
   const [modalEditOpen, setModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState("");
   const perPage = 5;
 
   useEffect(() => {
@@ -37,14 +53,30 @@ const SearchList = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleDelete = async (userId) => {
-    try {
-      await axios.delete(`https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuario/${userId}`);
-      setRefresh(!refresh); // Refresh the users list after deletion
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    }
+  const handleDeleteConfirmationOpen = (user) => {
+    setUserToDelete(user);
+    setDeleteConfirmationOpen(true);
   };
+
+  const handleDeleteConfirmationClose = () => {
+    setUserToDelete(null);
+    setDeleteConfirmationOpen(false);
+  };
+
+  
+const handleDelete = async () => {
+  if (!userToDelete) return; // Verificar si hay un usuario seleccionado para eliminar
+  const userId = userToDelete.codigoUsuario;
+  console.log("ID de usuario a eliminar:", userId);
+  try {
+    await axios.delete(`https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuario/${userId}`);
+    setRefresh(!refresh); // Refresh the users list after deletion
+    setDeleteConfirmationOpen(false); // Cerrar el diálogo de confirmación después de eliminar
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  }
+};
+
 
   const handleEdit = (user) => {
     setSelectedUser(user);
@@ -111,11 +143,11 @@ const SearchList = () => {
                 <TableCell>{user.telefono}</TableCell>
                 <TableCell>{user.credito}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleDelete(user.codigoUsuario)}>
+                  <Button onClick={() => handleDeleteConfirmationOpen(user)}>
                     <DeleteIcon />
                   </Button>
                   <Button onClick={() => handleEdit(user)}>
-                    <EditIcon />
+                    <EditIcon />   
                   </Button>
                   
                 </TableCell>
@@ -148,6 +180,26 @@ const SearchList = () => {
         open={modalEditOpen}
         handleCloseEditModal={handleCloseEditModal}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmationOpen}
+        onClose={handleDeleteConfirmationClose}
+        aria-labelledby="delete-confirmation-dialog-title"
+      >
+        <DialogTitle id="delete-confirmation-dialog-title">Confirmación de eliminación</DialogTitle>
+        <DialogContent>
+          ¿Estás seguro de que deseas eliminar este usuario?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteConfirmationClose} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDelete} color="primary" autoFocus>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

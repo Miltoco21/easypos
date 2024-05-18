@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import {
+  Paper,
   Grid,
   Box,
   Button,
@@ -14,6 +16,8 @@ import {
   TableHead,
   TableRow,
   Chip,
+  InputLabel,
+  Alert,
   Snackbar,
   IconButton,
 } from "@mui/material";
@@ -24,7 +28,6 @@ import SideBar from "../Componentes/NavBar/SideBar";
 import Add from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
-
 import axios from "axios";
 
 const IngresoDocumentoProveedor = () => {
@@ -35,11 +38,70 @@ const IngresoDocumentoProveedor = () => {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [proveedores, setProveedores] = useState([]);
+  const [descripcion, setDescripcion] = useState("");
+  const [cantidad, setCantidad] = useState("");
 
   const [selectedProveedor, setSelectedProveedor] = useState(null);
   const [additionalRows, setAdditionalRows] = useState(1);
-  const [items, setItems] = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Estado para controlar la visibilidad del snackbar
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarOpen200, setSnackbarOpen200] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [searchSnackbarOpen, setSearchSnackbarOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [searchTermProd, setSearchTermProd] = useState("");
+  const [searchedProducts, setSearchedProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+
+
+ 
+
+  const setOpenSnackbar = (value) => {
+    setSnackbarOpen(value);
+  };
+
+  const handleQuantityChange = (value, index) => {
+    const updatedProducts = [...selectedProducts];
+    // Parse the input value to an integer
+    const parsedValue = parseInt(value);
+  
+    // Check if the parsed value is NaN or less than zero
+    if (isNaN(parsedValue) || parsedValue < 0) {
+      // If it's NaN or less than zero, set quantity and total to zero
+      updatedProducts[index].cantidad = 0;
+      updatedProducts[index].total = 0;
+    } else {
+      // Otherwise, update quantity and calculate total
+      updatedProducts[index].cantidad = parsedValue;
+      updatedProducts[index].total = parsedValue * updatedProducts[index].precio;
+    }
+  
+    setSelectedProducts(updatedProducts);
+  };
+  
+  // const handleQuantityChange = (value, index) => {
+  //   const updatedProducts = [...selectedProducts];
+  //   updatedProducts[index].cantidad = parseInt(value);
+  //   updatedProducts[index].total = updatedProducts[index].cantidad * updatedProducts[index].precio;
+  //   setSelectedProducts(updatedProducts);
+  // };
+
+
+  const handleAddProductToSales = (product) => {
+    const newProduct = {
+      id: product.idProducto,
+      nombre: product.nombre,
+      cantidad: 1, // Por defecto la cantidad es 1
+      precio: product.precioCosto,
+      total: 1 * product.precioCosto, // El total es la cantidad por el precioCosto
+      precioCosto: product.precioCosto, // Agregar el precioCosto al nuevo producto
+    };
+  
+    setSelectedProducts([...selectedProducts, newProduct]);
+    setSearchedProducts([]);
+    setErrorMessage("");
+  };
+  
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -64,26 +126,30 @@ const IngresoDocumentoProveedor = () => {
     setOpen(false);
   };
 
-  const handleAgregarItem = () => {
-    setAdditionalRows(additionalRows + 1);
-  };
-
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
+    setSnackbarOpen200(false);
   };
 
   const handleSearch = () => {
     setSelectedProveedor("");
     if (searchText.trim() === "") {
+      setSnackbarMessage("Campo vacío, ingresa proveedor ...");
       setSnackbarOpen(true);
     } else {
-      setSnackbarOpen(false); // Cierra el snackbar si el campo no está vacío
+      setSnackbarOpen(false);
       const filteredResults = proveedores.filter((proveedor) =>
         proveedor.nombreResponsable
           .toLowerCase()
           .includes(searchText.toLowerCase())
       );
       setSearchResults(filteredResults);
+
+      if (filteredResults.length === 0) {
+        setSearchSnackbarOpen(true);
+      } else {
+        setSearchSnackbarOpen(false);
+      }
     }
   };
 
@@ -95,120 +161,194 @@ const IngresoDocumentoProveedor = () => {
 
   const hoy = dayjs();
   const inicioRango = dayjs().subtract(1, "week");
-  const handleKeyDown = (event, field) => {
-    if (field === "marca") {
-      const regex = /^[a-zA-Z]*$/;
-      if (!regex.test(event.key) && event.key !== "Backspace") {
-        event.preventDefault();
-      }
+
+  // const handleSearchButtonClick = async () => {
+  //   if (searchTermProd.trim() === "") {
+      
+  //     setSearchedProducts([]);
+  //     setSnackbarMessage("El campo de búsqueda está vacío");
+  //     setSnackbarOpen(true);
+  //     return;
+  //   }
+  //   const isNumeric = !isNaN(parseFloat(searchTermProd)) && isFinite(searchTermProd);
+
+  //   try {
+  //     if (isNumeric) {
+  //       const response = await axios.get(
+  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
+  //       );
+  //       handleSearchSuccess(response, "PLU");
+  //     } else {
+  //       const response = await axios.get(
+  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd }&codigoCliente=${0}`
+  //       );
+  //       handleSearchSuccess(response, "Descripción");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error al buscar el producto:", error);
+  //     setSnackbarMessage("Error al buscar el producto");
+  //     setOpenSnackbar200(true);
+
+  //     setTimeout(() => {
+  //       setOpenSnackbar(false);
+  //     }, 3000);
+  //   }
+  // };
+  const handleSearchButtonClick = async () => {
+    if (searchTermProd.trim() === "") {
+      setSearchedProducts([]);
+      setSnackbarMessage("El campo de búsqueda está vacío");
+      setSnackbarOpen(true);
+      return;
     }
-    if (field === "nombre") {
-      const regex = /^(?=.*[a-zA-Z0-9])[a-zA-Z0-9\s]+$/; // Al menos un carácter alfanumérico
-      if (
-        !regex.test(event.key) &&
-        event.key !== "Backspace" &&
-        event.key !== " "
-      ) {
-        event.preventDefault();
-        setEmptyFieldsMessage(
-          "El nombre no puede consistir únicamente en espacios en blanco."
+    
+    try {
+      // Primero intenta buscar por código numérico
+      const responseByCodigo = await axios.get(
+        `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
+      );
+  
+      if (responseByCodigo.data && responseByCodigo.data.cantidadRegistros > 0) {
+        handleSearchSuccess(responseByCodigo, "PLU");
+      } else {
+        // Si no se encuentran resultados por código numérico, busca por descripción
+        const responseByDescripcion = await axios.get(
+          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd }&codigoCliente=${0}`
         );
-        setSnackbarOpen(true);
+        handleSearchSuccess(responseByDescripcion, "Descripción");
       }
-    }
-    if (field === "numeroCuenta") {
-      // Permitir solo dígitos numéricos y la tecla de retroceso
-      if (!/^\d+$/.test(event.key) && event.key !== "Backspace") {
-        event.preventDefault();
-      }
-    }
-
-    if (field === "rut") {
-      // Validar si la tecla presionada es un signo menos, un número, la letra 'k' o 'K', el guion '-' o la tecla de retroceso
-      const allowedCharacters = /^[0-9kK-]+$/i; // Corregida para permitir el guion
-      if (!allowedCharacters.test(event.key)) {
-        // Verificar si la tecla presionada es el retroceso
-        if (event.key !== "Backspace") {
-          event.preventDefault(); // Prevenir la entrada de caracteres no permitidos
-        }
-      }
-    }
-    if (event.key === "Enter") {
-      event.preventDefault();
-    }
-    if (field === "cantidadPagada") {
-      // Validar si la tecla presionada es un dígito o la tecla de retroceso
-      const isDigitOrBackspace = /^[0-9\b]+$/;
-      if (!isDigitOrBackspace.test(event.key)) {
-        event.preventDefault(); // Prevenir la entrada de caracteres no permitidos
-      }
-
-      // Obtener el valor actual del campo cantidadPagada
-      const currentValue = parseFloat(cantidadPagada);
-
-      // Validar si el nuevo valor sería menor que el grandTotal
-      if (currentValue * 10 + parseInt(event.key) < grandTotal * 10) {
-        event.preventDefault(); // Prevenir la entrada de un monto menor al grandTotal
-      }
+    } catch (error) {
+      console.error("Error al buscar el producto:", error);
+      setSnackbarMessage("Error al buscar el producto");
+      setOpenSnackbar200(true);
+  
+      setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
     }
   };
+  
+  const handleSearchSuccess = (response, searchType) => {
+    if (response.data && response.data.cantidadRegistros > 0) {
+      setSearchedProducts(response.data.productos);
+      console.log("Productos encontrados",response.data.productos)
+      setSearchTermProd("");
+      setSnackbarOpen(true);
+      setSnackbarMessage(`Productos encontrados (${searchType})`);
+      setTimeout(() => {
+        setSnackbarOpen200(false);
+      }, 3000);
+    } else if (response.data && response.data.cantidadRegistros === 0) {
+      setSnackbarMessage(`No se encontraron resultados (${searchType})`);
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
+    } else {
+      setSnackbarMessage(`Error al buscar el producto (${searchType})`);
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
+    }
+  };
+
   const handleSubmit = async () => {
-    // Muestra los datos antes de guardar
-    console.log("Datos antes de guardar:");
-    console.log({
-      tipoDocumento,
-      folioDocumento,
-      fecha,
-      searchText,
-      selectedProveedor,
-      items
-    });
+    setLoading(true);
   
     try {
-      // Verifica si se ha seleccionado un proveedor antes de continuar
-      if (!selectedProveedor) {
-        console.error('Error: No se ha seleccionado ningún proveedor.');
+      if (!tipoDocumento) {
+        setErrorMessage("Por favor complete tipo de documento.");
+        setLoading(false);
         return;
       }
   
-      // Construye el objeto de datos a enviar al API
+      if (!folioDocumento) {
+        setErrorMessage("Por favor complete campo folio.");
+        setLoading(false);
+        return;
+      }
+  
+      if (!selectedProveedor) {
+        setErrorMessage("No se ha seleccionado ningún proveedor.");
+        setLoading(false);
+        return;
+      }
+  
+      // Calculating total
+      let total = 0;
+      selectedProducts.forEach((product) => {
+        total += product.total;
+      });
+  
+      const proveedorCompraDetalles = selectedProducts.map((product) => ({
+        codProducto: product.id,
+        descripcionProducto: product.nombre,
+        cantidad: product.cantidad,
+        precioUnidad: product.precio,
+        costo: product.total,
+      }));
+  
       const dataToSend = {
-        fechaIngreso: new Date().toISOString(),
-        tipoDocumento,
+        fechaIngreso: fecha.toISOString(),
+        tipoDocumento: tipoDocumento,
         folio: folioDocumento,
         codigoProveedor: selectedProveedor.codigoProveedor,
-        total: items.reduce((total, item) => total + parseFloat(item.total), 0),
-        proveedorCompraDetalles: items.map(item => ({
-          codProducto: item.codProducto || 0,
-          descripcionProducto: item.descripcion || '',
-          cantidad: parseInt(item.cantidad) || 0,
-          precioUnidad: parseFloat(item.precioUnidad) || 0,
-          costo: parseFloat(item.costo) || 0
-        }))
+        total: total,
+        proveedorCompraDetalles,
       };
   
-      // Envía la información al API
-      const response = await axios.post('https://www.easyposdev.somee.com/api/Proveedores/AddProveeedorCompra', dataToSend);
+      console.log("Datos a enviar al servidor:", dataToSend);
   
-      // Muestra la respuesta del API
-      console.log("Respuesta del API:");
-      console.log(response.data);
+      const response = await axios.post(
+        "https://www.easyposdev.somee.com/api/Proveedores/AddProveeedorCompra",
+        dataToSend
+      );
   
-      // Muestra los datos después de guardar
-      console.log("Datos después de guardar:");
-      console.log({
-        tipoDocumento,
-        folioDocumento,
-        fecha,
-        searchText,
-        selectedProveedor,
-        items
-      });
+      console.log("Datos enviados al servidor:", response.data);
+  
+      setSnackbarMessage(response.data.descripcion);
+      setSnackbarOpen(true);
+  
+      setTipoDocumento("");
+      setFolioDocumento("");
+      setFecha(dayjs());
+      setSearchText("");
+      setSelectedProveedor(null);
+      setAdditionalRows(1);
+      setDescripcion("");
+      setCantidad("");
+      setSelectedProducts([]);
+   
+      setErrorMessage(""); 
+      setTimeout(() => {
+        handleCloseModal();
+      }, "2000");  
+      
+  
     } catch (error) {
-      console.error('Error al guardar los datos:', error);
+      console.error("Error al guardar los datos:", error);
+      setSnackbarMessage("Error al guardar los datos.");
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
     }
   };
+  const handleFolioChange = (e) => {
+    // Obtener la tecla presionada
+    const keyPressed = e.key;
   
+    // Verificar si la tecla presionada es un número o la tecla de retroceso (Backspace)
+    const isValidKey = /^\d$/.test(keyPressed) || keyPressed === "Backspace";
+  
+    // Verificar si el valor actual del campo de entrada es negativo
+    const isNegativeValue = e.target.value.startsWith("-");
+  
+    // Evitar que se ingrese números negativos o signos
+    if (!isValidKey || isNegativeValue) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -238,6 +378,11 @@ const IngresoDocumentoProveedor = () => {
               maxWidth: "90vw",
             }}
           >
+            {errorMessage && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {errorMessage}
+              </Alert>
+            )}
             <TextField
               select
               label="Tipo de documento"
@@ -253,22 +398,23 @@ const IngresoDocumentoProveedor = () => {
             </TextField>
             <TextField
               name="folioDocumento"
-              onKeyDown={(event) => handleKeyDown(event, "nombre")}
               label="Folio documento"
               value={folioDocumento}
+              onKeyDown={handleFolioChange}
+
               onChange={(e) => setFolioDocumento(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
-                label="Fecha"
+                label="Fecha de ingreso"
                 value={fecha}
                 onChange={(newValue) => setFecha(newValue)}
                 renderInput={(params) => (
                   <TextField {...params} sx={{ mb: 2 }} />
                 )}
-                format="DD/MM/YYYY" // Formato día/mes/año
+                format="DD/MM/YYYY"
                 minDate={inicioRango}
                 maxDate={hoy}
                 sx={{ mb: 2 }}
@@ -311,102 +457,137 @@ const IngresoDocumentoProveedor = () => {
                 </ListItem>
               )}
             </Box>
+           
+            <div style={{ alignItems: "center" }}>
+              <Grid
+                item
+                xs={12}
+                sm={12}
+                md={12}
+                lg={12}
+                sx={{ display: "flex", margin: 1 }}
+              >
+                <InputLabel
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    margin: 1,
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Buscador de productos
+                </InputLabel>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                sx={{
+                  margin: 1,
+                  display: "flex",
+                  justifyContent: { xs: "flex-start", md: "flex-end" },
+                }}
+              >
+                <TextField
+                  sx={{
+                    backgroundColor: "white",
+                    borderRadius: "5px",
+                  }}
+                  fullWidth
+                  focused
+                  placeholder="Ingresa Código"
+                  value={searchTermProd}
+                  onChange={(e) => setSearchTermProd(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSearchButtonClick();
+                    }
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={handleSearchButtonClick}
+                  sx={{ mx: 1 }}
+                >
+                  Buscar
+                </Button>
+              </Grid>
+                 {/* Agregar el bloque de código para los resultados de la búsqueda de productos */}
+    <TableContainer component={Paper} style={{ overflowX: "auto", maxHeight: 200 }}>
+      <Table>
+        <TableBody>
+          {searchedProducts.map((product) => (
+            <TableRow key={product.id}>
+              <TableCell sx={{ width: "21%" }}>{product.nombre}</TableCell>
+              <TableCell sx={{ width: "21%" }}>Plu: {product.idProducto}</TableCell>
+              <TableCell sx={{ width: "21%" }}>Precio Costo: {product.precioCosto}</TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => handleAddProductToSales(product)}
+                  variant="contained"
+                  color="secondary"
+                >
+                  Agregar
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
+
+    {/* Fin del bloque de código para los resultados de la búsqueda de productos */}
+    <TableContainer component={Paper} style={{ overflowX: "auto", maxHeight: 200 }}>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell>Descripción</TableCell>
+        <TableCell align="right">Precio Costo</TableCell>
+        <TableCell align="right">Cantidad</TableCell>
+        <TableCell align="right">Total</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {selectedProducts.map((product, index) => (
+        <TableRow key={index}>
+          <TableCell>{product.nombre}</TableCell>
+          <TableCell>{product.precioCosto}</TableCell>
+          <TableCell align="right">
+            <TextField
+           
+              value={product.cantidad}
+              onChange={(e) => handleQuantityChange(e.target.value, index)}
+            />
+          </TableCell>
+          <TableCell align="right">{product.total}</TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
+
+           
+            </div>
             <Button
-              onClick={handleAgregarItem}
-              variant="outlined"
-              sx={{ mb: 2 }}
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={loading}
             >
-              Agregar más
+              Guardar
             </Button>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Descripción</TableCell>
-                    <TableCell>Cantidad</TableCell>
-                    <TableCell>Total</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {[...Array(additionalRows)].map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <TextField
-                          label="Descripción"
-                          name="nombre"
-                          onKeyDown={(event) => handleKeyDown(event, "nombre")}
-                          fullWidth
-                          value={items[index]?.descripcion || ""}
-                          onChange={(e) => {
-                            const newItems = [...items];
-                            newItems[index] = {
-                              ...newItems[index],
-                              descripcion: e.target.value,
-                            };
-                            setItems(newItems);
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          label="Cantidad"
-                          name="numeroCuenta"
-                          fullWidth
-                          onKeyDown={(event) =>
-                            handleKeyDown(event, "numeroCuenta")
-                          }
-                          value={items[index]?.cantidad || ""}
-                          onChange={(e) => {
-                            const newItems = [...items];
-                            newItems[index] = {
-                              ...newItems[index],
-                              cantidad: e.target.value,
-                            };
-                            setItems(newItems);
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          label="Total"
-                          name="numeroCuenta"
-                          fullWidth
-                          onKeyDown={(event) =>
-                            handleKeyDown(event, "numeroCuenta")
-                          }
-                          value={items[index]?.total || ""}
-                          onChange={(e) => {
-                            const newItems = [...items];
-                            newItems[index] = {
-                              ...newItems[index],
-                              total: e.target.value,
-                            };
-                            setItems(newItems);
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <Grid container item xs={12} sm={12} md={12} lg={12}>
-                    <Button
-                      fullWidth
-                      onClick={handleSubmit}
-                      variant="outlined"
-                      sx={{ mb: 2 }}
-                    >
-                      Guardar Documentos
-                    </Button>
-                  </Grid>
-                </TableBody>
-              </Table>
-            </TableContainer>
           </Box>
+          
         </Modal>
+        
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={6000}
           onClose={handleCloseSnackbar}
-          message="El campo está vacío, ingresa proveedor"
+          message={snackbarMessage}
           action={
             <IconButton
               size="small"
@@ -417,10 +598,28 @@ const IngresoDocumentoProveedor = () => {
               <CloseIcon fontSize="small" />
             </IconButton>
           }
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
+        />
+        <Snackbar
+          open={snackbarOpen200}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          message={errorMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleCloseSnackbar}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+        <Snackbar
+          open={searchSnackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSearchSnackbarOpen(false)}
+          message="No se encontraron resultados"
         />
       </Box>
     </div>

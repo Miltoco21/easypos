@@ -1,154 +1,225 @@
-/* eslint-disable no-unused-vars */
-import  React,{useState} from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
-import { Navigate, useNavigate} from 'react-router-dom';
+import React, { useState, useContext } from "react";
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Grid,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const Login = () => {
+  const [rutOrCode, setRutOrCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 
+  const [error, setError] = useState(null);
+  const [activeInput, setActiveInput] = useState("rutOrCode");
+  const [loading, setLoading] = useState(false);
+  const [  userData,setUserData] = useState([]);
 
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Easy POS
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-
-const defaultTheme = createTheme();
-
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const Navigate = useNavigate();
-
-  
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    
-    const userLogin = {
-      
-      email,
-      password,
-      
+  const navigate = useNavigate();
 
 
-    }
-    console.log(userLogin);
-    axios
-      .post("http://localhost:5000/api/login",userLogin)
-      .then((res) => {
-        alert(res.data.message);
-        Navigate('/home');
-
-      })
-      .catch((err,res) => {
-        console.log(err.response.data, "Leer Error");
-        alert(err.response.data.message)
-       
-        
-       
-      });
-
+  const saveSessionData = (userData) => {
+    localStorage.setItem('userData', JSON.stringify(userData));
   };
 
+  const handleLogin = async () => {
+    try {
+      if (!rutOrCode || !password) {
+        setError("Por favor, completa ambos campos.");
+        return;
+      }
+      setLoading(true);
+
+      // Console log para imprimir los datos antes de enviar el formulario
+      console.log("Datos antes de enviar el formulario:", {
+        rutOrCode,
+        password,
+      });
+
+      const response = await axios.post(
+        "https://www.easyposdev.somee.com/api/Usuarios/LoginUsuario",
+        {
+          codigoUsuario: 0,
+          rut: rutOrCode,
+          clave: password,
+        }
+      );
+
+      // Console log para imprimir la respuesta del servidor
+      console.log("Respuesta del servidor:", response.data);
+
+      if (response.data.responseUsuario) {
+        // Actualizar userData después del inicio de sesión exitoso
+        setUserData(response.data.responseUsuario);
+
+        // Redirigir a la página de inicio
+        navigate("/home");
+      } else {
+        setError("Error de inicio de sesión. Verifica tus credenciales.");
+      }
+    } catch (error) {
+      console.error("Error al intentar iniciar sesión:", error);
+      if (error.response) {
+        setError(
+          "Credenciales incorrectas. Por favor, verifica tu nombre de usuario y contraseña." +
+            error.message
+        );
+      } else if (error.response && error.response.status === 500) {
+        setError(
+          "Error interno del servidor. Por favor, inténtalo de nuevo más tarde."
+        );
+      } else {
+        setError(
+          "Error al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde."
+        );
+      }
+    } finally {
+      setLoading(false); // Asegúrate de que setLoading se restablezca incluso si hay un error
+    }
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword); // Alternar entre mostrar y ocultar la contraseña
+  };
+  const handleNumberClick = (number) => {
+    if (activeInput === "rutOrCode") {
+      setRutOrCode((prevRutOrCode) => prevRutOrCode + number);
+    } else {
+      setPassword((prevPassword) => prevPassword + number);
+    }
+  };
+
+  const handleClearAll = () => {
+    setRutOrCode("");
+    setPassword("");
+  };
+
+  const handleDeleteLastCharacter = () => {
+    if (activeInput === "rutOrCode") {
+      setRutOrCode((prevRutOrCode) => prevRutOrCode.slice(0, -1));
+    } else {
+      setPassword((prevPassword) => prevPassword.slice(0, -1));
+    }
+  };
+
+  const numbers = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0, "-"];
+
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
-          sx={{
-            backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Iniciar sesión
+        </Typography>
+        {error && (
+          <Typography sx={{ color: "red", marginTop: 2 }}>{error}</Typography>
+        )}
+        <Box component="form" noValidate sx={{ mt: 3 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Código o Rut"
+            autoFocus
+            value={rutOrCode}
+            onFocus={() => setActiveInput("rutOrCode")}
+            onChange={(e) => setRutOrCode(e.target.value)}
+            inputProps={{
+              inputMode: "decimal", // Establece el modo de entrada como numérico
+              pattern: "[0-9]*" // Asegura que solo se puedan ingresar números
             }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Inicia Sesión
-            </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Correo Electrónico"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e)=>setEmail(e.target.value)}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Contraseña"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e)=>setPassword(e.target.value)}
-              />
-              
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Ingresar
-              </Button>
-              <Grid container>
-                
-                <Grid item>
-                  <Link href="/registro" variant="body2">
-                    {"No tienes cuenta? Registrate acá"}
-                  </Link>
-                </Grid>
+          />
+         <TextField
+            margin="normal"
+            required
+            fullWidth
+            label="Clave"
+            type={showPassword ? "text" : "password"} // Cambia dinámicamente el tipo del campo de contraseña
+            value={password}
+            onFocus={() => setActiveInput("password")}
+            onChange={(e) => setPassword(e.target.value)}
+            InputProps={{ // Componente de entrada personalizada para agregar el botón de visualización de contraseña
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            inputProps={{
+              inputMode: "numeric", // Establece el modo de entrada como numérico
+              pattern: "[0-9]*" // Asegura que solo se puedan ingresar números
+            }}
+          />
+
+          <Grid container justifyContent="center" spacing={1} sx={{ mt: 2 }}>
+            {/* {numbers.map((number) => (
+              <Grid item xs={4} lg={4} key={number}>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => handleNumberClick(number)}
+                >
+                  {number}
+                </Button>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-    </ThemeProvider>
+            ))} */}
+            <Grid container justifyContent="space-between" sx={{ mt: 2 }}>
+              {/* Botón para eliminar todos los datos */}
+              {/* <Button variant="outlined" onClick={handleClearAll}>
+                Limpiar todo
+              </Button> */}
+              {/* Botón para eliminar el último carácter */}
+              {/* <Button variant="outlined" onClick={handleDeleteLastCharacter}>
+                Borrar último
+              </Button> */}
+            </Grid>
+          </Grid>
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={handleLogin}
+            disabled={loading} // Deshabilitar el botón durante la carga
+          >
+            {/* Texto del botón */}
+            {/* {loading ? <CircularProgress sx={{color:"red"}} size={24} /> : "Iniciar sesión"} */}
+            {loading ? (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress
+                  color="inherit"
+                  size={20}
+                  sx={{ marginRight: 1 }}
+                />
+                Ingresando
+              </Box>
+            ) : (
+              "Iniciar sesión"
+            )}
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
-}
+};
+
+export default Login;
