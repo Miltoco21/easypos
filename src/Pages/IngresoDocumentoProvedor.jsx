@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Paper,
@@ -53,9 +52,6 @@ const IngresoDocumentoProveedor = () => {
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
 
-
- 
-
   const setOpenSnackbar = (value) => {
     setSnackbarOpen(value);
   };
@@ -64,7 +60,7 @@ const IngresoDocumentoProveedor = () => {
     const updatedProducts = [...selectedProducts];
     // Parse the input value to an integer
     const parsedValue = parseInt(value);
-  
+
     // Check if the parsed value is NaN or less than zero
     if (isNaN(parsedValue) || parsedValue < 0) {
       // If it's NaN or less than zero, set quantity and total to zero
@@ -73,19 +69,19 @@ const IngresoDocumentoProveedor = () => {
     } else {
       // Otherwise, update quantity and calculate total
       updatedProducts[index].cantidad = parsedValue;
-      updatedProducts[index].total = parsedValue * updatedProducts[index].precio;
+      updatedProducts[index].total =
+        parsedValue * updatedProducts[index].precio;
     }
-  
+
     setSelectedProducts(updatedProducts);
   };
-  
+
   // const handleQuantityChange = (value, index) => {
   //   const updatedProducts = [...selectedProducts];
   //   updatedProducts[index].cantidad = parseInt(value);
   //   updatedProducts[index].total = updatedProducts[index].cantidad * updatedProducts[index].precio;
   //   setSelectedProducts(updatedProducts);
   // };
-
 
   const handleAddProductToSales = (product) => {
     const newProduct = {
@@ -96,12 +92,11 @@ const IngresoDocumentoProveedor = () => {
       total: 1 * product.precioCosto, // El total es la cantidad por el precioCosto
       precioCosto: product.precioCosto, // Agregar el precioCosto al nuevo producto
     };
-  
+
     setSelectedProducts([...selectedProducts, newProduct]);
     setSearchedProducts([]);
     setErrorMessage("");
   };
-  
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -164,7 +159,7 @@ const IngresoDocumentoProveedor = () => {
 
   // const handleSearchButtonClick = async () => {
   //   if (searchTermProd.trim() === "") {
-      
+
   //     setSearchedProducts([]);
   //     setSnackbarMessage("El campo de búsqueda está vacío");
   //     setSnackbarOpen(true);
@@ -201,30 +196,39 @@ const IngresoDocumentoProveedor = () => {
       setSnackbarOpen(true);
       return;
     }
-    
+
     // Verificar si el término de búsqueda es numérico
-    const isNumeric = !isNaN(parseFloat(searchTermProd)) && isFinite(searchTermProd);
-  
+    const isNumeric =
+      !isNaN(parseFloat(searchTermProd)) && isFinite(searchTermProd);
+
     try {
       if (isNumeric) {
         // Si el término de búsqueda es numérico, buscar en el endpoint de código
         const responseByCodigo = await axios.get(
           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
         );
-  
-        if (responseByCodigo.data && responseByCodigo.data.cantidadRegistros > 0) {
+
+        if (
+          responseByCodigo.data &&
+          responseByCodigo.data.cantidadRegistros > 0
+        ) {
           handleSearchSuccess(responseByCodigo, "PLU");
         } else {
           // Si no se encuentran resultados por código numérico, buscar por descripción
           const responseByDescripcion = await axios.get(
             `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd}&codigoCliente=${0}`
           );
-  
-          if (responseByDescripcion.data && responseByDescripcion.data.cantidadRegistros > 0) {
+
+          if (
+            responseByDescripcion.data &&
+            responseByDescripcion.data.cantidadRegistros > 0
+          ) {
             handleSearchSuccess(responseByDescripcion, "Descripción");
           } else {
             // Si no hay resultados para la búsqueda por descripción, mostrar mensaje de error
-            setSnackbarMessage(`No se encontraron resultados para "${searchTermProd}"`);
+            setSnackbarMessage(
+              `No se encontraron resultados para "${searchTermProd}"`
+            );
             setOpenSnackbar(true);
             setTimeout(() => {
               setOpenSnackbar(false);
@@ -236,12 +240,17 @@ const IngresoDocumentoProveedor = () => {
         const responseByDescripcion = await axios.get(
           `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd}&codigoCliente=${0}`
         );
-  
-        if (responseByDescripcion.data && responseByDescripcion.data.cantidadRegistros > 0) {
+
+        if (
+          responseByDescripcion.data &&
+          responseByDescripcion.data.cantidadRegistros > 0
+        ) {
           handleSearchSuccess(responseByDescripcion, "Descripción");
         } else {
           // Si no hay resultados para la búsqueda por descripción, mostrar mensaje de error
-          setSnackbarMessage(`No se encontraron resultados para "${searchTermProd}"`);
+          setSnackbarMessage(
+            `No se encontraron resultados para "${searchTermProd}"`
+          );
           setOpenSnackbar(true);
           setTimeout(() => {
             setOpenSnackbar(false);
@@ -252,18 +261,17 @@ const IngresoDocumentoProveedor = () => {
       console.error("Error al buscar el producto:", error);
       setSnackbarMessage("Error al buscar el producto");
       setOpenSnackbar200(true);
-  
+
       setTimeout(() => {
         setOpenSnackbar(false);
       }, 3000);
     }
   };
-  
-  
+
   const handleSearchSuccess = (response, searchType) => {
     if (response.data && response.data.cantidadRegistros > 0) {
       setSearchedProducts(response.data.productos);
-      console.log("Productos encontrados",response.data.productos)
+      console.log("Productos encontrados", response.data.productos);
       setSearchTermProd("");
       setSnackbarOpen(true);
       setSnackbarMessage(`Productos encontrados (${searchType})`);
@@ -287,32 +295,32 @@ const IngresoDocumentoProveedor = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-  
+
     try {
       if (!tipoDocumento) {
         setErrorMessage("Por favor complete tipo de documento.");
         setLoading(false);
         return;
       }
-  
+
       if (!folioDocumento) {
         setErrorMessage("Por favor complete campo folio.");
         setLoading(false);
         return;
       }
-  
+
       if (!selectedProveedor) {
         setErrorMessage("No se ha seleccionado ningún proveedor.");
         setLoading(false);
         return;
       }
-  
+
       // Calculating total
       let total = 0;
       selectedProducts.forEach((product) => {
         total += product.total;
       });
-  
+
       const proveedorCompraDetalles = selectedProducts.map((product) => ({
         codProducto: product.id,
         descripcionProducto: product.nombre,
@@ -320,7 +328,7 @@ const IngresoDocumentoProveedor = () => {
         precioUnidad: product.precio,
         costo: product.total,
       }));
-  
+
       const dataToSend = {
         fechaIngreso: fecha.toISOString(),
         tipoDocumento: tipoDocumento,
@@ -329,19 +337,19 @@ const IngresoDocumentoProveedor = () => {
         total: total,
         proveedorCompraDetalles,
       };
-  
+
       console.log("Datos a enviar al servidor:", dataToSend);
-  
+
       const response = await axios.post(
         "https://www.easyposdev.somee.com/api/Proveedores/AddProveeedorCompra",
         dataToSend
       );
-  
+
       console.log("Datos enviados al servidor:", response.data);
-  
+
       setSnackbarMessage(response.data.descripcion);
       setSnackbarOpen(true);
-  
+
       setTipoDocumento("");
       setFolioDocumento("");
       setFecha(dayjs());
@@ -352,13 +360,11 @@ const IngresoDocumentoProveedor = () => {
       setCantidad("");
       setSelectedProducts([]);
       setSearchResults([]);
-   
-      setErrorMessage(""); 
+
+      setErrorMessage("");
       setTimeout(() => {
         handleCloseModal();
-      }, "2000");  
-      
-  
+      }, "2000");
     } catch (error) {
       console.error("Error al guardar los datos:", error);
       setSnackbarMessage("Error al guardar los datos.");
@@ -370,18 +376,22 @@ const IngresoDocumentoProveedor = () => {
   const handleFolioChange = (e) => {
     // Obtener la tecla presionada
     const keyPressed = e.key;
-  
+
     // Verificar si la tecla presionada es un número o la tecla de retroceso (Backspace)
     const isValidKey = /^\d$/.test(keyPressed) || keyPressed === "Backspace";
-  
+
     // Verificar si el valor actual del campo de entrada es negativo
     const isNegativeValue = e.target.value.startsWith("-");
-  
+
     // Evitar que se ingrese números negativos o signos
     if (!isValidKey || isNegativeValue) {
       e.preventDefault();
     }
   };
+  const grandTotal = selectedProducts.reduce(
+    (total, product) => total + product.total,
+    0
+  );
 
   return (
     <div style={{ display: "flex" }}>
@@ -434,7 +444,6 @@ const IngresoDocumentoProveedor = () => {
               label="Folio documento"
               value={folioDocumento}
               onKeyDown={handleFolioChange}
-
               onChange={(e) => setFolioDocumento(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
@@ -490,7 +499,7 @@ const IngresoDocumentoProveedor = () => {
                 </ListItem>
               )}
             </Box>
-           
+
             <div style={{ alignItems: "center" }}>
               <Grid
                 item
@@ -547,62 +556,81 @@ const IngresoDocumentoProveedor = () => {
                   Buscar
                 </Button>
               </Grid>
-                 {/* Agregar el bloque de código para los resultados de la búsqueda de productos */}
-    <TableContainer component={Paper} style={{ overflowX: "auto", maxHeight: 200 }}>
-      <Table>
-        <TableBody>
-          {searchedProducts.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell sx={{ width: "21%" }}>{product.nombre}</TableCell>
-              <TableCell sx={{ width: "21%" }}>Plu: {product.idProducto}</TableCell>
-              <TableCell sx={{ width: "21%" }}>Precio Costo: {product.precioCosto}</TableCell>
-              <TableCell>
-                <Button
-                  onClick={() => handleAddProductToSales(product)}
-                  variant="contained"
-                  color="secondary"
-                >
-                  Agregar
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+              {/* Agregar el bloque de código para los resultados de la búsqueda de productos */}
+              <TableContainer
+                component={Paper}
+                style={{ overflowX: "auto", maxHeight: 200 }}
+              >
+                <Table>
+                  <TableBody>
+                    {searchedProducts.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell sx={{ width: "21%" }}>
+                          {product.nombre}
+                        </TableCell>
+                        <TableCell sx={{ width: "21%" }}>
+                          Plu: {product.idProducto}
+                        </TableCell>
+                        <TableCell sx={{ width: "21%" }}>
+                          Precio Costo: {product.precioCosto}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            onClick={() => handleAddProductToSales(product)}
+                            variant="contained"
+                            color="secondary"
+                          >
+                            Agregar
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
+              {/* Fin del bloque de código para los resultados de la búsqueda de productos */}
+              <TableContainer
+                component={Paper}
+                style={{ overflowX: "auto", maxHeight: 200 }}
+              >
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Descripción</TableCell>
+                      <TableCell align="right">Precio Costo</TableCell>
+                      <TableCell align="right">Cantidad</TableCell>
+                      <TableCell align="right">Total</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedProducts.map((product, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{product.nombre}</TableCell>
+                        <TableCell>{product.precioCosto}</TableCell>
+                        <TableCell align="right">
+                          <TextField
+                            value={product.cantidad}
+                            onChange={(e) =>
+                              handleQuantityChange(e.target.value, index)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell align="right">{product.total}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-    {/* Fin del bloque de código para los resultados de la búsqueda de productos */}
-    <TableContainer component={Paper} style={{ overflowX: "auto", maxHeight: 200 }}>
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell>Descripción</TableCell>
-        <TableCell align="right">Precio Costo</TableCell>
-        <TableCell align="right">Cantidad</TableCell>
-        <TableCell align="right">Total</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {selectedProducts.map((product, index) => (
-        <TableRow key={index}>
-          <TableCell>{product.nombre}</TableCell>
-          <TableCell>{product.precioCosto}</TableCell>
-          <TableCell align="right">
-            <TextField
-           
-              value={product.cantidad}
-              onChange={(e) => handleQuantityChange(e.target.value, index)}
-            />
-          </TableCell>
-          <TableCell align="right">{product.total}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-</TableContainer>
-
-           
+              <TextField
+                label="Total"
+                value={grandTotal}
+                sx={{mt:3}}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
             </div>
             <Button
               variant="contained"
@@ -613,9 +641,8 @@ const IngresoDocumentoProveedor = () => {
               Guardar
             </Button>
           </Box>
-          
         </Modal>
-        
+
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={6000}
