@@ -4,6 +4,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
+  Grid,
+  Paper,
   Box,
   TextField,
   Table,
@@ -31,6 +33,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Avatar,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -277,7 +280,6 @@ const SearchListProveedores = () => {
           setTimeout(() => {
             setOpenPaymentDialog(false);
           }, "3000");
-          
         } else {
           setSnackbarMessage(
             "Pago realizado, pero con problemas en la respuesta del servidor"
@@ -512,7 +514,21 @@ const SearchListProveedores = () => {
         <DialogTitle>Pago Cuenta Proveedores</DialogTitle>
         <DialogContent>
           <div>
-            <h2>Datos del proveedor {selectedProvedoor.codigoProveedor}</h2>
+            <Paper>
+              <Grid sx={{ display: "flex" }}>
+                <Grid sx={{ margin: 3 }}>
+                  <Avatar sx={{ borderRadius: 3, width: 48, height: 48 }} />
+                </Grid>
+                <Grid sx={{ margin: 3 }}>
+                  <Typography variant="body2" sx={{ color: "#696c6f" }}>
+                    Provedoor: {selectedProvedoor.nombreResponsable}
+                    <br />
+                    RUT: {selectedProvedoor.rut}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Paper>
+
             <Table>
               <TableHead>
                 <TableRow>

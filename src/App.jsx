@@ -1,36 +1,33 @@
-/* eslint-disable no-unused-vars */
-
-import Home from "./Pages/Home";
-import { Route, Routes } from "react-router";
-import Registro from "./Pages/Registro";
-import Login from "./Pages/Login";
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
-import Usuarios from "./Pages/Usuarios";
-import Precios from "./Pages/Precios";
-import Proveedores from "./Pages/Proveedores";
-import SideBar from "./Componentes/NavBar/SideBar"
-import Productos from "./Pages/Productos"
-import Clientes from "./Pages/Clientes"
-import IngresoDocumento from "./Pages/IngresoDocumentoProvedor"
-
-
+import React, { useState } from 'react';
+import { Route, Routes } from 'react-router';
+import Home from './Pages/Home';
+import Registro from './Pages/Registro';
+import Login from './Pages/Login';
+import Usuarios from './Pages/Usuarios';
+import Precios from './Pages/Precios';
+import Proveedores from './Pages/Proveedores';
+import Productos from './Pages/Productos';
+import Clientes from './Pages/Clientes';
+import IngresoDocumento from './Pages/IngresoDocumentoProvedor';
+import Categorias from './Pages/Categoria';
+import SubCategorias from './Pages/SubCategoria';
+import Familias from './Pages/Familias';
+import SubFamilias from './Pages/SubFamilias';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Categorias from "./Pages/Categoria";
-import SubCategorias from "./Pages/SubCategoria";
-import Familias from "./Pages/Familias";
-import SubFamilias from "./Pages/SubFamilias";
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 function App() {
+  const [userData, setUserData] = useState(null);
+
   return (
     <Routes>
-     
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login setUserData={setUserData} />} />
       <Route path="/registro" element={<Registro />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home userData={userData} setUserData={setUserData} />} />
+      <Route path="/" element={<Login setUserData={setUserData} />} />
       <Route path="/usuarios" element={<Usuarios />} />
       <Route path="/precios" element={<Precios />} />
       <Route path="/proveedores" element={<Proveedores />} />
@@ -41,7 +38,6 @@ function App() {
       <Route path="/productos/familias" element={<Familias />} />
       <Route path="/productos/subfamilias" element={<SubFamilias />} />
       <Route path="/proveedores/ingresodocumento" element={<IngresoDocumento />} />
-
     </Routes>
   );
 }
