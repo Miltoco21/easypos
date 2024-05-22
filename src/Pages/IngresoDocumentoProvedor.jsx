@@ -82,21 +82,55 @@ const IngresoDocumentoProveedor = () => {
   //   updatedProducts[index].total = updatedProducts[index].cantidad * updatedProducts[index].precio;
   //   setSelectedProducts(updatedProducts);
   // };
-
   const handleAddProductToSales = (product) => {
-    const newProduct = {
-      id: product.idProducto,
-      nombre: product.nombre,
-      cantidad: 1, // Por defecto la cantidad es 1
-      precio: product.precioCosto,
-      total: 1 * product.precioCosto, // El total es la cantidad por el precioCosto
-      precioCosto: product.precioCosto, // Agregar el precioCosto al nuevo producto
-    };
-
-    setSelectedProducts([...selectedProducts, newProduct]);
+    const existingProductIndex = selectedProducts.findIndex(
+      (p) => p.id === product.idProducto
+    );
+  
+    if (existingProductIndex !== -1) {
+      // Producto ya existe, incrementar la cantidad
+      const updatedProducts = selectedProducts.map((p, index) => {
+        if (index === existingProductIndex) {
+          const updatedQuantity = p.cantidad + 1;
+          return {
+            ...p,
+            cantidad: updatedQuantity,
+            total: updatedQuantity * p.precioCosto,
+          };
+        }
+        return p;
+      });
+      setSelectedProducts(updatedProducts);
+    } else {
+      // Producto no existe, agregar como nuevo
+      const newProduct = {
+        id: product.idProducto,
+        nombre: product.nombre,
+        cantidad: 1,
+        precio: product.precioCosto,
+        total: product.precioCosto,
+        precioCosto: product.precioCosto,
+      };
+      setSelectedProducts([...selectedProducts, newProduct]);
+    }
+  
     setSearchedProducts([]);
     setErrorMessage("");
   };
+  // const handleAddProductToSales = (product) => {
+  //   const newProduct = {
+  //     id: product.idProducto,
+  //     nombre: product.nombre,
+  //     cantidad: 1, // Por defecto la cantidad es 1
+  //     precio: product.precioCosto,
+  //     total: 1 * product.precioCosto, // El total es la cantidad por el precioCosto
+  //     precioCosto: product.precioCosto, // Agregar el precioCosto al nuevo producto
+  //   };
+
+  //   setSelectedProducts([...selectedProducts, newProduct]);
+  //   setSearchedProducts([]);
+  //   setErrorMessage("");
+  // };
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -598,9 +632,9 @@ const IngresoDocumentoProveedor = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Descripción</TableCell>
-                      <TableCell align="right">Precio Costo</TableCell>
-                      <TableCell align="right">Cantidad</TableCell>
-                      <TableCell align="right">Total</TableCell>
+                      <TableCell>Precio Costo</TableCell>
+                      <TableCell sx={{width:"23%"}}>Cantidad</TableCell>
+                      <TableCell >Total</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -608,15 +642,19 @@ const IngresoDocumentoProveedor = () => {
                       <TableRow key={index}>
                         <TableCell>{product.nombre}</TableCell>
                         <TableCell>{product.precioCosto}</TableCell>
-                        <TableCell align="right">
+                        <TableCell >
                           <TextField
                             value={product.cantidad}
                             onChange={(e) =>
                               handleQuantityChange(e.target.value, index)
                             }
+                            InputProps={{
+                              
+                              maxLenght:3
+                            }}
                           />
                         </TableCell>
-                        <TableCell align="right">{product.total}</TableCell>
+                        <TableCell >{product.total}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

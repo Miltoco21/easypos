@@ -27,6 +27,7 @@ import {
   Checkbox,
   DialogActions,
   TextField,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -36,7 +37,6 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-
 
 const ITEMS_PER_PAGE = 10;
 
@@ -63,7 +63,7 @@ const SearchListClientes = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [cantidadPagada, setCantidadPagada] = useState();
+  const [cantidadPagada, setCantidadPagada] = useState("");
 
   const [metodoPago, setMetodoPago] = useState("");
   const [openTransferenciaModal, setOpenTransferenciaModal] = useState(false);
@@ -160,13 +160,16 @@ const SearchListClientes = () => {
   }, [refresh]);
 
   const handleOpenPaymentProcess = () => {
-  
     setOpenPaymentProcess(true);
+    setCantidadPagada(getTotalSelected());
+    setMetodoPago("")
   };
 
   // Función para cerrar el diálogo de procesamiento de pago
   const handleClosePaymentProcess = () => {
+    
     setOpenPaymentProcess(false);
+    
   };
 
   const setPageCount = (clientesCount) => {
@@ -223,8 +226,6 @@ const SearchListClientes = () => {
     );
   }, [clientes, searchTerm, currentPage]);
 
-
-
   const onEditSuccess = () => {
     setIsEditSuccessful(true);
   };
@@ -233,7 +234,7 @@ const SearchListClientes = () => {
     const updatedDeudaData = [...deudaData];
     updatedDeudaData[index].selected = !updatedDeudaData[index].selected;
     setDeudaData(updatedDeudaData);
-  
+
     const selectedDebts = updatedDeudaData.filter((deuda) => deuda.selected);
     setSelectedDebts(selectedDebts);
   };
@@ -248,8 +249,6 @@ const SearchListClientes = () => {
   //   // Mostrar los datos seleccionados en la consola
   //   console.log("Datos seleccionados por checkbox:", selectedDebts);
   // };
-
-  
 
   const getTotalSelected = () => {
     let totalSelected = 0;
@@ -269,14 +268,13 @@ const SearchListClientes = () => {
     ? ventaData.reduce((total, deuda) => total + deuda.total, 0)
     : 0;
 
+  useEffect(() => {
+    if (selectedClient) {
+      handlePayment();
+    }
+  }, [selectedClient]);
 
-    useEffect(() => {
-      if (selectedClient) {
-        handlePayment();
-      }
-    }, [selectedClient]);  
-
-    console.log("selectedclient",selectedClient)
+  console.log("selectedclient", selectedClient);
   const handlePayment = async () => {
     try {
       // if (!selectedClient || !selectedClient.codigoUsuario) {
@@ -384,10 +382,15 @@ const SearchListClientes = () => {
         setError("Por favor, selecciona un método de pago.");
         setLoading(false);
         return;
-      }else setError("")
+      }
+      if (metodoPago) {
+        setError("");
+        setLoading(false);
+        return;
+      }
+     
 
-      const selectedDeudas = deudaData.filter(deuda => deuda.selected);
-
+      const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
 
       // const deudaIds = deudaData.map((deuda) => ({
       //   idCuentaCorriente: deuda.codigoCliente,
@@ -397,9 +400,8 @@ const SearchListClientes = () => {
       const deudaIds = selectedDebts.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
-        total: deuda.total
+        total: deuda.total,
       }));
-
 
       const requestBody = {
         deudaIds: deudaIds,
@@ -431,15 +433,10 @@ const SearchListClientes = () => {
         setSnackbarOpen(true);
         setSnackbarMessage(response.data.descripcion);
         handleClosePaymentDialog();
-      
-       
-      
-    
-     
-     
+        getTotalSelected(0)
+        setMetodoPago("")
 
         setTimeout(() => {
-          
           handleClosePaymentProcess();
         }, 2000);
       } else {
@@ -461,8 +458,8 @@ const SearchListClientes = () => {
           `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedClient.clienteSucursal}&codigoCliente=${selectedClient.codigoCliente}`
         );
         console.log("DeudaCLiente:", response.data.clienteDeuda);
-       
-      setDeudaData(response.data.clienteDeuda);
+
+        setDeudaData(response.data.clienteDeuda);
       } else {
         // Si no hay un cliente seleccionado, devolver un array vacío
         return [];
@@ -624,28 +621,29 @@ const SearchListClientes = () => {
                       </TableHead>
                       <TableBody>
                         {/* Renderizar las filas de la tabla */}
-                        {deudaData.sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
-                        .map((deuda,index) => (
-                          <TableRow key={deuda.id}>
-                            <TableCell>
-                              <Checkbox
-                                checked={deuda.selected || false}
-                                onChange={() => handleCheckboxChange(index)}
-                                color="primary"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              {deuda.descripcionComprobante}
-                            </TableCell>
-                            <TableCell>{deuda.nroComprobante}</TableCell>
-                            <TableCell>${deuda.totalPagadoParcial}</TableCell>
-                            <TableCell>{formatFecha(deuda.fecha)}</TableCell>
-                            <TableCell>${deuda.total}</TableCell>
-                            <TableCell sx={{ display: "none" }}>
-                        ${deuda.idCabecera}
-                      </TableCell>
-                          </TableRow>
-                        ))}
+                        {deudaData
+                          .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+                          .map((deuda, index) => (
+                            <TableRow key={deuda.id}>
+                              <TableCell>
+                                <Checkbox
+                                  checked={deuda.selected || false}
+                                  onChange={() => handleCheckboxChange(index)}
+                                  color="primary"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                {deuda.descripcionComprobante}
+                              </TableCell>
+                              <TableCell>{deuda.nroComprobante}</TableCell>
+                              <TableCell>${deuda.totalPagadoParcial}</TableCell>
+                              <TableCell>{formatFecha(deuda.fecha)}</TableCell>
+                              <TableCell>${deuda.total}</TableCell>
+                              <TableCell sx={{ display: "none" }}>
+                                ${deuda.idCabecera}
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                       {/* Mostrar el total de la deuda y el botón de pago */}
                       <TableRow>
@@ -705,7 +703,7 @@ const SearchListClientes = () => {
                 margin="dense"
                 fullWidth
                 label="Cantidad pagada"
-                value={cantidadPagada || ""}
+                value={cantidadPagada}
                 onChange={(e) => {
                   const value = e.target.value;
                   if (!value.trim()) {
@@ -741,8 +739,6 @@ const SearchListClientes = () => {
               )}
             </Grid>
 
-           
-
             <Grid
               container
               spacing={2}
@@ -760,10 +756,14 @@ const SearchListClientes = () => {
                 <Button
                   sx={{ height: "100%" }}
                   id={`${metodoPago}-btn`}
+                  
                   fullWidth
                   disabled={loading || cantidadPagada <= 0} // Deshabilitar si hay una carga en progreso o la cantidad pagada es menor o igual a cero
                   variant={metodoPago === "EFECTIVO" ? "contained" : "outlined"}
-                  onClick={() => setMetodoPago("EFECTIVO")}
+                  onClick={() => {
+                    setMetodoPago("EFECTIVO");
+                    setCantidadPagada(getTotalSelected());
+                  }}
                 >
                   Efectivo
                 </Button>
@@ -777,6 +777,8 @@ const SearchListClientes = () => {
                     setMetodoPago("DEBITO");
                     setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
                   }}
+                  disabled={loading} // Deshabilitar si hay una carga en progreso
+
                   fullWidth
                 >
                   Débito
@@ -791,6 +793,8 @@ const SearchListClientes = () => {
                     setMetodoPago("CREDITO");
                     setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
                   }}
+                  disabled={loading} // Deshabilitar si hay una carga en progreso
+
                   fullWidth
                 >
                   Crédito
@@ -806,8 +810,10 @@ const SearchListClientes = () => {
                   }
                   onClick={() => {
                     setMetodoPago("TRANSFERENCIA");
+                    setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
                     handleTransferenciaModalOpen(selectedDebts);
                   }}
+                  disabled={loading} 
                 >
                   Transferencia
                 </Button>
@@ -818,7 +824,7 @@ const SearchListClientes = () => {
                   variant="contained"
                   fullWidth
                   color="secondary"
-                  disabled={!metodoPago || cantidadPagada <= 0}
+                  disabled={!metodoPago || cantidadPagada <= 0 || loading}
                   onClick={handlePayment}
                 >
                   {loading ? (
@@ -837,6 +843,15 @@ const SearchListClientes = () => {
           <Button onClick={handleClosePaymentProcess}>Cerrar</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success">
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Dialog
         open={openTransferenciaModal}
         onClose={handleTransferenciaModalClose}
