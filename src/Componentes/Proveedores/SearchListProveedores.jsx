@@ -70,7 +70,7 @@ const SearchListProveedores = () => {
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedProveedorToDelete, setSelectedProveedorToDelete] =
-    useState(null);
+    useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 

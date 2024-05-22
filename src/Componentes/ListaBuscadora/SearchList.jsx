@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -30,6 +31,8 @@ const SearchList = () => {
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState("");
   const perPage = 5;
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -62,21 +65,34 @@ const SearchList = () => {
     setUserToDelete(null);
     setDeleteConfirmationOpen(false);
   };
+  const handleDelete = async () => {
+    if (!userToDelete) return; // Verificar si hay un usuario seleccionado para eliminar
+    const userId = userToDelete.codigoUsuario;
+    console.log("ID de usuario a eliminar:", userId);
+    try {
+      const response = await axios.delete(`https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`);
+      
+      if (response.status === 200 && response.data.descripcion === "Usuario Eliminado.") {
+        console.log("Usuario eliminado exitosamente:", response.data);
+        setRefresh(!refresh); // Refresh the users list after deletion
+        setDeleteConfirmationOpen(false); // Cerrar el diálogo de confirmación después de eliminar
+        setSnackbarMessage('Usuario eliminado exitosamente.');
+        setSnackbarOpen(true);
+      } else {
+        console.error("Error inesperado en la respuesta de eliminación:", response.data);
+        setSnackbarMessage('Error inesperado al eliminar usuario.');
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error("Error eliminando usuario:", error);
+      setSnackbarMessage('Error eliminando usuario.');
+      setSnackbarOpen(true);
+    }
+  };
 
-  
-const handleDelete = async () => {
-  if (!userToDelete) return; // Verificar si hay un usuario seleccionado para eliminar
-  const userId = userToDelete.codigoUsuario;
-  console.log("ID de usuario a eliminar:", userId);
-  try {
-    await axios.delete(`https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuario/${userId}`);
-    setRefresh(!refresh); // Refresh the users list after deletion
-    setDeleteConfirmationOpen(false); // Cerrar el diálogo de confirmación después de eliminar
-  } catch (error) {
-    console.error("Error deleting user:", error);
-  }
-};
-
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   const handleEdit = (user) => {
     setSelectedUser(user);
@@ -174,12 +190,26 @@ const handleDelete = async () => {
             Siguiente
           </Button>
         </Box>
+        <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleSnackbarClose}
+            message={snackbarMessage}
+            sx={{ position: "absolute", bottom: 1, left: '10%',  bgcolor: 'rgba(0, 0, 0, 0.7)', color: '#fff' }}
+
+            action={
+              <Button color="inherit" size="small" onClick={handleSnackbarClose}>
+                Cerrar
+              </Button>
+            }
+          />
       </Box>
       <EditUsuario 
         selectedUser={selectedUser}
         open={modalEditOpen}
         handleCloseEditModal={handleCloseEditModal}
       />
+       
 
       {/* Delete Confirmation Dialog */}
       <Dialog

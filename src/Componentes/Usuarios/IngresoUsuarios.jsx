@@ -187,7 +187,7 @@ export default function IngresoUsuarios({ onClose}) {
       errors.selectedRol = "Favor completar rol";
     }
     if (!codigoUsuario) {
-      errors.codigoUsuario = "Favor completar código  ";
+      errors.codigoUsuario = "Favor completar código usuario ";
     }
     if (!clave) {
       errors.clave = "Favor completar clave ";
