@@ -631,10 +631,10 @@ const IngresoDocumentoProveedor = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Descripción</TableCell>
-                      <TableCell>Precio Costo</TableCell>
+                      <TableCell sx={{width:"23%"}}>Descripción</TableCell>
+                      <TableCell  sx={{width:"23%"}}>Precio Costo</TableCell>
                       <TableCell sx={{width:"23%"}}>Cantidad</TableCell>
-                      <TableCell >Total</TableCell>
+                      <TableCell  sx={{width:"23%"}}>Total</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
