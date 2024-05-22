@@ -79,6 +79,7 @@ const SearchListClientes = () => {
   const [selectedClient, setSelectedClient] = useState("");
   const [deudaData, setDeudaData] = useState([]);
   const [openPaymentProcess, setOpenPaymentProcess] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -489,6 +490,32 @@ const SearchListClientes = () => {
     setDeudaData(updatedDeudaData);
   };
 
+  const handleDeleteDialogOpen = (cliente) => {
+    setSelectedClient(cliente);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setOpenDeleteDialog(false);
+  };
+
+  // Handle delete action
+  const handleDelete = async () => {
+    try {
+      const codigoCliente = selectedClient.codigoCliente;
+      await axios.delete(
+        `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoCliente}`
+      );
+      setRefresh((prevRefresh) => !prevRefresh);
+      setOpenDeleteDialog(false);
+      setSnackbarOpen(true);
+      setSnackbarMessage("Cliente eliminado con éxito");
+    } catch (error) {
+      console.error("Error eliminando el Cliente :", error);
+      alert("Error eliminando el Cliente ");
+    }
+  };
+
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <div>
@@ -540,7 +567,7 @@ const SearchListClientes = () => {
                       <EditIcon />
                     </IconButton>
                     <IconButton>
-                      <DeleteIcon />
+                      <DeleteIcon onClick={() => handleDeleteDialogOpen(cliente)}/>
                     </IconButton>
                     <IconButton
                       onClick={() => handleOpenPaymentDialog(cliente)}
@@ -670,6 +697,20 @@ const SearchListClientes = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClosePaymentDialog}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          <Typography>
+            ¿Estás seguro de que quieres eliminar al proveedor seleccionado?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteDialogClose}>Cancelar</Button>
+          <Button onClick={handleDelete} color="primary">
+            Eliminar
+          </Button>
         </DialogActions>
       </Dialog>
 

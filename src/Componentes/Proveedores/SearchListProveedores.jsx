@@ -392,17 +392,20 @@ const SearchListProveedores = () => {
   // Handle delete action
   const handleDelete = async () => {
     try {
+      const codigoProveedor = selectedProveedorToDelete.codigoProveedor;
       await axios.delete(
-        `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedor/${selectedProveedorToDelete.codigoProveedor}`
+        `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
       );
       setRefresh((prevRefresh) => !prevRefresh);
       setOpenDeleteDialog(false);
-      alert("Proveedor eliminado con éxito");
+      setSnackbarOpen(true);
+      setSnackbarMessage("Proveedor eliminado con éxito");
     } catch (error) {
       console.error("Error eliminando el proveedor:", error);
       alert("Error eliminando el proveedor");
     }
   };
+  
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <div>
