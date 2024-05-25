@@ -40,6 +40,8 @@ const Login = ({ setUserData }) => {
 
       if (response.data.responseUsuario) {
         setUserData(response.data.responseUsuario);
+        // Guardar datos en sessionStorage
+        sessionStorage.setItem('userData', JSON.stringify(response.data.responseUsuario));
         navigate('/home');
       } else {
         setError('Error de inicio de sesión. Verifica tus credenciales.');

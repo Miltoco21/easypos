@@ -13,7 +13,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useNavigate } from 'react-router-dom';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Importar el icono
 import SideBar from '../Componentes/NavBar/SideBar';
-import InfoCard from '../Componentes/Home/InfoCard';
 import Card2 from '../Componentes/Home/Card2';
 
 const defaultTheme = createTheme();
@@ -24,6 +23,7 @@ const Home = ({ userData, setUserData }) => {
 
   const handleLogout = () => {
     setUserData(null);
+    sessionStorage.clear(); // Limpiar sessionStorage
     navigate('/login');
   };
 
