@@ -286,10 +286,12 @@ const SearchListProveedores = () => {
           setSelectAll(false);
           setSelectedItems([]);
           setCantidadPagada(0);
+          handleClosePaymentDialog();
+       
 
 
           setTimeout(() => {
-            setOpenPaymentDialog(false);
+            handleClosePaymentProcess();
           }, 3000);
         } else {
           setSnackbarMessage(
@@ -833,10 +835,8 @@ const SearchListProveedores = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClosePaymentDialog}>Cancelar</Button>
-          <Button onClick={() => handlePago(selectedItems)} color="primary">
-            Pagar
-          </Button>
+          <Button onClick={handleClosePaymentDialog}>Cerrar</Button>
+         
         </DialogActions>
       </Dialog>
 

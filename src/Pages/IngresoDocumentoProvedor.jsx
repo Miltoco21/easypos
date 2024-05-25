@@ -28,6 +28,7 @@ import Add from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const IngresoDocumentoProveedor = () => {
   const [open, setOpen] = useState(false);
@@ -130,7 +131,7 @@ const IngresoDocumentoProveedor = () => {
 
   const handleOpenModal = () => {
     setOpen(true);
-    setSelectedProveedor("")
+    setSelectedProveedor("");
   };
 
   const handleCloseModal = () => {
@@ -150,9 +151,7 @@ const IngresoDocumentoProveedor = () => {
     } else {
       setSnackbarOpen(false);
       const filteredResults = proveedores.filter((proveedor) =>
-        proveedor.razonSocial
-          .toLowerCase()
-          .includes(searchText.toLowerCase())
+        proveedor.razonSocial.toLowerCase().includes(searchText.toLowerCase())
       );
       setSearchResults(filteredResults);
 
@@ -277,7 +276,6 @@ const IngresoDocumentoProveedor = () => {
     }
   };
 
-
   const handleSubmit = async () => {
     setLoading(true);
 
@@ -377,6 +375,12 @@ const IngresoDocumentoProveedor = () => {
     (total, product) => total + product.total,
     0
   );
+
+  const handleDeleteProduct = (index) => {
+    const updatedProducts = [...selectedProducts];
+    updatedProducts.splice(index, 1);
+    setSelectedProducts(updatedProducts);
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -586,6 +590,7 @@ const IngresoDocumentoProveedor = () => {
                       <TableCell sx={{ width: "23%" }}>Precio Costo</TableCell>
                       <TableCell sx={{ width: "23%" }}>Cantidad</TableCell>
                       <TableCell sx={{ width: "23%" }}>Total</TableCell>
+                      <TableCell sx={{ width: "20%" }}>Eliminar</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -605,6 +610,14 @@ const IngresoDocumentoProveedor = () => {
                           />
                         </TableCell>
                         <TableCell>{product.total}</TableCell>
+                        <TableCell>
+                          <IconButton
+                            
+                            onClick={() => handleDeleteProduct(index)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
