@@ -51,6 +51,7 @@ const IngresoDocumentoProveedor = () => {
   const [searchTermProd, setSearchTermProd] = useState("");
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  console.log("selectedProveedor", selectedProveedor);
 
   const setOpenSnackbar = (value) => {
     setSnackbarOpen(value);
@@ -76,17 +77,11 @@ const IngresoDocumentoProveedor = () => {
     setSelectedProducts(updatedProducts);
   };
 
-  // const handleQuantityChange = (value, index) => {
-  //   const updatedProducts = [...selectedProducts];
-  //   updatedProducts[index].cantidad = parseInt(value);
-  //   updatedProducts[index].total = updatedProducts[index].cantidad * updatedProducts[index].precio;
-  //   setSelectedProducts(updatedProducts);
-  // };
   const handleAddProductToSales = (product) => {
     const existingProductIndex = selectedProducts.findIndex(
       (p) => p.id === product.idProducto
     );
-  
+
     if (existingProductIndex !== -1) {
       // Producto ya existe, incrementar la cantidad
       const updatedProducts = selectedProducts.map((p, index) => {
@@ -113,24 +108,10 @@ const IngresoDocumentoProveedor = () => {
       };
       setSelectedProducts([...selectedProducts, newProduct]);
     }
-  
+
     setSearchedProducts([]);
     setErrorMessage("");
   };
-  // const handleAddProductToSales = (product) => {
-  //   const newProduct = {
-  //     id: product.idProducto,
-  //     nombre: product.nombre,
-  //     cantidad: 1, // Por defecto la cantidad es 1
-  //     precio: product.precioCosto,
-  //     total: 1 * product.precioCosto, // El total es la cantidad por el precioCosto
-  //     precioCosto: product.precioCosto, // Agregar el precioCosto al nuevo producto
-  //   };
-
-  //   setSelectedProducts([...selectedProducts, newProduct]);
-  //   setSearchedProducts([]);
-  //   setErrorMessage("");
-  // };
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -149,6 +130,7 @@ const IngresoDocumentoProveedor = () => {
 
   const handleOpenModal = () => {
     setOpen(true);
+    setSelectedProveedor("")
   };
 
   const handleCloseModal = () => {
@@ -168,7 +150,7 @@ const IngresoDocumentoProveedor = () => {
     } else {
       setSnackbarOpen(false);
       const filteredResults = proveedores.filter((proveedor) =>
-        proveedor.nombreResponsable
+        proveedor.razonSocial
           .toLowerCase()
           .includes(searchText.toLowerCase())
       );
@@ -191,38 +173,6 @@ const IngresoDocumentoProveedor = () => {
   const hoy = dayjs();
   const inicioRango = dayjs().subtract(1, "week");
 
-  // const handleSearchButtonClick = async () => {
-  //   if (searchTermProd.trim() === "") {
-
-  //     setSearchedProducts([]);
-  //     setSnackbarMessage("El campo de búsqueda está vacío");
-  //     setSnackbarOpen(true);
-  //     return;
-  //   }
-  //   const isNumeric = !isNaN(parseFloat(searchTermProd)) && isFinite(searchTermProd);
-
-  //   try {
-  //     if (isNumeric) {
-  //       const response = await axios.get(
-  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByCodigo?idproducto=${searchTermProd}&codigoCliente=${0}`
-  //       );
-  //       handleSearchSuccess(response, "PLU");
-  //     } else {
-  //       const response = await axios.get(
-  //         `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd }&codigoCliente=${0}`
-  //       );
-  //       handleSearchSuccess(response, "Descripción");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error al buscar el producto:", error);
-  //     setSnackbarMessage("Error al buscar el producto");
-  //     setOpenSnackbar200(true);
-
-  //     setTimeout(() => {
-  //       setOpenSnackbar(false);
-  //     }, 3000);
-  //   }
-  // };
   const handleSearchButtonClick = async () => {
     if (searchTermProd.trim() === "") {
       setSearchedProducts([]);
@@ -326,6 +276,7 @@ const IngresoDocumentoProveedor = () => {
       }, 3000);
     }
   };
+
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -512,7 +463,7 @@ const IngresoDocumentoProveedor = () => {
               {searchResults.map((result) => (
                 <Chip
                   key={result.codigoProveedor}
-                  label={result.nombreResponsable}
+                  label={`${result.razonSocial} ${result.rut}`}
                   onClick={() => handleChipClick(result)}
                   sx={{
                     backgroundColor: "#2196f3",
@@ -523,7 +474,7 @@ const IngresoDocumentoProveedor = () => {
               {selectedProveedor && (
                 <ListItem key={selectedProveedor.codigoCliente}>
                   <Chip
-                    label={`${selectedProveedor.nombreResponsable} ${selectedProveedor.rut}`}
+                    label={`${selectedProveedor.razonSocial} ${selectedProveedor.rut}`}
                     icon={<CheckCircleIcon />}
                     sx={{
                       backgroundColor: "#A8EB12",
@@ -631,10 +582,10 @@ const IngresoDocumentoProveedor = () => {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{width:"23%"}}>Descripción</TableCell>
-                      <TableCell  sx={{width:"23%"}}>Precio Costo</TableCell>
-                      <TableCell sx={{width:"23%"}}>Cantidad</TableCell>
-                      <TableCell  sx={{width:"23%"}}>Total</TableCell>
+                      <TableCell sx={{ width: "23%" }}>Descripción</TableCell>
+                      <TableCell sx={{ width: "23%" }}>Precio Costo</TableCell>
+                      <TableCell sx={{ width: "23%" }}>Cantidad</TableCell>
+                      <TableCell sx={{ width: "23%" }}>Total</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -642,19 +593,18 @@ const IngresoDocumentoProveedor = () => {
                       <TableRow key={index}>
                         <TableCell>{product.nombre}</TableCell>
                         <TableCell>{product.precioCosto}</TableCell>
-                        <TableCell >
+                        <TableCell>
                           <TextField
                             value={product.cantidad}
                             onChange={(e) =>
                               handleQuantityChange(e.target.value, index)
                             }
                             InputProps={{
-                              
-                              maxLenght:3
+                              maxLenght: 3,
                             }}
                           />
                         </TableCell>
-                        <TableCell >{product.total}</TableCell>
+                        <TableCell>{product.total}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -664,7 +614,7 @@ const IngresoDocumentoProveedor = () => {
               <TextField
                 label="Total"
                 value={grandTotal}
-                sx={{mt:3}}
+                sx={{ mt: 3 }}
                 InputProps={{
                   readOnly: true,
                 }}

@@ -209,6 +209,13 @@ const SearchListClientes = () => {
     console.log("selectedClienteclicked:", selectedClient);
     const deudaData = await fetchDeudaData(cliente); // Llamado a fetchDeudaData con el cliente seleccionado
     console.log("Deuda Data:", deudaData);
+    const resetDeudaData = deudaData.map(deuda => ({
+      ...deuda,
+      selected: false
+    }));
+    setDeudaData(resetDeudaData);
+    
+    console.log("Deuda Data:", deudaData);
   };
 
   const handleClosePaymentDialog = () => {
@@ -231,25 +238,51 @@ const SearchListClientes = () => {
     setIsEditSuccessful(true);
   };
 
-  const handleCheckboxChange = (index) => {
-    const updatedDeudaData = [...deudaData];
-    updatedDeudaData[index].selected = !updatedDeudaData[index].selected;
-    setDeudaData(updatedDeudaData);
-
-    const selectedDebts = updatedDeudaData.filter((deuda) => deuda.selected);
-    setSelectedDebts(selectedDebts);
-  };
+ 
   // const handleCheckboxChange = (index) => {
   //   const updatedDeudaData = [...deudaData];
   //   updatedDeudaData[index].selected = !updatedDeudaData[index].selected;
   //   setDeudaData(updatedDeudaData);
-
-  //   // Identificar todos los objetos seleccionados
+  //   console.log("deudaData",deudaData)
+  
   //   const selectedDebts = updatedDeudaData.filter((deuda) => deuda.selected);
   //   setSelectedDebts(selectedDebts);
-  //   // Mostrar los datos seleccionados en la consola
-  //   console.log("Datos seleccionados por checkbox:", selectedDebts);
   // };
+  const handleCheckboxChange = (index) => {
+    const updatedDeudaData = deudaData.map((deuda, i) =>
+      i === index ? { ...deuda, selected: !deuda.selected } : deuda
+    );
+    setDeudaData(updatedDeudaData);
+  
+    const selectedDebts = updatedDeudaData.filter((deuda) => deuda.selected);
+    setSelectedDebts(selectedDebts);
+    setCantidadPagada(getTotalSelected(updatedDeudaData));
+  };
+  
+  const resetDeudaData = () => {
+    const resetData = deudaData.map(deuda => ({
+      ...deuda,
+      selected: false
+    }));
+    setDeudaData(resetData);
+  };
+  
+  
+ 
+  const handleSelectAll = () => {
+    const newSelectAll = !selectAll;
+    setSelectAll(newSelectAll);
+  
+    const updatedDeudaData = deudaData.map((deuda) => ({
+      ...deuda,
+      selected: newSelectAll,
+    }));
+  
+    setDeudaData(updatedDeudaData);
+  
+    const selectedDebts = updatedDeudaData.filter((deuda) => deuda.selected);
+    setSelectedDebts(selectedDebts);
+  };
 
   const getTotalSelected = () => {
     let totalSelected = 0;
@@ -276,40 +309,25 @@ const SearchListClientes = () => {
   }, [selectedClient]);
 
   console.log("selectedclient", selectedClient);
+
   const handlePayment = async () => {
     try {
-      // if (!selectedClient || !selectedClient.codigoUsuario) {
-      //   setError(
-      //     "El cliente seleccionado no tiene un código de usuario válido."
-      //   );
-      //   setLoading(false);
-      //   return;
-      // }
-      // if (cantidadPagada === 0) {
-      //   setError(
-      //     "No se puede generar la boleta de pago porque el total a pagar es cero."
-      //   );
-      //   return;
-      // }
-
       setLoading(true);
-
+  
       let endpoint =
         "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
-
-      // Si el método de pago es TRANSFERENCIA, cambiar el endpoint y agregar datos de transferencia
+  
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
           "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
-
-        // Validar datos de transferencia
+  
         if (
-          nombre === "" &&
-          rut === "" &&
-          selectedBanco === "" &&
-          tipoCuenta === "" &&
-          nroCuenta === "" &&
-          fecha === "" &&
+          nombre === "" ||
+          rut === "" ||
+          selectedBanco === "" ||
+          tipoCuenta === "" ||
+          nroCuenta === "" ||
+          fecha === "" ||
           nroOperacion === ""
         ) {
           setTransferenciaError(
@@ -317,10 +335,8 @@ const SearchListClientes = () => {
           );
           setLoading(false);
           return;
-        } else {
-          // Limpiar el error relacionado con el RUT
-          setTransferenciaError("");
         }
+  
         if (nombre === "") {
           setTransferenciaError("Por favor, ingresa el nombre.");
           setLoading(false);
@@ -335,78 +351,55 @@ const SearchListClientes = () => {
           setTransferenciaError("El RUT ingresado NO es válido.");
           setLoading(false);
           return;
-        } else {
-          // Limpiar el error relacionado con el RUT
-          setTransferenciaError("");
         }
-
+  
         if (selectedBanco === "") {
           setTransferenciaError("Por favor, selecciona el banco.");
           setLoading(false);
           return;
         }
-
+  
         if (tipoCuenta === "") {
           setTransferenciaError("Por favor, selecciona el tipo de cuenta.");
           setLoading(false);
           return;
         }
-
+  
         if (nroCuenta === "") {
           setTransferenciaError("Por favor, ingresa el número de cuenta.");
           setLoading(false);
           return;
         }
-
+  
         if (fecha === "") {
           setTransferenciaError("Por favor, selecciona la fecha.");
           setLoading(false);
           return;
         }
-
+  
         if (nroOperacion === "") {
           setTransferenciaError("Por favor, ingresa el número de operación.");
           setLoading(false);
           return;
         }
       }
-
-      // Validar el monto pagado
-      // if (!cantidadPagada || cantidadPagada <= 0) {
-      //   setError("Por favor, ingresa un monto válido para el pago.");
-      //   setLoading(false);
-      //   return;
-      // }
-
-      // Validar el método de pago
+  
       if (!metodoPago) {
         setError("Por favor, selecciona un método de pago.");
         setLoading(false);
         return;
-      }
-      if (metodoPago) {
-        setError("");
-        setLoading(false);
-        return;
-      }
-     
-
+      } else setError("");
+  
       const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
-
-      // const deudaIds = deudaData.map((deuda) => ({
-      //   idCuentaCorriente: deuda.codigoCliente,
-      //   idCabecera: deuda.idCabecera,
-      //   total: deuda.total
-      // }));
+  
       const deudaIds = selectedDebts.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
         total: deuda.total,
       }));
-
+  
       const requestBody = {
         deudaIds: deudaIds,
-
         montoPagado: getTotalSelected(),
         metodoPago: metodoPago,
         idUsuario: selectedClient.codigoCliente,
@@ -421,22 +414,21 @@ const SearchListClientes = () => {
           nroOperacion: nroOperacion,
         },
       };
-
+  
       console.log("Request Body:", requestBody);
-
+  
       const response = await axios.post(endpoint, requestBody);
-
+  
       console.log("Response:", response.data);
       console.log("ResponseStatus:", response.data.statusCode);
-
+      ///acciones post pago////
       if (response.data.statusCode === 200) {
-        // Restablecer estados y cerrar diálogos después de realizar el pago exitosamente
         setSnackbarOpen(true);
         setSnackbarMessage(response.data.descripcion);
         handleClosePaymentDialog();
-        getTotalSelected(0)
-        setMetodoPago("")
-
+        setCantidadPagada(0);
+        resetDeudaData();
+  
         setTimeout(() => {
           handleClosePaymentProcess();
         }, 2000);
@@ -479,16 +471,7 @@ const SearchListClientes = () => {
   const handleTransferenciaModalClose = () => {
     setOpenTransferenciaModal(false);
   };
-  const handleSelectAll = () => {
-    // Invertir el estado de selección de todas las deudas
-    setSelectAll(!selectAll);
-    // Actualizar el estado de selección de cada deuda en ventaData
-    const updatedDeudaData = deudaData.map((deuda) => ({
-      ...deuda,
-      selected: !selectAll,
-    }));
-    setDeudaData(updatedDeudaData);
-  };
+
 
   const handleDeleteDialogOpen = (cliente) => {
     setSelectedClient(cliente);
@@ -502,7 +485,7 @@ const SearchListClientes = () => {
   // Handle delete action
   const handleDelete = async () => {
     try {
-      const codigoCliente = selectedClient.codigoCliente;
+      const codigoCliente = selectedCliente.codigoCliente;
       await axios.delete(
         `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoCliente}`
       );
@@ -715,175 +698,171 @@ const SearchListClientes = () => {
       </Dialog>
 
       <Dialog open={openPaymentProcess} onClose={handleClosePaymentProcess}>
-        <DialogTitle>Procesamiento de Pago</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} item xs={12} md={6} lg={12}>
-            <Grid item xs={12} md={12} lg={12}>
-              {error && (
-                <Grid item xs={12}>
-                  <Typography variant="body1" color="error">
-                    {error}
-                  </Typography>
-                </Grid>
-              )}
-              <TextField
-                sx={{ marginBottom: "5%" }}
-                margin="dense"
-                label="Monto a Pagar"
-                variant="outlined"
-                value={getTotalSelected()}
-                onChange={(e) => setCantidadPagada(e.target.value)}
-                fullWidth
-                inputProps={{
-                  inputMode: "numeric",
-                  pattern: "[0-9]*",
-                }}
-                InputProps={{ readOnly: true }}
-              />
-              <TextField
-                margin="dense"
-                fullWidth
-                label="Cantidad pagada"
-                value={cantidadPagada}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (!value.trim()) {
-                    setCantidadPagada(0);
-                  } else {
-                    setCantidadPagada(parseFloat(value));
-                  }
-                }}
-                disabled={metodoPago !== "EFECTIVO"} // Deshabilitar la edición excepto para el método "EFECTIVO"
-                inputProps={{
-                  inputMode: "numeric",
-                  pattern: "[0-9]*",
-                  maxLength: 9,
-                }}
-              />
-              <TextField
-                margin="dense"
-                fullWidth
-                type="number"
-                label="Por pagar"
-                value={Math.max(0, getTotalSelected() - cantidadPagada)}
-                InputProps={{ readOnly: true }}
-              />
-              {calcularVuelto() > 0 && (
-                <TextField
-                  margin="dense"
-                  fullWidth
-                  type="number"
-                  label="Vuelto"
-                  value={calcularVuelto()}
-                  InputProps={{ readOnly: true }}
-                />
-              )}
-            </Grid>
-
-            <Grid
-              container
-              spacing={2}
-              item
-              sm={12}
-              md={12}
-              lg={12}
-              sx={{ width: "100%", display: "flex", justifyContent: "center" }}
-            >
-              {" "}
-              <Typography sx={{ marginTop: "7%" }} variant="h6">
-                Selecciona Método de Pago:
-              </Typography>
-              <Grid item xs={12} sm={12} md={12}>
-                <Button
-                  sx={{ height: "100%" }}
-                  id={`${metodoPago}-btn`}
-                  
-                  fullWidth
-                  disabled={loading || cantidadPagada <= 0} // Deshabilitar si hay una carga en progreso o la cantidad pagada es menor o igual a cero
-                  variant={metodoPago === "EFECTIVO" ? "contained" : "outlined"}
-                  onClick={() => {
-                    setMetodoPago("EFECTIVO");
-                    setCantidadPagada(getTotalSelected());
-                  }}
-                >
-                  Efectivo
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={12} md={12}>
-                <Button
-                  id={`${metodoPago}-btn`}
-                  sx={{ height: "100%" }}
-                  variant={metodoPago === "DEBITO" ? "contained" : "outlined"}
-                  onClick={() => {
-                    setMetodoPago("DEBITO");
-                    setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
-                  }}
-                  disabled={loading} // Deshabilitar si hay una carga en progreso
-
-                  fullWidth
-                >
-                  Débito
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={12} md={12}>
-                <Button
-                  sx={{ height: "100%" }}
-                  id={`${metodoPago}-btn`}
-                  variant={metodoPago === "CREDITO" ? "contained" : "outlined"}
-                  onClick={() => {
-                    setMetodoPago("CREDITO");
-                    setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
-                  }}
-                  disabled={loading} // Deshabilitar si hay una carga en progreso
-
-                  fullWidth
-                >
-                  Crédito
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={12} md={12}>
-                <Button
-                  id={`${metodoPago}-btn`}
-                  fullWidth
-                  sx={{ height: "100%" }}
-                  variant={
-                    metodoPago === "TRANSFERENCIA" ? "contained" : "outlined"
-                  }
-                  onClick={() => {
-                    setMetodoPago("TRANSFERENCIA");
-                    setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
-                    handleTransferenciaModalOpen(selectedDebts);
-                  }}
-                  disabled={loading} 
-                >
-                  Transferencia
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={12}>
-                <Button
-                  sx={{ height: "100%" }}
-                  variant="contained"
-                  fullWidth
-                  color="secondary"
-                  disabled={!metodoPago || cantidadPagada <= 0 || loading}
-                  onClick={handlePayment}
-                >
-                  {loading ? (
-                    <>
-                      <CircularProgress size={20} /> Procesando...
-                    </>
-                  ) : (
-                    "Pagar"
-                  )}
-                </Button>
-              </Grid>
-            </Grid>
+  <DialogTitle>Procesamiento de Pago</DialogTitle>
+  <DialogContent>
+    <Grid container spacing={2} item xs={12} md={6} lg={12}>
+      <Grid item xs={12} md={12} lg={12}>
+        {error && (
+          <Grid item xs={12}>
+            <Typography variant="body1" color="error">
+              {error}
+            </Typography>
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClosePaymentProcess}>Cerrar</Button>
-        </DialogActions>
-      </Dialog>
+        )}
+        <TextField
+          sx={{ marginBottom: "5%" }}
+          margin="dense"
+          label="Monto a Pagar"
+          variant="outlined"
+          value={getTotalSelected()}
+          onChange={(e) => setCantidadPagada(e.target.value)}
+          fullWidth
+          inputProps={{
+            inputMode: "numeric",
+            pattern: "[0-9]*",
+          }}
+          InputProps={{ readOnly: true }}
+        />
+        <TextField
+          margin="dense"
+          fullWidth
+          label="Cantidad pagada"
+          value={cantidadPagada}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (!value.trim()) {
+              setCantidadPagada(0);
+            } else {
+              setCantidadPagada(parseFloat(value));
+            }
+          }}
+          disabled={metodoPago !== "EFECTIVO"} // Deshabilitar la edición excepto para el método "EFECTIVO"
+          inputProps={{
+            inputMode: "numeric",
+            pattern: "[0-9]*",
+            maxLength: 9,
+          }}
+        />
+        <TextField
+          margin="dense"
+          fullWidth
+          type="number"
+          label="Por pagar"
+          value={Math.max(0, getTotalSelected() - cantidadPagada)}
+          InputProps={{ readOnly: true }}
+        />
+        {calcularVuelto() > 0 && (
+          <TextField
+            margin="dense"
+            fullWidth
+            type="number"
+            label="Vuelto"
+            value={calcularVuelto()}
+            InputProps={{ readOnly: true }}
+          />
+        )}
+      </Grid>
+
+      <Grid
+        container
+        spacing={2}
+        item
+        sm={12}
+        md={12}
+        lg={12}
+        sx={{ width: "100%", display: "flex", justifyContent: "center" }}
+      >
+        <Typography sx={{ marginTop: "7%" }} variant="h6">
+          Selecciona Método de Pago:
+        </Typography>
+        <Grid item xs={12} sm={12} md={12}>
+          <Button
+            sx={{ height: "100%" }}
+            id="efectivo-btn"
+            fullWidth
+            disabled={loading} // Deshabilitar si hay una carga en progreso
+            variant={metodoPago === "EFECTIVO" ? "contained" : "outlined"}
+            onClick={() => {
+              setMetodoPago("EFECTIVO");
+              setCantidadPagada(getTotalSelected());
+            }}
+          >
+            Efectivo
+          </Button>
+        </Grid>
+        <Grid item xs={12} sm={12} md={12}>
+          <Button
+            id="debito-btn"
+            sx={{ height: "100%" }}
+            variant={metodoPago === "DEBITO" ? "contained" : "outlined"}
+            onClick={() => {
+              setMetodoPago("DEBITO");
+              setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
+            }}
+            fullWidth
+            disabled={loading} // Deshabilitar si hay una carga en progreso
+          >
+            Débito
+          </Button>
+        </Grid>
+        <Grid item xs={12} sm={12} md={12}>
+          <Button
+            sx={{ height: "100%" }}
+            id="credito-btn"
+            variant={metodoPago === "CREDITO" ? "contained" : "outlined"}
+            onClick={() => {
+              setMetodoPago("CREDITO");
+              setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
+            }}
+            fullWidth
+            disabled={loading} // Deshabilitar si hay una carga en progreso
+          >
+            Crédito
+          </Button>
+        </Grid>
+        <Grid item xs={12} sm={12} md={12}>
+          <Button
+            id="transferencia-btn"
+            fullWidth
+            sx={{ height: "100%" }}
+            variant={
+              metodoPago === "TRANSFERENCIA" ? "contained" : "outlined"
+            }
+            onClick={() => {
+              setMetodoPago("TRANSFERENCIA");
+              setCantidadPagada(getTotalSelected()); // Establecer el valor de cantidad pagada como grandTotal
+              handleTransferenciaModalOpen(selectedDebts);
+            }}
+            disabled={loading} // Deshabilitar si hay una carga en progreso
+          >
+            Transferencia
+          </Button>
+        </Grid>
+        <Grid item xs={12} sm={12}>
+          <Button
+            sx={{ height: "100%" }}
+            variant="contained"
+            fullWidth
+            color="secondary"
+            disabled={!metodoPago || cantidadPagada <= 0 || loading}
+            onClick={handlePayment}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={20} /> Procesando...
+              </>
+            ) : (
+              "Pagar"
+            )}
+          </Button>
+        </Grid>
+      </Grid>
+    </Grid>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleClosePaymentProcess} disabled={loading}>Cerrar</Button>
+  </DialogActions>
+</Dialog>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
