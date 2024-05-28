@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import Navegacion from "../Componentes/NavBar/Navegacion";
 import Button from "@mui/joy/Button";
 import Add from "@mui/icons-material/Add";
 import Modal from "@mui/joy/Modal";
-
 import IngresoPV from "../Componentes/Proveedores/IngresoPV";
 import IngresoCL from "../Componentes/Proveedores/IngresoCL";
 import Familias from "../Componentes/Familias/Familias";
@@ -14,37 +12,30 @@ import SearchListProveedores from "../Componentes/Proveedores/SearchListProveedo
 
 const Proveedores = () => {
   const [open, setOpen] = useState(false);
-  const [openCL, setOpenCL] = useState(false); // New state for IngresoCL modal
+  const [openCL, setOpenCL] = useState(false);
   const text = "Proovedores";
   const uppercaseText = text.toUpperCase();
 
-  // Event handler to open the IngresoPV modal
   const handleOpenModal = () => {
     setOpen(true);
   };
 
-  // Event handler to close the IngresoPV modal
   const handleCloseModal = () => {
     setOpen(false);
   };
 
-  // Event handler to open the IngresoCL modal
   const handleOpenModalCL = () => {
     setOpenCL(true);
   };
 
-  // Event handler to close the IngresoCL modal
   const handleCloseModalCL = () => {
     setOpenCL(false);
   };
 
   return (
     <div style={{ display: "flex" }}>
-      
       <SideBar />
-
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-       
         <Button
           variant="outlined"
           color="primary"
@@ -57,7 +48,6 @@ const Proveedores = () => {
         >
           {uppercaseText}
         </Button>
-
         {/* CLIENTES Button */}
         {/* <Button
           variant="outlined"
@@ -72,9 +62,8 @@ const Proveedores = () => {
           CLIENTES
         </Button> */}
 
-        <SearchListProveedores/>
+        <SearchListProveedores />
 
-        
         <Box />
 
         {/* Modal for IngresoPV */}
@@ -88,12 +77,12 @@ const Proveedores = () => {
               bgcolor: "background.paper",
               boxShadow: 24,
               p: 4,
-              overflow: "auto", // Added scrollable feature
-              maxHeight: "100vh", // Adjust as needed
-              maxWidth: "180vw", // Adjust as needed
+              overflow: "auto",
+              maxHeight: "100vh",
+              maxWidth: "180vw",
             }}
           >
-            <IngresoPV />
+            <IngresoPV onClose={handleCloseModal} />
           </Box>
         </Modal>
 
@@ -108,12 +97,12 @@ const Proveedores = () => {
               bgcolor: "background.paper",
               boxShadow: 24,
               p: 4,
-              overflow: "auto", // Added scrollable feature
-              maxHeight: "100vh", // Adjust as needed
-              maxWidth: "180vw", // Adjust as needed
+              overflow: "auto",
+              maxHeight: "100vh",
+              maxWidth: "180vw",
             }}
           >
-            <IngresoCL />
+            <IngresoCL onClose={handleCloseModalCL} />
           </Box>
         </Modal>
       </Box>

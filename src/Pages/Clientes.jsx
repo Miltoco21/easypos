@@ -41,11 +41,9 @@ const Clientes = () => {
 
   return (
     <div style={{ display: "flex" }}>
-      
       <SideBar />
 
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-       
         {/* <Button
           variant="outlined"
           color="primary"
@@ -73,9 +71,8 @@ const Clientes = () => {
           CLIENTES
         </Button>
 
-        <SearchListClientes/>
+        <SearchListClientes />
 
-        
         <Box />
 
         {/* Modal for IngresoPV */}
@@ -114,7 +111,7 @@ const Clientes = () => {
               maxWidth: "180vw", // Adjust as needed
             }}
           >
-            <IngresoCL />
+            <IngresoCL handleCloseModalCL={handleCloseModalCL} />
           </Box>
         </Modal>
       </Box>

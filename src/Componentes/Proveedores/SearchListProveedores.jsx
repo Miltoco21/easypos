@@ -199,7 +199,7 @@ const SearchListProveedores = () => {
   const fetchComprasProvedeedor = async () => {
     try {
       const response = await axios.get(
-        "https://www.easyposdev.somee.com/api/Proveedores/GetProveeedorCompra"
+        "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
       );
       const comprasConSeleccion =
         response.data.proveedorCompra.proveedorCompraCabeceras.map(
@@ -269,7 +269,7 @@ const SearchListProveedores = () => {
 
     axios
       .post(
-        "https://www.easyposdev.somee.com/api/Proveedores/AddProveeedorCompraPagar",
+        "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
         pagoData
       )
       .then((response) => {

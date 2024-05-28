@@ -1,30 +1,34 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-import React from "react";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useState, useEffect } from "react";
 import InputAdornment from "@mui/material/InputAdornment";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import { Tooltip } from "@mui/material";
+
+import Tooltip from "@mui/material/Tooltip";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Swal from "sweetalert2";
 import { saveAs } from "file-saver";
 import * as xlsx from "xlsx/xlsx.mjs";
-import withReactContent from "sweetalert2-react-content";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-
-const IngresoPV = () => {
+import {
+  Grid,
+  Paper,
+  Box,
+  TextField,
+  IconButton,
+  Button,
+  CircularProgress,
+  MenuItem,
+  InputLabel,
+  CssBaseline,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+const IngresoPV = ({ onClose }) => {
   const [rut, setRut] = useState("");
   const [razonSocial, setRazonSocial] = useState("");
   const [giro, setGiro] = useState("");
@@ -32,20 +36,34 @@ const IngresoPV = () => {
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [comuna, setComuna] = useState("");
+  const [region, setRegion] = useState("");
   const [sucursal, setSucursal] = useState("");
   const [pagina, setUlrPagina] = useState("");
   const [formaPago, setFormaPago] = useState("");
   const [nombreResponsable, setNombreResponsable] = useState("");
   const [correoResponsable, setcorreoResponsable] = useState("");
   const [telefonoResponsable, setTelefonoResponsable] = useState("");
-  const [errors, setErrors] = useState({}); //error como objetos
-  const [showAlert, setShowAlert] = useState(false);
+  const [errors, setErrors] = useState([]);
   const [response, setResponse] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  const MySwal = withReactContent(Swal);
   const theme = createTheme();
+  const [regiones, setRegiones] = useState([]);
+  const [comunas, setComunas] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedComuna, setSelectedComuna] = useState("");
+  const [camposVacios, setCamposVacios] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const [regionOptions, setRegionOptions] = useState([]);
+  const [comunaOptions, setComunaOptions] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    // Reset loading to false on unmount
+    return () => setLoading(false);
+  }, []);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -59,8 +77,6 @@ const IngresoPV = () => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-        // Archivo Excel debe tener headers = 'razonSocial', 'giro', 'email', etc.
-
         if (jsonData.length > 0) {
           const firstDataRow = jsonData[0];
           setRazonSocial(firstDataRow.razonSocial || "");
@@ -68,6 +84,7 @@ const IngresoPV = () => {
           setEmail(firstDataRow.email || "");
           setDireccion(firstDataRow.direccion || "");
           setTelefono(firstDataRow.telefono || "");
+          setRegion(firstDataRow.region || "");
           setComuna(firstDataRow.comuna || "");
           setSucursal(firstDataRow.sucursal || "");
           setUlrPagina(firstDataRow.pagina || "");
@@ -92,6 +109,7 @@ const IngresoPV = () => {
         direccion: direccion,
         telefono: telefono,
         comuna: comuna,
+        region: region,
         sucursal: sucursal,
         pagina: pagina,
         formaPago: formaPago,
@@ -122,70 +140,208 @@ const IngresoPV = () => {
   }, [formSubmitted, response]);
 
   const handleCloseModal = () => {
-    setShowModal(false); // Close the success modal
-    setFormSubmitted(false); // Reset formSubmitted state
+    setShowModal(false);
+    setFormSubmitted(false);
+  };
+
+  useEffect(() => {
+    axios
+      .get("https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones")
+      .then((response) => {
+        setRegiones(response.data.regiones);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las regiones:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
+        );
+        setRegionOptions(response.data.regiones);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchRegions();
+  }, []);
+
+  useEffect(() => {
+    const fetchComunas = async () => {
+      if (selectedRegion) {
+        try {
+          const response = await axios.get(
+            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+          );
+          setComunaOptions(
+            response.data.comunas.map((comuna) => comuna.comunaNombre)
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    fetchComunas();
+  }, [selectedRegion]);
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const inputEmail = e.target.value;
+    setEmail(inputEmail);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      correo: !inputEmail
+        ? "Favor completar email"
+        : !validateEmail(inputEmail)
+        ? "Formato de correo no es válido"
+        : "",
+    }));
+  };
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const validarRutChileno = (rut) => {
+    if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut)) {
+      return false;
+    }
+
+    const partesRut = rut.split("-");
+    const digitoVerificador = partesRut[1].toUpperCase();
+    const numeroRut = partesRut[0];
+
+    const calcularDigitoVerificador = (T) => {
+      let M = 0;
+      let S = 1;
+      for (; T; T = Math.floor(T / 10)) {
+        S = (S + (T % 10) * (9 - (M++ % 6))) % 11;
+      }
+      return S ? String(S - 1) : "K";
+    };
+
+    return calcularDigitoVerificador(numeroRut) === digitoVerificador;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const errors = {};
+    setLoading(true);
 
-    //Validaciones
+    const errors = [];
+    const validateUrl = (url) => {
+      // Expresión regular para validar una URL sin prefijos
+      const urlRegex =
+        /^(([\w-]+\.)*[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/;
+
+      return urlRegex.test(url);
+    };
+
+    // Validaciones
     if (!rut) {
-      errors.rut = "Favor completar campo";
-    } else if (
-      !/^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(rut)
-    ) {
-      errors.rut = "Ingresa tu rut con puntos y guión";
+      errors.rut = "Favor completar rut ";
+    } else if (!validarRutChileno(rut)) {
+      errors.rut = "El RUT ingresado NO es válido.";
     }
 
     if (!razonSocial) {
-      errors.razonSocial = "Favor completar campo ";
+      errors.razonSocial = "Favor completar razon social";
     }
-    if (!sucursal) {
-      errors.sucursal = "Favor completar campo ";
+
+    if (!giro) {
+      errors.giro = "Favor completar giro";
     }
+
     if (!email) {
-      errors.email = "Favor completar campo ";
+      errors.email = "Favor completar email";
     } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email)) {
       errors.email = "Formato de email no es válido";
     }
-    if (!direccion) {
-      errors.direccion = "Favor completar campo ";
-    }
+
     if (!telefono) {
-      errors.telefono = "Favor completar campo ";
+      errors.telefono = "Favor completar telefono";
     }
-    if (!comuna) {
-      errors.comuna = "Favor completar campo ";
+
+    if (!direccion) {
+      errors.direccion = "Favor completar direccion";
     }
-    if (!giro) {
-      errors.giro = "Favor completar campo ";
+
+    if (!selectedRegion) {
+      errors.region = "Favor completar region";
     }
-    if (!pagina) {
-      errors.pagina = "Favor completar campo ";
+
+    if (!selectedComuna) {
+      errors.comuna = "Favor completar comuna";
     }
-    if (!rut) {
-      errors.rut = "Favor completar campo ";
-    }
-    if (!formaPago) {
-      errors.formaPago = "Favor completar campo ";
-    }
-    if (!nombreResponsable) {
-      errors.nombreResponsable = "Favor completar campo ";
-    }
-    if (!correoResponsable) {
-      errors.correoResponsable = "Favor completar campo ";
-    }
+
     if (!sucursal) {
-      errors.sucursal = "Favor completar campo ";
+      errors.sucursal = "Favor completar sucursal";
     }
+
+    if (!pagina) {
+      errors.pagina = "Favor completar página web";
+    } else if (!validateUrl(pagina)) {
+      errors.pagina = "La URL ingresada NO es válida.";
+    }
+
+    if (!formaPago) {
+      errors.formaPago = "Favor completar forma de pago";
+    }
+
+    if (!nombreResponsable) {
+      errors.nombreResponsable = "Favor completar nombre del responsable";
+    }
+
+    if (!correoResponsable) {
+      errors.correoResponsable = "Favor completar correo del responsable";
+    }
+
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(correoResponsable)) {
+      errors.correoResponsable = "Formato de correo responsable no es válido";
+    }
+
     if (!telefonoResponsable) {
-      errors.telefonoResponsable = "Favor completar campo ";
+      errors.telefonoResponsable = "Favor completar telefono del responsable";
+    }
+
+    // Validación para campos vacíos
+    if (
+      Object.values({
+        rut,
+        razonSocial,
+        giro,
+        email,
+        telefono,
+        direccion,
+        region,
+        comuna,
+        sucursal,
+        pagina,
+        formaPago,
+        nombreResponsable,
+        correoResponsable,
+        telefonoResponsable,
+      }).every((value) => !value)
+    ) {
+      setCamposVacios("Todos los campos están vacíos, Favor completar");
+      setLoading(false);
+
+      return;
+    } else {
+      setCamposVacios("");
     }
 
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
+      setLoading(false); // Habilitar el botón si hay errores
+
+      return;
     } else {
       const cliente = {
         razonSocial,
@@ -194,7 +350,8 @@ const IngresoPV = () => {
         sucursal,
         direccion,
         telefono,
-        comuna,
+        region: selectedRegion.toString(),
+        comuna: selectedComuna,
         pagina,
         formaPago,
         rut,
@@ -202,7 +359,7 @@ const IngresoPV = () => {
         correoResponsable,
         telefonoResponsable,
       };
-      console.log(cliente);
+      console.log("Datos a enviar:", cliente); // Aquí se muestran los datos en la consola
 
       try {
         const response = await axios.post(
@@ -211,341 +368,393 @@ const IngresoPV = () => {
         );
         setResponse(response.data);
         setFormSubmitted(true);
-        setShowAlert(true);
+        setLoading(false);
 
-        console.log(response, "debugMiltoco");
+        console.log("respuesta post", response);
+        if (response.status === 201) {
+          setSnackbarMessage("Proveedor creado con éxito");
+          setSnackbarOpen(true);
+          setRazonSocial("");
+          setGiro("");
+          setEmail("");
+          setDireccion("");
+          setTelefono("");
+          setSucursal("");
+          setSelectedRegion("");
+          setSelectedComuna("");
+          setUlrPagina("");
+          setFormaPago("");
+          setRut("");
+          setNombreResponsable("");
+          setcorreoResponsable("");
+          setTelefonoResponsable("");
 
-        setRazonSocial("");
-        setGiro("");
-        setEmail("");
-        setDireccion("");
-        setTelefono("");
-        setSucursal("");
-        setComuna("");
-        setUlrPagina("");
-        setFormaPago("");
-        setRut("");
-        setNombreResponsable("");
-        setcorreoResponsable("");
-        setTelefonoResponsable("");
+          setTimeout(() => {
+            onClose(); ////Cierre Modal al finalizar
+          }, 3000);
+        }
       } catch (error) {
-        console.log(error.response.data, "Leer Error");
-        Swal.fire({
-          position: "top-end",
-          icon: "error",
-          text: error.response.data.descripcion,
-          title: error.response.data.title,
-        });
+        console.error(error);
+        setSnackbarMessage("Error al crear el proveedor");
+        setOpenSnackbar(true);
+        setLoading(false);
       }
     }
   };
+
+  const handleNumericKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (
+      charCode !== 8 && // backspace
+      charCode !== 46 && // delete
+      (charCode < 48 || charCode > 57) // not a number
+    ) {
+      event.preventDefault();
+    }
+    if (charCode === 32 && input.length === 0) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+    const input = event.target.value;
+
+    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
+    if (
+      !(charCode >= 65 && charCode <= 90) && // letras mayúsculas
+      !(charCode >= 97 && charCode <= 122) && // letras minúsculas
+      !(charCode >= 48 && charCode <= 57) && // números
+      charCode !== 32 && // espacio
+      charCode !== 8 && // backspace
+      charCode !== 46 // delete
+    ) {
+      event.preventDefault();
+    }
+
+    // Previene espacios iniciales
+    if (charCode === 32 && input.length === 0) {
+      event.preventDefault();
+    }
+  };
+  const handleTextOnlyKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+    const input = event.target.value; // Obtiene el valor del campo de texto
+
+    // Verifica si el carácter es una letra (mayúscula o minúscula)
+    if (
+      !(charCode >= 65 && charCode <= 90) && // letras mayúsculas
+      !(charCode >= 97 && charCode <= 122) && // letras minúsculas
+      charCode !== 8 && // backspace
+      charCode !== 46 && // delete
+      charCode !== 32 // espacio
+    ) {
+      event.preventDefault();
+    }
+
+    // Previene espacios iniciales
+    if (charCode === 32 && input.length === 0) {
+      event.preventDefault();
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
-      <Grid container component="main" sx={{ height: "100vh", width: "90vw" }}>
-        <CssBaseline />
-
-        <Grid
-          item
-          xs={12}
-          sm={8}
-          md={14}
-          component={Paper}
-          elevation={24}
-          square
+      <CssBaseline />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          minHeight: "100vh",
+          py: 3,
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{ p: 2, borderRadius: 2, maxWidth: 1200, width: "100%" }}
         >
-          <Box
-            sx={{
-              my: 1,
-              mx: 2,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <h4>Ingreso Proveedoress</h4>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit}
-              sx={{ mt: 2 }}
-            >
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    autoComplete="razonsocial"
-                    name="razonsocial"
-                    required
-                    fullWidth
-                    id="razonsocial"
-                    label="Razón Social"
-                    error={!!errors.razonSocial} //!!Vacio o falso
-                    helperText={errors.razonSocial}
-                    value={razonSocial}
-                    onChange={(e) => setRazonSocial(e.target.value)}
-                    autoFocus
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="giro"
-                    label="Giro"
-                    error={!!errors.giro} //!!Vacio o falso
-                    helperText={errors.giro}
-                    name="giro"
-                    value={giro}
-                    onChange={(e) => setGiro(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="rut"
-                    label="Ingrese rut"
-                    name="rut"
-                    value={rut}
-                    onChange={(e) => setRut(e.target.value)}
-                    error={!!errors.rut}
-                    helperText={errors.rut}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {rut &&
-                          /^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(
-                            rut
-                          ) ? (
-                            <Tooltip title="Correct rut format" placement="top">
-                              <CheckCircleIcon style={{ color: "green" }} />
-                            </Tooltip>
-                          ) : null}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    required
-                    fullWidth
-                    id="email"
-                    label="Correo Electrónico"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {email &&
-                          /^[\w-.]+@([\w-]+\.)+[\w-]{2,8}$/.test(email) ? (
-                            <Tooltip title="Correct rut format" placement="top">
-                              <CheckCircleIcon style={{ color: "green" }} />
-                            </Tooltip>
-                          ) : null}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.telefono}
-                    helperText={errors.telefono}
-                    required
-                    fullWidth
-                    name="telefono"
-                    label="Teléfono"
-                    type="text"
-                    id="telefono"
-                    value={telefono}
-                    onChange={(e) => setTelefono(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.direccion}
-                    helperText={errors.direccion}
-                    required
-                    fullWidth
-                    name="direccion"
-                    label="Dirección"
-                    type="text"
-                    id="direccion"
-                    value={direccion}
-                    onChange={(e) => setDireccion(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.comuna}
-                    helperText={errors.comuna}
-                    required
-                    fullWidth
-                    name="comuna"
-                    label="Comuna"
-                    type="text"
-                    id="comuna"
-                    value={comuna}
-                    onChange={(e) => setComuna(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.sucursal}
-                    helperText={errors.sucursal}
-                    required
-                    fullWidth
-                    name="sucursal"
-                    label="Sucursal"
-                    type="text"
-                    id="sucursal"
-                    value={sucursal}
-                    onChange={(e) => setSucursal(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    error={!!errors.pagina}
-                    helperText={errors.pagina}
-                    required
-                    fullWidth
-                    name="pagina"
-                    label="Página"
-                    type="text"
-                    id="pagina"
-                    value={pagina}
-                    onChange={(e) => setUlrPagina(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.formaPago}
-                    helperText={errors.formaPago}
-                    name="formaPago"
-                    label="Forma de Pago"
-                    type="text"
-                    id="formaPago"
-                    value={formaPago}
-                    onChange={(e) => setFormaPago(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.nombreResponsable}
-                    helperText={errors.nombreResponsable}
-                    name="nombreResponsable"
-                    label="Nombre Responsable"
-                    type="text"
-                    id="nombreResponsable"
-                    value={nombreResponsable}
-                    onChange={(e) => setNombreResponsable(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.correoResponsable}
-                    helperText={errors.correoResponsable}
-                    name="correoResponsable"
-                    label="Correo Responsable"
-                    type="text"
-                    id="correoResponsable"
-                    value={correoResponsable}
-                    onChange={(e) => setcorreoResponsable(e.target.value)}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    required
-                    fullWidth
-                    error={!!errors.telefonoResponsable}
-                    helperText={errors.telefonoResponsable}
-                    name="telefonoResponsable"
-                    label="Telefono Responsable"
-                    type="text"
-                    id="telefonoResponsable"
-                    value={telefonoResponsable}
-                    onChange={(e) => setTelefonoResponsable(e.target.value)}
-                  />
-                </Grid>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <h2>Ingreso Proveedores</h2>
               </Grid>
-              <Button
-                type="submit"
-                size="md"
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                guardar
-              </Button>{" "}
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={5}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    size="md"
-                    onClick={handleExportExcel}
-                  >
-                    Exportar a Excel
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6} md={5}>
-                  <Box sx={{ display: "flex" }}>
-                    <TextField
-                      fullWidth
-                      variant="outlined"
-                      size="small"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <UploadFileIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                      type="file"
-                      onChange={handleFileUpload}
-                    />
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        </Grid>
-
-        <Dialog open={showModal} onClose={handleCloseModal}>
-          <DialogTitle>Guardado con éxito</DialogTitle>
-          <DialogContent>
-            {response && (
-              <div>
-                <p>Código de Proveedor: {response.codigoProveedor}</p>
-                
-              
-
-                
-              </div>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} color="primary">
-              Cerrar
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Grid>
-      {formSubmitted &&
-        Object.keys(response).map((keyName, i) => (
-          <div key={i}>
-            <span>{keyName}: </span>
-            <span>{response[keyName]}</span>
+              <Grid item xs={12} md={12}>
+                {/* {Object.keys(errors).length > 0 && (
+          <div style={{ color: "red", marginBottom: "1%", marginTop: "1%" }}>
+            <ul>{Object.values(errors).map((error, index) => <li key={index}>{error}</li>)}</ul>
           </div>
-        ))}
+        )} */}
+
+                {Object.keys(errors).length > 0 && (
+                  <div
+                    style={{
+                      color: "red",
+                      marginBottom: "1%",
+                      marginTop: "1%",
+                    }}
+                  >
+                    <ul>{Object.values(errors)[0]}</ul>
+                  </div>
+                )}
+              </Grid>
+              <Grid item xs={12} sm={12} md={12}>
+                {" "}
+                {camposVacios && (
+                  <p style={{ color: "red" }}> {camposVacios}</p>
+                )}
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                  Ingresa rut sin puntos y con guión
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  id="rut"
+                  label="ej: 11111111-1"
+                  name="rut"
+                  autoComplete="rut"
+                  autoFocus
+                  value={rut}
+                  onChange={(e) => setRut(e.target.value)}
+                  // onKeyDown={handleNumericKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                  Ingresa Razón social
+                </InputLabel>
+                <TextField
+                  label="Razón social"
+                  fullWidth
+                  value={razonSocial}
+                  onChange={(e) => setRazonSocial(e.target.value)}
+                  // error={!!errors.razonSocial}
+                  // helperText={errors.razonSocial}
+                  onKeyDown={handleTextKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                  Ingresa Giro
+                </InputLabel>
+                <TextField
+                  label="Giro"
+                  fullWidth
+                  value={giro}
+                  onChange={(e) => setGiro(e.target.value)}
+                  // error={!!errors.giro}
+                  // helperText={errors.giro}
+                  onKeyDown={handleTextKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                  Ingresa Email
+                </InputLabel>
+                <TextField
+                  label="Email"
+                  fullWidth
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  // error={!!errors.email}
+                  // helperText={errors.email}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Teléfono
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  id="telefono"
+                  label="Teléfono"
+                  name="telefono"
+                  autoComplete="telefono"
+                  autoFocus
+                  value={telefono}
+                  onKeyDown={handleNumericKeyDown}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  inputProps={{
+                    maxLength: 12,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Dirección
+                </InputLabel>
+                <TextField
+                  label="Dirección"
+                  fullWidth
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                  onKeyDown={handleTextKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Selecciona Región
+                </InputLabel>
+                <TextField
+                  margin="normal"
+                  fullWidth
+                  id="region"
+                  select
+                  label="Región"
+                  value={selectedRegion}
+                  onChange={(e) => {
+                    setSelectedRegion(e.target.value);
+                  }}
+                >
+                  {regionOptions.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.regionNombre}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Selecciona Comuna
+                </InputLabel>
+                <TextField
+                  margin="normal"
+                  id="comuna"
+                  select
+                  fullWidth
+                  label="Comuna"
+                  value={selectedComuna}
+                  onChange={(e) => {
+                    const comunaValue = e.target.value;
+                    setSelectedComuna(e.target.value);
+                  }}
+                >
+                  {comunaOptions.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Sucursal
+                </InputLabel>
+                <TextField
+                  label="Sucursal"
+                  fullWidth
+                  value={sucursal}
+                  onChange={(e) => setSucursal(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Página Web
+                </InputLabel>
+                <TextField
+                  label="Página Web"
+                  fullWidth
+                  value={pagina}
+                  onChange={(e) => setUlrPagina(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Forma de Pago
+                </InputLabel>
+                <TextField
+                  label="Forma de Pago"
+                  fullWidth
+                  value={formaPago}
+                  onChange={(e) => setFormaPago(e.target.value)}
+                  // onKeyDown={handleTextKeyDown}
+                  onKeyDown={handleTextOnlyKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Nombre del Responsable
+                </InputLabel>
+                <TextField
+                  label="Nombre del Responsable"
+                  fullWidth
+                  value={nombreResponsable}
+                  onChange={(e) => setNombreResponsable(e.target.value)}
+                  // onKeyDown={handleTextOnlyKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Correo Electrónico
+                </InputLabel>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  type="email"
+                  id="correo"
+                  label="Correo Electrónico"
+                  name="correo"
+                  autoComplete="correo"
+                  autoFocus
+                  value={correoResponsable}
+                  onChange={(e) => setcorreoResponsable(e.target.value)}
+                />
+                {/* <TextField
+                  label="Correo del Responsable"
+                  fullWidth
+                  value={correoResponsable}
+                  onChange={(e) => setcorreoResponsable(e.target.value)}
+                  error={!!errors.correoResponsable}
+                  helperText={errors.correoResponsable}
+                /> */}
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
+                  Ingresa Teléfono del Responsable
+                </InputLabel>
+                <TextField
+                  label="Teléfono del Responsable"
+                  fullWidth
+                  value={telefonoResponsable}
+                  onChange={(e) => setTelefonoResponsable(e.target.value)}
+                  onKeyDown={handleNumericKeyDown}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button type="submit" disabled={loading} variant="contained">
+                  {loading ? (
+                    <>
+                      Guardando... <CircularProgress size={24} />
+                    </>
+                  ) : (
+                    "Guardar"
+                  )}
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </Paper>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          message={snackbarMessage}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleCloseSnackbar}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
+      </Box>
     </ThemeProvider>
   );
 };

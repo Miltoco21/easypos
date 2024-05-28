@@ -316,7 +316,7 @@ export default function IngresoUsuarios({ onClose}) {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+              <InputLabel sx={{ marginBottom: "2%", }}>
                 Ingresa rut sin puntos y con guión
               </InputLabel>
               <TextField
