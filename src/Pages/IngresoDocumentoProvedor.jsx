@@ -151,10 +151,11 @@ const IngresoDocumentoProveedor = () => {
     } else {
       setSnackbarOpen(false);
       const filteredResults = proveedores.filter((proveedor) =>
-        proveedor.razonSocial.toLowerCase().includes(searchText.toLowerCase())
+        proveedor.razonSocial.toLowerCase().includes(searchText.toLowerCase()) ||
+        proveedor.rut.toLowerCase().includes(searchText.toLowerCase())
       );
       setSearchResults(filteredResults);
-
+  
       if (filteredResults.length === 0) {
         setSearchSnackbarOpen(true);
       } else {
@@ -290,10 +291,17 @@ const IngresoDocumentoProveedor = () => {
         setErrorMessage("Por favor complete campo folio.");
         setLoading(false);
         return;
+      }else if (folioDocumento){
+        setErrorMessage("");
       }
 
       if (!selectedProveedor) {
         setErrorMessage("No se ha seleccionado ningún proveedor.");
+        setLoading(false);
+        return;
+      }
+      if (selectedProducts.length === 0) {
+        setErrorMessage("No se han seleccionado productos.");
         setLoading(false);
         return;
       }
@@ -303,6 +311,12 @@ const IngresoDocumentoProveedor = () => {
       selectedProducts.forEach((product) => {
         total += product.total;
       });
+      if (total === 0) {
+        setErrorMessage("El total no puede ser cero.");
+        setLoading(false);
+        return;
+      }
+  
 
       const proveedorCompraDetalles = selectedProducts.map((product) => ({
         codProducto: product.id,
@@ -324,7 +338,7 @@ const IngresoDocumentoProveedor = () => {
       console.log("Datos a enviar al servidor:", dataToSend);
 
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/Proveedores/AddProveeedorCompra",
+        "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompra",
         dataToSend
       );
 

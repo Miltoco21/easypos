@@ -13,6 +13,7 @@ import Categorias from './Pages/Categoria';
 import SubCategorias from './Pages/SubCategoria';
 import Familias from './Pages/Familias';
 import SubFamilias from './Pages/SubFamilias';
+import ProtectedRoute from './Componentes/ProtectedRoute';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -26,18 +27,24 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login setUserData={setUserData} />} />
       <Route path="/registro" element={<Registro />} />
-      <Route path="/home" element={<Home userData={userData} setUserData={setUserData} />} />
-      <Route path="/" element={<Home userData={userData} setUserData={setUserData} />} />
-      <Route path="/usuarios" element={<Usuarios />} />
-      <Route path="/precios" element={<Precios />} />
-      <Route path="/proveedores" element={<Proveedores />} />
-      <Route path="/clientes" element={<Clientes />} />
-      <Route path="/productos" element={<Productos />} />
-      <Route path="/productos/categorias" element={<Categorias />} />
-      <Route path="/productos/subcategorias" element={<SubCategorias />} />
-      <Route path="/productos/familias" element={<Familias />} />
-      <Route path="/productos/subfamilias" element={<SubFamilias />} />
-      <Route path="/proveedores/ingresodocumento" element={<IngresoDocumento />} />
+      <Route
+        path="/home"
+        element={<ProtectedRoute element={<Home userData={userData} setUserData={setUserData} />} />}
+      />
+      <Route
+        path="/"
+        element={<ProtectedRoute element={<Home userData={userData} setUserData={setUserData} />} />}
+      />
+      <Route path="/usuarios" element={<ProtectedRoute element={<Usuarios />} />} />
+      <Route path="/precios" element={<ProtectedRoute element={<Precios />} />} />
+      <Route path="/proveedores" element={<ProtectedRoute element={<Proveedores />} />} />
+      <Route path="/clientes" element={<ProtectedRoute element={<Clientes />} />} />
+      <Route path="/productos" element={<ProtectedRoute element={<Productos />} />} />
+      <Route path="/productos/categorias" element={<ProtectedRoute element={<Categorias />} />} />
+      <Route path="/productos/subcategorias" element={<ProtectedRoute element={<SubCategorias />} />} />
+      <Route path="/productos/familias" element={<ProtectedRoute element={<Familias />} />} />
+      <Route path="/productos/subfamilias" element={<ProtectedRoute element={<SubFamilias />} />} />
+      <Route path="/proveedores/ingresodocumento" element={<ProtectedRoute element={<IngresoDocumento />} />} />
     </Routes>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -20,6 +20,14 @@ const Login = ({ setUserData }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Verificar si hay datos en sessionStorage y redirigir a /home si existen
+    const userData = sessionStorage.getItem('userData');
+    if (userData) {
+      navigate('/home');
+    }
+  }, [navigate]);
 
   const handleLogin = async () => {
     try {
