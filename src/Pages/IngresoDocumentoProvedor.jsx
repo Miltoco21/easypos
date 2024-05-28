@@ -244,7 +244,7 @@ const IngresoDocumentoProveedor = () => {
     } catch (error) {
       console.error("Error al buscar el producto:", error);
       setSnackbarMessage("Error al buscar el producto");
-      setOpenSnackbar200(true);
+      setOpenSnackbar(true);
 
       setTimeout(() => {
         setOpenSnackbar(false);
