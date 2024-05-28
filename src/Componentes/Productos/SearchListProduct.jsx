@@ -17,6 +17,13 @@ import {
   Pagination,
   Tabs,
   Tab,
+  Snackbar,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -26,7 +33,7 @@ const ITEMS_PER_PAGE = 10;
 const SearchListProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [product, setProduct] = useState([]);
-  const [filteredProduct, setFilteredProduct] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [pageProduct, setPageProduct] = useState([]);
@@ -34,6 +41,10 @@ const SearchListProducts = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
   const [refresh, setRefresh] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
@@ -57,6 +68,7 @@ const SearchListProducts = () => {
         console.log("API Response:", response.data);
         if (Array.isArray(response.data.productos)) {
           setProduct(response.data.productos);
+          setFilteredProducts(response.data.productos);
           setPageCount(response.data.cantidadRegistros);
           setPageProduct(response.data.productos);
         }
@@ -66,21 +78,17 @@ const SearchListProducts = () => {
     };
 
     fetchProduct();
-  }, []);
+  }, [productToDelete]);
 
   useEffect(() => {
-    if (Array.isArray(product)) {
-      setFilteredProduct(
-        product.filter(
-          (product) =>
-            product.descripcion &&
-            product.descripcion
-              .trim()
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())
-        )
-      );
-    }
+    const filtered = product.filter(
+      (product) =>
+        product.nombre &&
+        product.nombre.trim().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+    setPageCount(filtered.length);
+    setCurrentPage(1); // Reset to first page on search
   }, [searchTerm, product]);
 
   const handlePageChange = (event, value) => {
@@ -88,36 +96,112 @@ const SearchListProducts = () => {
   };
 
   useEffect(() => {
-    const totalPages = Math.ceil(filteredProduct.length / ITEMS_PER_PAGE);
-    if (!isNaN(totalPages)) {
-      setTotalPages(totalPages);
-    } else {
-      console.error("Invalid filtered product length:", filteredProduct.length);
-    }
-  }, [filteredProduct]);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const currentProducts = filteredProducts.slice(startIndex, endIndex);
+    setPageProduct(currentProducts);
+  }, [currentPage, filteredProducts, refresh]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1);
   };
 
-  const handleDelete = (id) => {
-    console.log(`Delete item with id ${id}`);
-    // Write your delete handling logic here...
+  // const handleDelete = async (id) => {
+  //   try {
+  //     const response = await axios.delete(
+  //       `https://www.easyposdev.somee.com/api/ProductosTmp/DeleteProducto?id=${id}`
+  //     );
+  //     console.log(response)
+  //     if (response.status === 200) {
+      
+  //       setSnackbarMessage("Producto eliminado correctamente");
+  //       setOpenSnackbar(true);
+  //       setRefresh((prevRefresh) => !prevRefresh);
+  //     } else {
+  //       setSnackbarMessage("Error al eliminar el producto");
+  //     }
+  //   } catch (error) {
+  //     setSnackbarMessage("Error al eliminar el producto");
+  //     console.error("Error deleting product:", error);
+  //   }
+  //   setOpenSnackbar(true);
+  // };
+  useEffect(() => {
+    if (openSnackbar) {
+      setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000); // Cierra el Snackbar después de 3 segundos
+    }
+  }, [openSnackbar]);
+  
+  const handleDelete = async (id) => {
+    try {
+      // Eliminar el producto localmente
+      const updatedProducts = product.filter((p) => p.idProducto !== id);
+      setProduct(updatedProducts);
+  
+      // Llamada a la API para eliminar el producto
+      const response = await axios.delete(
+        `https://www.easyposdev.somee.com/api/ProductosTmp/DeleteProducto?id=${id}`
+      );
+  
+      if (response.data.statusCode === 201) {
+        setSnackbarMessage("Producto eliminado correctamente");
+        setOpenSnackbar(true); // Establecer openSnackbar en true
+        setRefresh((prevRefresh) => !prevRefresh); // Actualizar la lista después de la eliminación
+      } else {
+        setSnackbarMessage("Error al eliminar el producto");
+      }
+    } catch (error) {
+      setSnackbarMessage("Error al eliminar el producto");
+      console.error("Error deleting product:", error);
+    }
   };
+  
+  
+  // Dentro de useEffect, después de eliminar el producto, actualiza la lista de productos
+  useEffect(() => {
+    if (refresh) {
+      
+      setRefresh(false);
+    }
+  }, [refresh]);
+  useEffect(() => {
+    let timeout;
+    if (openSnackbar) {
+      timeout = setTimeout(() => {
+        setOpenSnackbar(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timeout);
+  }, [openSnackbar]);
+  
 
   const handleEdit = (product) => {
     console.log("Edit button pressed for product:", product);
-
     setSelectedProduct(product);
-    console.log("selected prod", selectedProduct);
     setOpenEditModal(true);
   };
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
     setRefresh((prevRefresh) => !prevRefresh);
+  };
+  const handleOpenDialog = (product) => {
+    setProductToDelete(product);
+    setOpenDialog(true);
+  };
 
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setProductToDelete(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (productToDelete) {
+      handleDelete(productToDelete.idProducto);
+      handleCloseDialog();
+    }
   };
 
   return (
@@ -125,7 +209,7 @@ const SearchListProducts = () => {
       <div>
         <Tabs value={selectedTab} onChange={handleTabChange}>
           <Tab label="Productos sin codigos" />
-          <Tab label="Productos con codigos" />
+          {/* <Tab label="Productos con codigos" /> */}
         </Tabs>
         <div style={{ p: 2, mt: 4 }} role="tabpanel" hidden={selectedTab !== 0}>
           <TextField
@@ -139,11 +223,8 @@ const SearchListProducts = () => {
               <TableRow>
                 <TableCell>ID Productos </TableCell>
                 <TableCell>Nombre</TableCell>
-                
-
                 <TableCell>Mercado Lógico</TableCell>
                 <TableCell>Precios </TableCell>
-
                 <TableCell>Stock</TableCell>
                 <TableCell>Impuestos</TableCell>
                 <TableCell>Bodega</TableCell>
@@ -160,87 +241,42 @@ const SearchListProducts = () => {
                 pageProduct.map((product) => (
                   <TableRow key={product.idProducto}>
                     <TableCell>{product.idProducto}</TableCell>
-                    <TableCell>{product.nombre}<br></br>
-                    <span style={{ color: "purple" }}>Marca: </span>
-                      {product.marca} <br></br>
+                    <TableCell>
+                      {product.nombre}
+                      <br />
+                      <span style={{ color: "purple" }}>Marca: </span>
+                      {product.marca} <br />
                     </TableCell>
-
                     <TableCell>
                       <span style={{ color: "purple" }}>Categoría: </span>
-                      {product.categoria} <br></br>
+                      {product.categoria} <br />
                       <span style={{ color: "purple" }}>SubCategoría: </span>
-                      {product.subCategoria} <br></br>
+                      {product.subCategoria} <br />
                       <span style={{ color: "purple" }}>Familia: </span>
-                      {product.familia} <br></br>
+                      {product.familia} <br />
                       <span style={{ color: "purple" }}>SubFamilia: </span>
-                      {product.subFamilia} <br></br>
+                      {product.subFamilia} <br />
                     </TableCell>
-
                     <TableCell>
                       <span style={{ color: "purple" }}>Precio Costo: </span>
-                      {product.precioCosto} <br></br>
+                      {product.precioCosto} <br />
                       <span style={{ color: "purple" }}>Precio Venta: </span>
-                      {product.precioVenta} <br></br>
+                      {product.precioVenta} <br />
                     </TableCell>
-
                     <TableCell>
-                      {" "}
                       <span style={{ color: "purple" }}>Stock Inical: </span>
-                      {product.stockInicial} <br></br>
+                      {product.stockInicial} <br />
                       <span style={{ color: "purple" }}>Stock Crítico: </span>
-                      {product.stockCritico} <br></br>
+                      {product.stockCritico} <br />
                     </TableCell>
                     <TableCell>{product.impuesto}</TableCell>
                     <TableCell>{product.bodega}</TableCell>
-                <TableCell>{product.proveedor}</TableCell>
+                    <TableCell>{product.proveedor}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleEdit(product)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(product.idProducto)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div role="tabpanel" hidden={selectedTab !== 1}>
-          <TextField
-            margin="dense"
-            label="Buscar productos..."
-            value={searchTerm}
-            onChange={handleSearch}
-          />
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID Productos Con Codigos</TableCell>
-                <TableCell>Descripción</TableCell>
-                <TableCell>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {pageProduct.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={2}>No se encontraron productos</TableCell>
-                </TableRow>
-              ) : (
-                pageProduct.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.nombre}</TableCell>
-                    <TableCell>{product.descripcion}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => handleEdit(product)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(product.idProducto)}
-                      >
+                      <IconButton onClick={() => handleOpenDialog(product)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -251,7 +287,6 @@ const SearchListProducts = () => {
           </Table>
         </div>
       </div>
-
       <Pagination
         count={totalPages}
         page={currentPage}
@@ -266,6 +301,26 @@ const SearchListProducts = () => {
           handleClose={handleCloseEditModal}
         />
       )}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>{"Confirmar Eliminación"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que deseas eliminar este producto?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleConfirmDelete} autoFocus>
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        message={snackbarMessage}
+      />
     </Box>
   );
 };

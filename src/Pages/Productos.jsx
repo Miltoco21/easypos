@@ -10,7 +10,7 @@ import Stepperproductos from "../Componentes/Stepper/Stepperproductos";
 import Stepper2 from "../Componentes/Stepper/Stepper2";
 import { Stepper } from "@mui/material";
 import StepperNO from "../Componentes/Stepper/StepperNo";
-import StepperSI from "../Componentes/Stepper/StepperSI";
+import StepperSI from "../Componentes/Stepper copy/StepperSI";
 import SearchListProducts from "../Componentes/Productos/SearchListProduct";
 
 const Productos = () => {
@@ -45,14 +45,14 @@ const Productos = () => {
         >
           + Producto sin código
         </Button>
-        <Button
+        {/* <Button
           size="large"
           variant="outlined"
           style={{ marginLeft: "18px", padding: "14px", marginTop: "6px" }}
           onClick={handleOpenStepper2}
         >
           + Producto con código
-        </Button>
+        </Button> */}
 
         <SearchListProducts/>
 
@@ -71,7 +71,7 @@ const Productos = () => {
               maxWidth: "180vw", // Adjust as needed
             }}
           >
-            <StepperNO />
+           <StepperSI/> 
           </Box>
         </Modal>
 
