@@ -143,15 +143,13 @@ export default function IngresoUsuarios({ onClose}) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const errors = {};
+    const errors = [];
 
     //Validaciones
     if (!rut) {
-      errors.rut = "Favor completar campo";
-    } else if (
-      !/^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(rut)
-    ) {
-      errors.rut = "Ingresa tu rut con puntos y guión";
+      errors.rut = "Favor completar rut ";
+    } else if (!validarRutChileno(rut)) {
+      errors.rut = "El RUT ingresado NO es válido.";
     }
 
     if (!nombres) {
