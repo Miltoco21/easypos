@@ -236,6 +236,9 @@ const IngresoPV = ({ onClose }) => {
     const partesRut = rut.split("-");
     const digitoVerificador = partesRut[1].toUpperCase();
     const numeroRut = partesRut[0];
+    if (numeroRut.length < 7) {
+      return false;
+    }
 
     const calcularDigitoVerificador = (T) => {
       let M = 0;
