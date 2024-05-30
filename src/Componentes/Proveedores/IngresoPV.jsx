@@ -188,22 +188,41 @@ const IngresoPV = ({ onClose }) => {
 
     fetchComunas();
   }, [selectedRegion]);
+
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
+  
   const handleEmailChange = (e) => {
     const inputEmail = e.target.value;
-    setEmail(inputEmail);
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      correo: !inputEmail
-        ? "Favor completar email"
-        : !validateEmail(inputEmail)
-        ? "Formato de correo no es válido"
-        : "",
-    }));
+    
+    // Prevenir espacios en cualquier parte del correo
+    const lastChar = inputEmail.charAt(inputEmail.length - 1);
+    if (lastChar === " ") {
+      e.target.value = inputEmail.slice(0, -1);
+      return;
+    }
+    
+    setEmail(inputEmail.trim()); // Remover espacios en los extremos
+  
+    setErrors((prevErrors) => {
+      const hasSpaces = /\s/.test(inputEmail); // Verifica si hay espacios en cualquier parte
+      const isEmpty = !inputEmail.trim();
+      const isValidFormat = validateEmail(inputEmail.trim());
+  
+      return {
+        ...prevErrors,
+        correo: isEmpty
+          ? "Favor completar email"
+          : hasSpaces
+          ? "El correo no debe contener espacios"
+          : !isValidFormat
+          ? "Formato de correo no es válido"
+          : "",
+      };
+    });
   };
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -403,60 +422,103 @@ const IngresoPV = ({ onClose }) => {
   };
 
   const handleNumericKeyDown = (event) => {
-    const charCode = event.which ? event.which : event.keyCode;
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es un número, backspace o delete
     if (
-      charCode !== 8 && // backspace
-      charCode !== 46 && // delete
-      (charCode < 48 || charCode > 57) // not a number
+    !/\d/.test(key) && // números
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
     ) {
       event.preventDefault();
     }
-    if (charCode === 32 && input.length === 0) {
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
       event.preventDefault();
     }
   };
-
+  
   const handleTextKeyDown = (event) => {
-    const charCode = event.which ? event.which : event.keyCode;
+    const key = event.key;
     const input = event.target.value;
-
+  
     // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
     if (
-      !(charCode >= 65 && charCode <= 90) && // letras mayúsculas
-      !(charCode >= 97 && charCode <= 122) && // letras minúsculas
-      !(charCode >= 48 && charCode <= 57) && // números
-      charCode !== 32 && // espacio
-      charCode !== 8 && // backspace
-      charCode !== 46 // delete
+     !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
     ) {
       event.preventDefault();
     }
-
-    // Previene espacios iniciales
-    if (charCode === 32 && input.length === 0) {
-      event.preventDefault();
-    }
-  };
-  const handleTextOnlyKeyDown = (event) => {
-    const charCode = event.which ? event.which : event.keyCode;
-    const input = event.target.value; // Obtiene el valor del campo de texto
-
-    // Verifica si el carácter es una letra (mayúscula o minúscula)
+  
+    // Previene espacios iniciales y al final de la cadena
     if (
-      !(charCode >= 65 && charCode <= 90) && // letras mayúsculas
-      !(charCode >= 97 && charCode <= 122) && // letras minúsculas
-      charCode !== 8 && // backspace
-      charCode !== 46 && // delete
-      charCode !== 32 // espacio
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
     ) {
       event.preventDefault();
     }
-
-    // Previene espacios iniciales
-    if (charCode === 32 && input.length === 0) {
+  };
+  const handleEmailKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+  
+    // Prevenir espacios en cualquier parte del correo
+    if (charCode === 32) { // 32 es el código de la tecla espacio
       event.preventDefault();
     }
   };
+  const handleRUTKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Permitir números (0-9), guion (-), backspace y delete
+    if (
+     !isNaN(key) || // números
+      key === 'Backspace' || // backspace
+      key === 'Delete' || // delete
+      (key === '-' && !input.includes('-')) // guion y no hay guion previamente
+    ) {
+      // Permitir la tecla
+    } else {
+      // Prevenir cualquier otra tecla
+      event.preventDefault();
+    }
+  
+    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
+    if (key === ' ' && (input.length === 0 || event.target.selectionStart === 0)) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextOnlyKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
+    if (
+     !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  
 
   return (
     <ThemeProvider theme={theme}>
@@ -505,12 +567,12 @@ const IngresoPV = ({ onClose }) => {
                 )}
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                <InputLabel sx={{ marginBottom: "2%", }}>
                   Ingresa rut sin puntos y con guión
                 </InputLabel>
                 <TextField
                   fullWidth
-                  margin="normal"
+                 
                   id="rut"
                   label="ej: 11111111-1"
                   name="rut"
@@ -518,11 +580,10 @@ const IngresoPV = ({ onClose }) => {
                   autoFocus
                   value={rut}
                   onChange={(e) => setRut(e.target.value)}
-                  // onKeyDown={handleNumericKeyDown}
-                />
+                  onKeyDown={handleRUTKeyDown}                />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                <InputLabel sx={{ marginBottom: "2%", }}>
                   Ingresa Razón social
                 </InputLabel>
                 <TextField
@@ -536,7 +597,7 @@ const IngresoPV = ({ onClose }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
+                <InputLabel sx={{ marginBottom: "2%", }}>
                   Ingresa Giro
                 </InputLabel>
                 <TextField
@@ -546,12 +607,12 @@ const IngresoPV = ({ onClose }) => {
                   onChange={(e) => setGiro(e.target.value)}
                   // error={!!errors.giro}
                   // helperText={errors.giro}
-                  onKeyDown={handleTextKeyDown}
+                  onKeyDown={handleTextOnlyKeyDown}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%", fontSize: "0.9rem" }}>
-                  Ingresa Email
+                <InputLabel sx={{ marginBottom: "2%",  }}>
+                  Ingresa Correo Electrónico
                 </InputLabel>
                 <TextField
                   label="Email"
@@ -559,7 +620,7 @@ const IngresoPV = ({ onClose }) => {
                   type="email"
                   value={email}
                   onChange={handleEmailChange}
-                  // error={!!errors.email}
+                  onKeyDown={handleEmailKeyDown}
                   // helperText={errors.email}
                 />
               </Grid>
@@ -569,7 +630,7 @@ const IngresoPV = ({ onClose }) => {
                 </InputLabel>
                 <TextField
                   fullWidth
-                  margin="normal"
+               
                   id="telefono"
                   label="Teléfono"
                   name="telefono"
@@ -600,7 +661,7 @@ const IngresoPV = ({ onClose }) => {
                   Selecciona Región
                 </InputLabel>
                 <TextField
-                  margin="normal"
+                 
                   fullWidth
                   id="region"
                   select
@@ -622,7 +683,7 @@ const IngresoPV = ({ onClose }) => {
                   Selecciona Comuna
                 </InputLabel>
                 <TextField
-                  margin="normal"
+              
                   id="comuna"
                   select
                   fullWidth
@@ -649,6 +710,7 @@ const IngresoPV = ({ onClose }) => {
                   fullWidth
                   value={sucursal}
                   onChange={(e) => setSucursal(e.target.value)}
+                  onKeyDown={handleTextKeyDown}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -684,16 +746,16 @@ const IngresoPV = ({ onClose }) => {
                   fullWidth
                   value={nombreResponsable}
                   onChange={(e) => setNombreResponsable(e.target.value)}
-                  // onKeyDown={handleTextOnlyKeyDown}
+                  onKeyDown={handleTextOnlyKeyDown}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <InputLabel sx={{ marginBottom: "2%" }}>
-                  Ingresa Correo Electrónico
+                  Ingresa Correo Electrónico del Responsable
                 </InputLabel>
                 <TextField
                   fullWidth
-                  margin="normal"
+                
                   type="email"
                   id="correo"
                   label="Correo Electrónico"
@@ -702,6 +764,7 @@ const IngresoPV = ({ onClose }) => {
                   autoFocus
                   value={correoResponsable}
                   onChange={(e) => setcorreoResponsable(e.target.value)}
+                  onKeyDown={handleEmailKeyDown}
                 />
                 {/* <TextField
                   label="Correo del Responsable"
@@ -722,6 +785,9 @@ const IngresoPV = ({ onClose }) => {
                   value={telefonoResponsable}
                   onChange={(e) => setTelefonoResponsable(e.target.value)}
                   onKeyDown={handleNumericKeyDown}
+                  inputProps={{
+                    maxLength: 12,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>

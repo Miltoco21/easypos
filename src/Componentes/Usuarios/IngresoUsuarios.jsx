@@ -297,6 +297,103 @@ export default function IngresoUsuarios({ onClose}) {
     setUserId(null);
   };
 
+  const handleNumericKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es un número, backspace o delete
+    if (
+    !/\d/.test(key) && // números
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  
+  const handleTextKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
+    if (
+     !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  const handleEmailKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+  
+    // Prevenir espacios en cualquier parte del correo
+    if (charCode === 32) { // 32 es el código de la tecla espacio
+      event.preventDefault();
+    }
+  };
+  const handleRUTKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Permitir números (0-9), guion (-), backspace y delete
+    if (
+     !isNaN(key) || // números
+      key === 'Backspace' || // backspace
+      key === 'Delete' || // delete
+      (key === '-' && !input.includes('-')) // guion y no hay guion previamente
+    ) {
+      // Permitir la tecla
+    } else {
+      // Prevenir cualquier otra tecla
+      event.preventDefault();
+    }
+  
+    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
+    if (key === ' ' && (input.length === 0 || event.target.selectionStart === 0)) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextOnlyKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
+    if (
+     !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
   return (
     <div style={{ overflow: "auto" }}>
       <Grid item xs={12} container>
@@ -330,6 +427,7 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={rut}
                 onChange={(e) => setRut(e.target.value)}
+                onKeyDown={handleRUTKeyDown}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -348,6 +446,7 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={nombres}
                 onChange={(e) => setNombre(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -366,6 +465,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={apellidos}
                 onChange={(e) => setApellido(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -384,6 +485,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={correo}
                 onChange={handleEmailChange}
+                onKeyDown={handleEmailKeyDown}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -392,7 +495,7 @@ export default function IngresoUsuarios({ onClose}) {
               </InputLabel>
               <TextField
                 fullWidth
-                type="number"
+            
                 margin="normal"
                 required
                 id="telefono"
@@ -402,6 +505,11 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+                   inputProps={{
+                    maxLength: 12,
+                  }}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -410,7 +518,7 @@ export default function IngresoUsuarios({ onClose}) {
               </InputLabel>
               <TextField
                 fullWidth
-                type="number"
+             
                 margin="normal"
                 required
                 id="Código Cliente"
@@ -420,6 +528,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={codigoUsuario}
                 onChange={(e) => setCodigoUsuario(e.target.value)}
+
+                
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -516,7 +626,7 @@ export default function IngresoUsuarios({ onClose}) {
                 fullWidth
                 margin="normal"
                 required
-                type="number"
+              
                 id="codigoPostal"
                 label="Código Postal"
                 name="codigoPostal"
@@ -540,6 +650,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={clave}
                 onChange={(e) => setClave(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
+                
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -558,6 +670,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={remuneracion}
                 onChange={(e) => setRemuneracion(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
+
               >
                 <MenuItem value="Diario">Diario</MenuItem>
                 <MenuItem value="Semanal">Semanal</MenuItem>
@@ -580,6 +694,8 @@ export default function IngresoUsuarios({ onClose}) {
                 autoFocus
                 value={credito}
                 onChange={(e) => setCredito(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
+
               />
             </Grid>
           </Grid>
