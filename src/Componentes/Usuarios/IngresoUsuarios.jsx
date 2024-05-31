@@ -657,7 +657,7 @@ export default function IngresoUsuarios({ onClose}) {
               <TextField
       fullWidth
       margin="normal"
-      required
+     
       id="clave"
       label="Ingrese valor alfanumérico"
       name="clave"
@@ -676,7 +676,7 @@ export default function IngresoUsuarios({ onClose}) {
               onMouseDown={handleMouseDownPassword}
               edge="end"
             >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
+              {showPassword ? <VisibilityOff fontSize="small"  /> : <Visibility fontSize="small"  />}
             </IconButton>
           </InputAdornment>
         ),
