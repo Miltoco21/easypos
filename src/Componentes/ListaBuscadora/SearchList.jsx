@@ -34,19 +34,27 @@ const SearchList = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("https://www.easyposdev.somee.com/api/Usuarios/GetAllUsuarios");
-        console.log("API response:", response.data);
-        setUsers(response.data.usuarios);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("https://www.easyposdev.somee.com/api/Usuarios/GetAllUsuarios");
+      // console.log("API response:", response.data);
+      setUsers(response.data.usuarios);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, [refresh]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchUsers();
+    }, 3000); // Fetch users every 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);

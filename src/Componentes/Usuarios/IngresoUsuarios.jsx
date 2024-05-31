@@ -98,6 +98,8 @@ export default function IngresoUsuarios({ onClose}) {
     fetchComunas();
   }, [selectedRegion]);
 
+
+
   useEffect(() => {
     async function fetchRoles() {
       try {
@@ -646,12 +648,14 @@ export default function IngresoUsuarios({ onClose}) {
                 required
               
                 id="codigoPostal"
-                label="Código Postal"
+                label="Ingrese valor numérico"
                 name="codigoPostal"
                 autoComplete="codigoPostal"
                 autoFocus
                 value={codigoPostal}
                 onChange={(e) => setCodigoPostal(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
