@@ -538,12 +538,14 @@ export default function IngresoUsuarios({ onClose}) {
                 margin="normal"
                 required
                 id="Código Cliente"
-                label="Código Usuario"
+                label="Ingrese valor numérico"
                 name="Código Cliente"
                 autoComplete="Código Cliente"
                 autoFocus
                 value={codigoUsuario}
                 onChange={(e) => setCodigoUsuario(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+
 
                 
               />
