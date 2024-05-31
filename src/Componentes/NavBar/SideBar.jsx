@@ -35,6 +35,7 @@ const menuItems = [
     icon: <LocalShippingIcon />,
     subMenuItems: [
       { text: "Ingreso Documento", link: "/proveedores/ingresodocumento", icon: <ReceiptIcon /> },
+      { text: "Reportes ", link: "/proveedores/reportes", icon: <ReceiptIcon /> },
     ],
   },
   { text: "Clientes", link: "/clientes", icon: <GroupsIcon/> },

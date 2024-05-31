@@ -15,9 +15,14 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  IconButton,
+  InputAdornment 
 } from "@mui/material";
 import axios from "axios";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
 
 export const defaultTheme = createTheme();
 
@@ -45,9 +50,19 @@ export default function IngresoUsuarios({ onClose}) {
   const [selectedRol, setSelectedRol] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -640,20 +655,33 @@ export default function IngresoUsuarios({ onClose}) {
             <Grid item xs={12} md={6}>
               <InputLabel sx={{ marginBottom: "2%" }}>Ingresa Clave</InputLabel>
               <TextField
-                fullWidth
-                margin="normal"
-                required
-                id="clave"
-                label="Clave"
-                name="clave"
-                type="password"
-                autoComplete="new-password"
-                autoFocus
-                value={clave}
-                onChange={(e) => setClave(e.target.value)}
-                onKeyDown={handleTextOnlyKeyDown}
-                
-              />
+      fullWidth
+      margin="normal"
+      required
+      id="clave"
+      label="Ingrese valor alfanumérico"
+      name="clave"
+      type={showPassword ? 'text' : 'password'}
+      autoComplete="new-password"
+      autoFocus
+      value={clave}
+      onChange={(e) => setClave(e.target.value)}
+      onKeyDown={handleTextKeyDown}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+              edge="end"
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+    />
             </Grid>
             <Grid item xs={12} md={6}>
               <InputLabel sx={{ marginBottom: "2%" }}>
@@ -688,14 +716,14 @@ export default function IngresoUsuarios({ onClose}) {
                 margin="normal"
                 required
                 id="credito"
-                label="Crédito"
+                label="Ingrese valor numérico"
                 
                 name="credito"
                 autoComplete="credito"
                 autoFocus
                 value={credito}
                 onChange={(e) => setCredito(e.target.value)}
-                onKeyDown={handleTextOnlyKeyDown}
+                onKeyDown={handleNumericKeyDown}
 
               />
             </Grid>
