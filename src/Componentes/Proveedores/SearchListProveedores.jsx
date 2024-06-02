@@ -168,6 +168,13 @@ const SearchListProveedores = () => {
     }
   }, [proveedores, searchTermProveedores, currentPage]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchUsers();
+    }, 3000); // Fetch users every 3 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
   ///////proveedores data
   useEffect(() => {
     async function fetchProveedores() {
@@ -755,7 +762,7 @@ const SearchListProveedores = () => {
                     p={1.5}
                     gap={2}
                     bgcolor={"#f5f5f5"}
-                    borderRadius={4}
+                    borderRadius={1}
                     sx={{ alignItems: "center" }}
                   >
                     <Box>
