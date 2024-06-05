@@ -155,9 +155,8 @@ const SearchListProveedores = () => {
   useEffect(() => {
     if (proveedores) {
       const filtered = proveedores.filter((proveedor) =>
-        proveedor.nombreResponsable
-          .toLowerCase()
-          .includes(searchTermProveedores.toLowerCase())
+        proveedor.nombreResponsable.toLowerCase().includes(searchTermProveedores.toLowerCase()) ||
+        proveedor.rut.toLowerCase().includes(searchTermProveedores.toLowerCase())
       );
       setPageProveedores(
         filtered.slice(
@@ -168,33 +167,28 @@ const SearchListProveedores = () => {
     }
   }, [proveedores, searchTermProveedores, currentPage]);
 
+  async function fetchProveedores() {
+    try {
+      const response = await axios.get(
+        "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
+      );
+      console.log("API response:", response.data.proveedores);
+      setProveedores(response.data.proveedores);
+      setFilteredProveedores(response.data.proveedores.slice(0, ITEMS_PER_PAGE));
+      setPageCount(Math.ceil(response.data.proveedores.length / ITEMS_PER_PAGE));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
+    fetchProveedores();
     const intervalId = setInterval(() => {
-      fetchUsers();
-    }, 3000); // Fetch users every 3 seconds
+      fetchProveedores();
+    }, 3000); // Fetch providers every 3 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
-  ///////proveedores data
-  useEffect(() => {
-    async function fetchProveedores() {
-      try {
-        const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
-        );
-        console.log("API response:", response.data.proveedores);
-        setProveedores(response.data.proveedores);
-        setFilteredProveedores(
-          response.data.proveedores.slice(0, ITEMS_PER_PAGE)
-        );
-        setPageCount(response.data.proveedores.length);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    fetchProveedores();
-  }, [refresh]);
 
   useEffect(() => {
     const provedorSeleccionado = proveedorCompras.filter(

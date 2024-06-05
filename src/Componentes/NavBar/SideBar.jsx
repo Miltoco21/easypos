@@ -23,7 +23,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 
 
-const drawerWidth = 210;
+const drawerWidth = 240;
 
 const menuItems = [
   { text: "Home", link: "/", icon: <HomeIcon /> },
@@ -35,7 +35,7 @@ const menuItems = [
     icon: <LocalShippingIcon />,
     subMenuItems: [
       { text: "Ingreso Documento", link: "/proveedores/ingresodocumento", icon: <ReceiptIcon /> },
-      { text: "Reportes ", link: "/proveedores/reportes", icon: <ReceiptIcon /> },
+      { text: "Documentos por pagar ", link: "/proveedores/reportes", icon: <ReceiptIcon /> },
     ],
   },
   { text: "Clientes", link: "/clientes", icon: <GroupsIcon/> },
