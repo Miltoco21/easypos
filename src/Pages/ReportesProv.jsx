@@ -20,8 +20,10 @@ import {
   CircularProgress,
   Snackbar,
   Checkbox,
+  IconButton,
+  Collapse,
   InputLabel,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -32,6 +34,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SideBar from "../Componentes/NavBar/SideBar";
 import axios from "axios";
 
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const ReportesProv = () => {
   const [proveedores, setProveedores] = useState([]);
@@ -48,6 +52,14 @@ const ReportesProv = () => {
   const [paymentOrigin, setPaymentOrigin] = useState(null);
   const [montoAPagar, setMontoAPagar] = useState("");
 
+  const [openGroups, setOpenGroups] = useState({});
+  const handleToggle = (rut) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [rut]: !prev[rut],
+    }));
+  };
+
   const [openTransferenciaModal, setOpenTransferenciaModal] = useState(false);
   const [openChequeModal, setOpenChequeModal] = useState(false);
   const [errorTransferenciaError, setTransferenciaError] = useState("");
@@ -58,11 +70,8 @@ const ReportesProv = () => {
   const [nroOperacion, setNroOperacion] = useState(""); // Estado para almacenar el número de operación
   const [selectedBanco, setSelectedBanco] = useState("");
   const [tipoCuenta, setTipoCuenta] = useState("");
-  const [nroDocumento, setNroDocumento] = useState(""); 
-  const [serieCheque, setSerieCheque] = useState(""); 
-
-
-
+  const [nroDocumento, setNroDocumento] = useState("");
+  const [serieCheque, setSerieCheque] = useState("");
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -129,37 +138,36 @@ const ReportesProv = () => {
   //   setOpenPaymentProcess(true);
   // };
   const handleOpenPaymentProcess = (origin, total) => {
-    
     if (origin === "detalle") {
       setMontoAPagar(selectedProveedor.total);
-      setCantidadPagada(selectedProveedor.total)
+      setCantidadPagada(selectedProveedor.total);
     }
     if (origin === "totalProveedores") {
-      setMontoAPagar(selectedTotal)
-      setCantidadPagada(selectedTotal)
+      setMontoAPagar(selectedTotal);
+      setCantidadPagada(selectedTotal);
     }
 
     console.log(montoAPagar);
 
-     // Resetear la cantidad pagada al abrir el diálogo
+    // Resetear la cantidad pagada al abrir el diálogo
     setMetodoPago("");
     setOpenPaymentProcess(true);
   };
-  
-  
 
   const handleClosePaymentProcess = () => {
     setOpenPaymentProcess(false);
   };
 
- 
-const getTotalSelected = () => {
-  if (paymentOrigin === "detalleProveedor" && selectedProveedor) {
-    return selectedProveedor.total;
-  } else {
-    return groupedProveedores.reduce((acc, proveedor) => acc + proveedor.total, 0);
-  }
-};
+  const getTotalSelected = () => {
+    if (paymentOrigin === "detalleProveedor" && selectedProveedor) {
+      return selectedProveedor.total;
+    } else {
+      return groupedProveedores.reduce(
+        (acc, proveedor) => acc + proveedor.total,
+        0
+      );
+    }
+  };
   const calcularVuelto = () => {
     return metodoPago === "EFECTIVO" && cantidadPagada > montoAPagar
       ? cantidadPagada - montoAPagar
@@ -363,9 +371,7 @@ const getTotalSelected = () => {
     setCantidadPagada(getTotalSelected());
   };
   const handleChequeModalClose = () => {
-    
     setOpenChequeModal(false);
-    
   };
 
   const tiposDeCuenta = {
@@ -408,14 +414,14 @@ const getTotalSelected = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-  
+
       let endpoint =
         "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
-  
+
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
           "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
-  
+
         if (
           nombre === "" ||
           rut === "" ||
@@ -431,7 +437,7 @@ const getTotalSelected = () => {
           setLoading(false);
           return;
         }
-  
+
         if (nombre === "") {
           setTransferenciaError("Por favor, ingresa el nombre.");
           setLoading(false);
@@ -447,52 +453,52 @@ const getTotalSelected = () => {
           setLoading(false);
           return;
         }
-  
+
         if (selectedBanco === "") {
           setTransferenciaError("Por favor, selecciona el banco.");
           setLoading(false);
           return;
         }
-  
+
         if (tipoCuenta === "") {
           setTransferenciaError("Por favor, selecciona el tipo de cuenta.");
           setLoading(false);
           return;
         }
-  
+
         if (nroCuenta === "") {
           setTransferenciaError("Por favor, ingresa el número de cuenta.");
           setLoading(false);
           return;
         }
-  
+
         if (fecha === "") {
           setTransferenciaError("Por favor, selecciona la fecha.");
           setLoading(false);
           return;
         }
-  
+
         if (nroOperacion === "") {
           setTransferenciaError("Por favor, ingresa el número de operación.");
           setLoading(false);
           return;
         }
       }
-  
+
       if (!metodoPago) {
         setError("Por favor, selecciona un método de pago.");
         setLoading(false);
         return;
       } else setError("");
-  
+
       const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
-  
+
       const deudaIds = selectedDebts.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
         total: deuda.total,
       }));
-  
+
       const requestBody = {
         deudaIds: deudaIds,
         montoPagado: getTotalSelected(),
@@ -509,11 +515,11 @@ const getTotalSelected = () => {
           nroOperacion: nroOperacion,
         },
       };
-  
+
       console.log("Request Body:", requestBody);
-  
+
       const response = await axios.post(endpoint, requestBody);
-  
+
       console.log("Response:", response.data);
       console.log("ResponseStatus:", response.data.statusCode);
       ///acciones post pago////
@@ -523,7 +529,7 @@ const getTotalSelected = () => {
         handleClosePaymentDialog();
         setCantidadPagada(0);
         resetDeudaData();
-  
+
         setTimeout(() => {
           handleClosePaymentProcess();
         }, 2000);
@@ -542,193 +548,288 @@ const getTotalSelected = () => {
       <SideBar />
       <Grid component="main" sx={{ flexGrow: 1, p: 3 }}>
         <TableContainer component={Paper}>
-          <Table>
-          <TableHead>
-  <TableRow sx={{ backgroundColor: "gainsboro"}}>
-    <TableCell></TableCell>
-    <TableCell onClick={() => handleSort("rut")}>
-      RUT
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "rut" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "rut" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell onClick={() => handleSort("razonSocial")}>
-      Razon Social
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "razonSocial" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "razonSocial" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell onClick={() => handleSort("tipoDocumento")}>
-      Tipo Documento
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "tipoDocumento" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "tipoDocumento" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell onClick={() => handleSort("folio")}>
-      Folio
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "folio" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "folio" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell onClick={() => handleSort("fechaIngreso")}>
-      Fecha
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "fechaIngreso" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "fechaIngreso" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell onClick={() => handleSort("total")}>
-      Total
-      <ArrowUpwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "total" && order.direction === "asc" ? "black" : "dimgrey",
-        }}
-      />
-      <ArrowDownwardIcon
-        fontSize="small"
-        style={{
-          color: order.field === "total" && order.direction === "desc" ? "black" : "dimgrey",
-        }}
-      />
-    </TableCell>
-    <TableCell>Acciones</TableCell>
-  </TableRow>
-</TableHead>
+          {/* Fila del total general */}
 
+          <Table>
+            {" "}
+            <TableRow>
+              <TableCell colSpan={5}></TableCell>
+              <TableCell>
+                <strong>Total General:$</strong>
+              </TableCell>
+              <TableCell>
+                <strong>{totalGeneral}</strong>
+              </TableCell>
+              <TableCell></TableCell>
+            </TableRow>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "gainsboro" }}>
+                <TableCell></TableCell>
+                <TableCell onClick={() => handleSort("rut")}>
+                  RUT
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "rut" && order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "rut" && order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell onClick={() => handleSort("razonSocial")}>
+                  Razon Social
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "razonSocial" &&
+                        order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "razonSocial" &&
+                        order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell onClick={() => handleSort("tipoDocumento")}>
+                  Tipo Documento
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "tipoDocumento" &&
+                        order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "tipoDocumento" &&
+                        order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell onClick={() => handleSort("folio")}>
+                  Folio
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "folio" && order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "folio" && order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell onClick={() => handleSort("fechaIngreso")}>
+                  Fecha
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "fechaIngreso" &&
+                        order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "fechaIngreso" &&
+                        order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell onClick={() => handleSort("total")}>
+                  Total
+                  <ArrowUpwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "total" && order.direction === "asc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                  <ArrowDownwardIcon
+                    fontSize="small"
+                    style={{
+                      color:
+                        order.field === "total" && order.direction === "desc"
+                          ? "black"
+                          : "dimgrey",
+                    }}
+                  />
+                </TableCell>
+                <TableCell>Acciones</TableCell>
+              </TableRow>
+            </TableHead>
             <TableBody>
               {Object.entries(groupedByRut).map(
                 ([rut, proveedoresGrupo], index) => (
-                  <>
-                    {/* Filas para proveedores de este RUT */}
-                    {proveedoresGrupo.map((proveedor, index) => (
-                      <React.Fragment key={index}>
-                        {index === 0 ||
-                        proveedor.rut !== proveedoresGrupo[index - 1].rut ? (
-                          <TableRow sx={{ borderRadius: "10px", boxShadow: 1 }}>
-                            <TableCell></TableCell>
-                            <TableCell>
-                              <strong>{proveedor.rut}</strong></TableCell>
-                            <TableCell>
-                              <strong> {proveedor.razonSocial}</strong>
-                            </TableCell>
-                            <TableCell>
-                              <strong>
-                                {" "}
-                                Facturas:{" "}
-                                {documentCountsByRut[rut]["FACTURA"] || 0}
-                              </strong>
-                              <br />
-                              <strong>
-                                {" "}
-                                Boletas:{" "}
-                                {documentCountsByRut[rut]["BOLETA"] || 0}
-                              </strong>
-                              <br />
-                              <strong>
-                                Tickets:{" "}
-                                {documentCountsByRut[rut]["TICKET"] || 0}
-                              </strong>
-                            </TableCell>
-                            <TableCell></TableCell>
-                            <TableCell>
-                              <strong>Total :$ {proveedor.total}</strong>
-                            </TableCell>
-                            <TableCell></TableCell>
-                            <TableCell>
-                              <Button
-                                sx={{ width: "80%" }}
-                                variant="contained"
-                                color="secondary"
-                                onClick={() => handlePagarOpen(proveedor.rut)}
-                              >
-                                Pagar
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ) : null}
-                        <TableRow key={proveedor.id}>
-                          <TableCell></TableCell>
-                          <TableCell></TableCell>
-                          <TableCell>{proveedor.razonSocial}</TableCell>
-                          <TableCell>{proveedor.tipoDocumento}</TableCell>
-                          <TableCell>{proveedor.folio}</TableCell>
-                          <TableCell>
-                            {dayjs(proveedor.fechaIngreso).format("DD-MM-YYYY")}
-                          </TableCell>
-                          <TableCell>${proveedor.total}</TableCell>
-                          <TableCell>
-                            <Box display="flex" justifyContent="space-between">
-                              <Button
-                                sx={{ width: "80%" }}
-                                variant="contained"
-                                onClick={() => handleClickOpen(proveedor)}
-                              >
-                                Detalle
-                              </Button>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      </React.Fragment>
-                    ))}
-                  </>
+                  <React.Fragment key={rut}>
+                    {/* Fila del grupo por RUT */}
+                    <TableRow
+                      sx={{ borderRadius: "10px", boxShadow: 1, width: 800 }}
+                    >
+                      <TableCell>
+                        <IconButton onClick={() => handleToggle(rut)}>
+                          {openGroups[rut] ? (
+                            <ExpandLessIcon />
+                          ) : (
+                            <ExpandMoreIcon />
+                          )}
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <strong>{rut}</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>{proveedoresGrupo[0].razonSocial}</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>
+                          Facturas: {documentCountsByRut[rut]?.FACTURA || 0}
+                        </strong>
+                        <br />
+                        <strong>
+                          Boletas: {documentCountsByRut[rut]?.BOLETA || 0}
+                        </strong>
+                        <br />
+                        <strong>
+                          Tickets: {documentCountsByRut[rut]?.TICKET || 0}
+                        </strong>
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        <strong>
+                          Total :${" "}
+                          {proveedoresGrupo.reduce(
+                            (sum, p) => sum + p.total,
+                            0
+                          )}
+                        </strong>
+                      </TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        <Button
+                          sx={{ width: "80%" }}
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => handlePagarOpen(rut)}
+                        >
+                          Pagar
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Filas colapsables de los proveedores */}
+                    <TableRow>
+                      <TableCell
+                        style={{ paddingBottom: 0, paddingTop: 0 }}
+                        colSpan={10} // <-- Abarcar todas las columnas
+                      >
+                        <Collapse
+                          in={openGroups[rut]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
+                          <Box margin={1}>
+                            <Table size="small" aria-label="details">
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell></TableCell>
+                                  <TableCell></TableCell>
+                                  <TableCell>Razon Social</TableCell>
+                                  <TableCell>Tipo Documento</TableCell>
+                                  <TableCell>Folio</TableCell>
+                                  <TableCell>Fecha</TableCell>
+                                  <TableCell>Total</TableCell>
+                                  <TableCell>Acciones</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {proveedoresGrupo.map((proveedor) => (
+                                  <TableRow key={proveedor.id}>
+                                    <TableCell></TableCell>
+                                    <TableCell></TableCell>
+                                    {/* Espacio para indentación */}
+                                    <TableCell>
+                                      {proveedor.razonSocial}
+                                    </TableCell>
+                                    <TableCell>
+                                      {proveedor.tipoDocumento}
+                                    </TableCell>
+                                    <TableCell>{proveedor.folio}</TableCell>
+                                    <TableCell>
+                                      {dayjs(proveedor.fechaIngreso).format(
+                                        "DD-MM-YYYY"
+                                      )}
+                                    </TableCell>
+                                    <TableCell>${proveedor.total}</TableCell>
+                                    <TableCell>
+                                      <Box
+                                        display="flex"
+                                        justifyContent="space-between"
+                                      >
+                                        <Button
+                                          sx={{ width: "80%" }}
+                                          variant="contained"
+                                          onClick={() =>
+                                            handleClickOpen(proveedor)
+                                          }
+                                        >
+                                          Detalle
+                                        </Button>
+                                      </Box>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
                 )
               )}
-              {/* Fila del total general */}
-              <TableRow>
-                <TableCell colSpan={5}></TableCell>
-                <TableCell>
-                  <strong>Total General:$</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{totalGeneral}</strong>
-                </TableCell>
-                <TableCell></TableCell>
-              </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
@@ -829,7 +930,6 @@ const getTotalSelected = () => {
                   onClick={() =>
                     handleOpenPaymentProcess("detalle", selectedProveedor.total)
                   }
-                
                 >
                   Pagar Total $ ({selectedProveedor.total})
                 </Button>
@@ -952,8 +1052,7 @@ const getTotalSelected = () => {
                 label="Monto a Pagar"
                 variant="outlined"
                 // value={getTotalSelected()}
-                value={ montoAPagar }
-              
+                value={montoAPagar}
                 fullWidth
                 inputProps={{
                   inputMode: "numeric",
@@ -987,7 +1086,6 @@ const getTotalSelected = () => {
                 type="number"
                 label="Por pagar"
                 value={Math.max(0, montoAPagar - cantidadPagada)}
-               
                 InputProps={{ readOnly: true }}
               />
               {calcularVuelto() > 0 && (
@@ -1061,7 +1159,6 @@ const getTotalSelected = () => {
                     metodoPago === "TRANSFERENCIA" ? "contained" : "outlined"
                   }
                   onClick={() => {
-
                     setMetodoPago("TRANSFERENCIA");
                     setCantidadPagada(
                       paymentOrigin === "detalleProveedor"
@@ -1166,7 +1263,7 @@ const getTotalSelected = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <InputLabel sx={{ marginBottom: "4%" }}>
-              Ingresa Tipo de Cuenta{" "}
+                Ingresa Tipo de Cuenta{" "}
               </InputLabel>
               <TextField
                 select
@@ -1275,10 +1372,7 @@ const getTotalSelected = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openChequeModal}
-        onClose={handleChequeModalClose}
-      >
+      <Dialog open={openChequeModal} onClose={handleChequeModalClose}>
         <DialogTitle>Cheque</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
