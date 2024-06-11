@@ -56,16 +56,16 @@ const ReportesClientes = () => {
   const [openGroups, setOpenGroups] = useState({});
 
   const [selectedItem, setSelectedItem] = useState(null);
-const [detailOpen, setDetailOpen] = useState(false);
-const handleDetailOpen = (item) => {
-  setSelectedItem(item);
-  setDetailOpen(true);
-};
+  const [detailOpen, setDetailOpen] = useState(false);
+  const handleDetailOpen = (item) => {
+    setSelectedItem(item);
+    setDetailOpen(true);
+  };
 
-const handleDetailClose = () => {
-  setDetailOpen(false);
-  setSelectedItem(null);
-};
+  const handleDetailClose = () => {
+    setDetailOpen(false);
+    setSelectedItem(null);
+  };
 
   const [order, setOrder] = useState({
     field: "",
@@ -99,6 +99,7 @@ const handleDetailClose = () => {
         "https://www.easyposdev.somee.com/api/ReporteClientes/GetAllClientesDeudas"
       );
       setProveedores(response.data.clienteDeudaAlls);
+      console.log(response.data.clienteDeudaAlls);
     } catch (error) {
       console.error("Error fetching clientes:", error);
     }
@@ -125,8 +126,6 @@ const handleDetailClose = () => {
     setOpen(false);
     setSelectedProveedor(null);
   };
-
-
 
   const handlePagarOpen = (rut) => {
     const filteredProveedores = proveedores.filter(
@@ -229,7 +228,6 @@ const handleDetailClose = () => {
   //     requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
   //   };
 
-
   //   try {
   //     // Realiza la llamada a la API utilizando Axios
   //     const response = await axios.post(
@@ -258,84 +256,87 @@ const handleDetailClose = () => {
   //     setLoading(false);
   //   }
   // };
-const handlePago = async () => {
-  setLoading(true);
+  const handlePago = async () => {
+    setLoading(true);
 
-  let compraDeudaIds = [];
+    let compraDeudaIds = [];
 
-  // Si hay un proveedor seleccionado, agregamos su detalle de compra
-  if (selectedItem) {
-    console.log("selectedItem:", selectedItem);
-    if (selectedItem.id && selectedItem.total) {
-      compraDeudaIds.push({
-        idProveedorCompraCabecera: selectedItem.id,
-        total: parseInt(Math.round(selectedItem.total)),
-      });
-    } else {
-      console.error("Selected Proveedor is missing id or total:", selectedProveedor);
-    }
-  }
-
-  // Si hay proveedores agrupados, agregamos sus detalles de compra
-  if (groupedProveedores.length > 0) {
-    groupedProveedores.forEach((proveedor) => {
-      console.log("Grouped Proveedor:", proveedor);
-      if (proveedor.id && proveedor.total) {
+    // Si hay un proveedor seleccionado, agregamos su detalle de compra
+    if (selectedItem) {
+      console.log("selectedItem:", selectedItem);
+      if (selectedItem.id && selectedItem.total) {
         compraDeudaIds.push({
-          idProveedorCompraCabecera: proveedor.id,
-          total: parseInt(Math.round(proveedor.total)),
+          idProveedorCompraCabecera: selectedItem.id,
+          total: parseInt(Math.round(selectedItem.total)),
         });
       } else {
-        console.error("Grouped Proveedor is missing id or total:", proveedor);
+        console.error(
+          "Selected Proveedor is missing id or total:",
+          selectedProveedor
+        );
       }
-    });
-  }
+    }
 
-  // Construye el objeto de datos de pago
-  const pagoData = {
-    fechaIngreso: new Date().toISOString(),
-    codigoUsuario: 0, // Ajusta según tu lógica
-    codigoSucursal: 0, // Ajusta según tu lógica
-    puntoVenta: "string", // Ajusta según tu lógica
-    compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
-    montoPagado: cantidadPagada,
+    // Si hay proveedores agrupados, agregamos sus detalles de compra
+    if (groupedProveedores.length > 0) {
+      groupedProveedores.forEach((proveedor) => {
+        console.log("Grouped Proveedor:", proveedor);
+        if (proveedor.id && proveedor.total) {
+          compraDeudaIds.push({
+            idProveedorCompraCabecera: proveedor.id,
+            total: parseInt(Math.round(proveedor.total)),
+          });
+        } else {
+          console.error("Grouped Proveedor is missing id or total:", proveedor);
+        }
+      });
+    }
+
+    // Construye el objeto de datos de pago
+    const pagoData = {
+      fechaIngreso: new Date().toISOString(),
+      codigoUsuario: 0, // Ajusta según tu lógica
+      codigoSucursal: 0, // Ajusta según tu lógica
+      puntoVenta: "string", // Ajusta según tu lógica
+      compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
+      montoPagado: cantidadPagada,
       // .reduce((total, compra) => total + compra.total, 0)
       // .toString(),
-    metodoPago: metodoPago,
-    requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
+      metodoPago: metodoPago,
+      requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
+    };
+
+    // Mostrar los datos antes de enviarlos
+    console.log("Datos a enviar:", pagoData);
+
+    try {
+      // Realiza la llamada a la API utilizando Axios
+      const response = await axios.post(
+        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente",
+        pagoData
+      );
+
+      // Maneja la respuesta según tu lógica
+      console.log("Respuesta de pago:", response.data);
+      setSnackbarMessage(response.data.descripcion);
+      setSnackbarOpen(true);
+      fetchClientes();
+      setMontoAPagar(0);
+      setCantidadPagada(0);
+      // Cierra el diálogo de proceso de pago
+      handleClose();
+      setTimeout(() => {
+        handleClosePaymentProcess();
+      }, 3000);
+    } catch (error) {
+      // Maneja los errores
+      console.error("Error al procesar el pagoA:", error);
+      setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
+    } finally {
+      // Finaliza la carga y actualiza el estado
+      setLoading(false);
+    }
   };
-
-  // Mostrar los datos antes de enviarlos
-  console.log("Datos a enviar:", pagoData);
-
-  try {
-    // Realiza la llamada a la API utilizando Axios
-    const response = await axios.post(
-      "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente",
-      pagoData
-    );
-
-    // Maneja la respuesta según tu lógica
-    console.log("Respuesta de pago:", response.data);
-    setSnackbarMessage(response.data.descripcion);
-    setSnackbarOpen(true);
-    fetchClientes();
-    setMontoAPagar(0);
-    setCantidadPagada(0);
-    // Cierra el diálogo de proceso de pago
-    handleClose();
-    setTimeout(() => {
-      handleClosePaymentProcess();
-    }, 3000);
-  } catch (error) {
-    // Maneja los errores
-    console.error("Error al procesar el pagoA:", error);
-    setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
-  } finally {
-    // Finaliza la carga y actualiza el estado
-    setLoading(false);
-  }
-};
 
   const totalGeneral = proveedores.reduce(
     (acc, proveedor) => acc + proveedor.total,
@@ -367,8 +368,9 @@ const handlePago = async () => {
     .filter((proveedor) => selectedIds.includes(proveedor.id))
     .reduce((total, proveedor) => total + proveedor.total, 0);
 
-  const allSelected = selectedIds.length === groupedProveedores.length;
   const [cantidadPagada, setCantidadPagada] = useState(selectedTotal || 0);
+
+  const allSelected = selectedIds.length === groupedProveedores.length;
 
   // Función ORDENAMIENTO DE DATOS //////
 
@@ -659,10 +661,11 @@ const handlePago = async () => {
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
-            <TableCell >
-              <strong>Total General:</strong><strong>${totalGeneral.toLocaleString("es-ES")}</strong>
+            <TableCell>
+              <strong>Total General:</strong>
+              <strong>${totalGeneral.toLocaleString("es-ES")}</strong>
             </TableCell>
-        
+
             <TableCell></TableCell>
             <TableBody>
               {sortedGroupKeys.map((rut) => (
@@ -710,14 +713,14 @@ const handlePago = async () => {
                         .toLocaleString("es-ES")}
                     </TableCell>
                     <TableCell>
-                    <Button
-                          sx={{ width: "80%" }}
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handlePagarOpen(rut)}
-                        >
-                          Pagar
-                        </Button>
+                      <Button
+                        sx={{ width: "80%" }}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handlePagarOpen(rut)}
+                      >
+                        Pagar
+                      </Button>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -736,7 +739,9 @@ const handlePago = async () => {
                               <TableRow>
                                 <TableCell>Razon Social</TableCell>
                                 <TableCell>Tipo Documento</TableCell>
-                                <TableCell onClick={() => handleSort("nroComprobante")}>
+                                <TableCell
+                                  onClick={() => handleSort("nroComprobante")}
+                                >
                                   Folio
                                   <ArrowUpwardIcon
                                     fontSize="small"
@@ -817,18 +822,25 @@ const handlePago = async () => {
                               ).map((item) => (
                                 <TableRow key={item.id}>
                                   <TableCell>{item.razonSocial}</TableCell>
-                                  <TableCell>{item.descripcionComprobante}</TableCell>
+                                  <TableCell>
+                                    {item.descripcionComprobante}
+                                  </TableCell>
                                   <TableCell>{item.nroComprobante}</TableCell>
                                   <TableCell>
-                                    {new Date(
-                                      item.fecha
-                                    ).toLocaleDateString("es-ES")}
+                                    {new Date(item.fecha).toLocaleDateString(
+                                      "es-ES"
+                                    )}
                                   </TableCell>
                                   <TableCell>
                                     ${item.total.toLocaleString("es-ES")}
                                   </TableCell>
                                   <TableCell>
-                                  <Button variant="contained" onClick={() => handleDetailOpen(item)}>Detalle</Button>
+                                    <Button
+                                      variant="contained"
+                                      onClick={() => handleDetailOpen(item)}
+                                    >
+                                      Detalle
+                                    </Button>
                                   </TableCell>
                                 </TableRow>
                               ))}
@@ -845,7 +857,12 @@ const handlePago = async () => {
         </TableContainer>
       </Grid>
 
-      <Dialog open={detailOpen} onClose={handleDetailClose} maxWidth="md" fullWidth>
+      <Dialog
+        open={detailOpen}
+        onClose={handleDetailClose}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Detalles del Cliente</DialogTitle>
         <DialogContent dividers>
           {selectedItem && (
@@ -885,12 +902,10 @@ const handlePago = async () => {
                   <TableBody>
                     <TableRow>
                       <TableCell>
-                        {dayjs(selectedItem.fechaIngreso).format(
-                          "DD-MM-YYYY"
-                        )}
+                        {dayjs(selectedItem.fecha).format("DD-MM-YYYY")}
                       </TableCell>
-                      <TableCell>{selectedItem.tipoDocumento}</TableCell>
-                      <TableCell>{selectedItem.folio}</TableCell>
+                      <TableCell>{selectedItem.descripcionComprobante}</TableCell>
+                      <TableCell>{selectedItem.nroComprobante}</TableCell>
                       <TableCell>${selectedItem.total}</TableCell>
                     </TableRow>
                   </TableBody>
@@ -911,16 +926,14 @@ const handlePago = async () => {
                   </TableHead>
                   <TableBody>
                     {selectedItem.proveedorCompraDetalles &&
-                      selectedItem.proveedorCompraDetalles.map(
-                        (detalle) => (
-                          <TableRow key={detalle.codProducto}>
-                            <TableCell>{detalle.descripcionProducto}</TableCell>
-                            <TableCell>{detalle.cantidad}</TableCell>
-                            <TableCell>{detalle.precioUnidad}</TableCell>
-                            <TableCell>${detalle.costo}</TableCell>
-                          </TableRow>
-                        )
-                      )}
+                      selectedItem.proveedorCompraDetalles.map((detalle) => (
+                        <TableRow key={detalle.codProducto}>
+                          <TableCell>{detalle.descripcionProducto}</TableCell>
+                          <TableCell>{detalle.cantidad}</TableCell>
+                          <TableCell>{detalle.precioUnidad}</TableCell>
+                          <TableCell>${detalle.costo}</TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -1004,10 +1017,12 @@ const handlePago = async () => {
                             }
                           />
                         </TableCell>
-                        <TableCell>{proveedor.tipoDocumento}</TableCell>
-                        <TableCell>{proveedor.folio}</TableCell>
                         <TableCell>
-                          {dayjs(proveedor.fechaIngreso).format("DD-MM-YYYY")}
+                          {proveedor.descripcionComprobante}
+                        </TableCell>
+                        <TableCell>{proveedor.nroComprobante}</TableCell>
+                        <TableCell>
+                          {dayjs(proveedor.fecha).format("DD-MM-YYYY")}
                         </TableCell>
                         <TableCell> ${proveedor.total}</TableCell>
                       </TableRow>
