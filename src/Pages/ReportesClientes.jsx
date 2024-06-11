@@ -51,14 +51,29 @@ const ReportesClientes = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [paymentOrigin, setPaymentOrigin] = useState(null);
   const [montoAPagar, setMontoAPagar] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
   const [openGroups, setOpenGroups] = useState({});
-  const handleToggle = (rut) => {
-    setOpenGroups((prev) => ({
-      ...prev,
-      [rut]: !prev[rut],
-    }));
-  };
+
+  const [selectedItem, setSelectedItem] = useState(null);
+const [detailOpen, setDetailOpen] = useState(false);
+const handleDetailOpen = (item) => {
+  setSelectedItem(item);
+  setDetailOpen(true);
+};
+
+const handleDetailClose = () => {
+  setDetailOpen(false);
+  setSelectedItem(null);
+};
+
+  const [order, setOrder] = useState({
+    field: "",
+    direction: "asc",
+  });
+
+  const [sortedProveedores, setSortedProveedores] = useState([]);
+  // const [documentCountsByRut, setDocumentCountsByRut] = useState({});
 
   const [openTransferenciaModal, setOpenTransferenciaModal] = useState(false);
   const [openChequeModal, setOpenChequeModal] = useState(false);
@@ -78,24 +93,19 @@ const ReportesClientes = () => {
     setSnackbarMessage("");
   };
 
-  const fetchProveedores = async () => {
+  const fetchClientes = async () => {
     try {
       const response = await axios.get(
         "https://www.easyposdev.somee.com/api/ReporteClientes/GetAllClientesDeudas"
       );
-      const sortedProveedores = response.data.clienteDeuda.sort((a, b) => {
-        if (a.rut < b.rut) return -1;
-        if (a.rut > b.rut) return 1;
-        return 0;
-      });
-      setProveedores(sortedProveedores);
-      console.log(sortedProveedores);
+      setProveedores(response.data.clienteDeudaAlls);
     } catch (error) {
-      console.error("Error fetching proveedores:", error);
+      console.error("Error fetching clientes:", error);
     }
   };
+
   useEffect(() => {
-    fetchProveedores();
+    fetchClientes();
   }, []);
 
   // useEffect(() => {
@@ -115,6 +125,8 @@ const ReportesClientes = () => {
     setOpen(false);
     setSelectedProveedor(null);
   };
+
+
 
   const handlePagarOpen = (rut) => {
     const filteredProveedores = proveedores.filter(
@@ -137,9 +149,10 @@ const ReportesClientes = () => {
   //   setOpenPaymentProcess(true);
   // };
   const handleOpenPaymentProcess = (origin, total) => {
+    setError("");
     if (origin === "detalle") {
-      setMontoAPagar(selectedProveedor.total);
-      setCantidadPagada(selectedProveedor.total);
+      setMontoAPagar(selectedItem.total);
+      setCantidadPagada(selectedItem.total);
     }
     if (origin === "totalProveedores") {
       setMontoAPagar(selectedTotal);
@@ -173,77 +186,156 @@ const ReportesClientes = () => {
       : 0;
   };
 
-  const handlePago = async () => {
-    setLoading(true);
+  // const handlePago = async () => {
+  //   setLoading(true);
 
-    let compraDeudaIds = [];
+  //   let compraDeudaIds = [];
 
-    // Si hay un proveedor seleccionado, agregamos su detalle de compra
-    if (selectedProveedor) {
+  //   // Si hay un proveedor seleccionado, agregamos su detalle de compra
+  //   if (selectedProveedor) {
+  //     compraDeudaIds.push({
+  //       idProveedorCompraCabecera: selectedProveedor.id,
+  //       total: parseInt(Math.round(selectedProveedor.total)),
+  //     });
+  //   }
+
+  //   // Si hay proveedores agrupados, agregamos sus detalles de compra
+  //   if (groupedProveedores.length > 0) {
+  //     groupedProveedores.forEach((proveedor) => {
+  //       compraDeudaIds.push({
+  //         idProveedorCompraCabecera: proveedor.id,
+  //         total: parseInt(Math.round(proveedor.total)),
+  //       });
+  //     });
+  //   }
+
+  //   // if (compraDeudaIds.length === 0) {
+  //   //   alert("No hay solicitudes de pago válidas para procesar.");
+  //   //   setLoading(false);
+  //   //   return;
+  //   // }
+
+  //   // Construye el objeto de datos de pago
+  //   const pagoData = {
+  //     fechaIngreso: new Date().toISOString(),
+  //     codigoUsuario: 0, // Ajusta según tu lógica
+  //     codigoSucursal: 0, // Ajusta según tu lógica
+  //     puntoVenta: "string", // Ajusta según tu lógica
+  //     compraDeudaIds: compraDeudaIds.toString(),
+  //     montoPagado: compraDeudaIds
+  //       .reduce((total, compra) => total + compra.total, 0)
+  //       .toString(),
+  //     metodoPago: metodoPago,
+  //     requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
+  //   };
+
+
+  //   try {
+  //     // Realiza la llamada a la API utilizando Axios
+  //     const response = await axios.post(
+  //       "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
+  //       pagoData
+  //     );
+
+  //     // Maneja la respuesta según tu lógica
+  //     console.log("Respuesta de pago:", response.data);
+  //     setSnackbarMessage(response.data.descripcion);
+  //     setSnackbarOpen(true);
+  //     fetchProveedores();
+  //     setMontoAPagar(0);
+  //     setCantidadPagada(0);
+  //     /// Cierra el diálogo de proceso de pago
+  //     handleClose();
+  //     setTimeout(() => {
+  //       handleClosePaymentProcess();
+  //     }, 3000);
+  //   } catch (error) {
+  //     // Maneja los errores
+  //     console.error("Error al procesar el pago:", error);
+  //     setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
+  //   } finally {
+  //     // Finaliza la carga y actualiza el estado
+  //     setLoading(false);
+  //   }
+  // };
+const handlePago = async () => {
+  setLoading(true);
+
+  let compraDeudaIds = [];
+
+  // Si hay un proveedor seleccionado, agregamos su detalle de compra
+  if (selectedItem) {
+    console.log("selectedItem:", selectedItem);
+    if (selectedItem.id && selectedItem.total) {
       compraDeudaIds.push({
-        idProveedorCompraCabecera: selectedProveedor.id,
-        total: parseInt(Math.round(selectedProveedor.total)),
+        idProveedorCompraCabecera: selectedItem.id,
+        total: parseInt(Math.round(selectedItem.total)),
       });
+    } else {
+      console.error("Selected Proveedor is missing id or total:", selectedProveedor);
     }
+  }
 
-    // Si hay proveedores agrupados, agregamos sus detalles de compra
-    if (groupedProveedores.length > 0) {
-      groupedProveedores.forEach((proveedor) => {
+  // Si hay proveedores agrupados, agregamos sus detalles de compra
+  if (groupedProveedores.length > 0) {
+    groupedProveedores.forEach((proveedor) => {
+      console.log("Grouped Proveedor:", proveedor);
+      if (proveedor.id && proveedor.total) {
         compraDeudaIds.push({
           idProveedorCompraCabecera: proveedor.id,
           total: parseInt(Math.round(proveedor.total)),
         });
-      });
-    }
+      } else {
+        console.error("Grouped Proveedor is missing id or total:", proveedor);
+      }
+    });
+  }
 
-    if (compraDeudaIds.length === 0) {
-      alert("No hay solicitudes de pago válidas para procesar.");
-      setLoading(false);
-      return;
-    }
-
-    // Construye el objeto de datos de pago
-    const pagoData = {
-      fechaIngreso: new Date().toISOString(),
-      codigoUsuario: 0, // Ajusta según tu lógica
-      codigoSucursal: 0, // Ajusta según tu lógica
-      puntoVenta: "string", // Ajusta según tu lógica
-      compraDeudaIds: compraDeudaIds,
-      montoPagado: compraDeudaIds
-        .reduce((total, compra) => total + compra.total, 0)
-        .toString(),
-      metodoPago: metodoPago,
-      requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
-    };
-
-    try {
-      // Realiza la llamada a la API utilizando Axios
-      const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
-        pagoData
-      );
-
-      // Maneja la respuesta según tu lógica
-      console.log("Respuesta de pago:", response.data);
-      setSnackbarMessage(response.data.descripcion);
-      setSnackbarOpen(true);
-      fetchProveedores();
-      setMontoAPagar(0);
-      setCantidadPagada(0);
-      /// Cierra el diálogo de proceso de pago
-      handleClose();
-      setTimeout(() => {
-        handleClosePaymentProcess();
-      }, 3000);
-    } catch (error) {
-      // Maneja los errores
-      console.error("Error al procesar el pago:", error);
-      setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
-    } finally {
-      // Finaliza la carga y actualiza el estado
-      setLoading(false);
-    }
+  // Construye el objeto de datos de pago
+  const pagoData = {
+    fechaIngreso: new Date().toISOString(),
+    codigoUsuario: 0, // Ajusta según tu lógica
+    codigoSucursal: 0, // Ajusta según tu lógica
+    puntoVenta: "string", // Ajusta según tu lógica
+    compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
+    montoPagado: cantidadPagada,
+      // .reduce((total, compra) => total + compra.total, 0)
+      // .toString(),
+    metodoPago: metodoPago,
+    requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
   };
+
+  // Mostrar los datos antes de enviarlos
+  console.log("Datos a enviar:", pagoData);
+
+  try {
+    // Realiza la llamada a la API utilizando Axios
+    const response = await axios.post(
+      "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente",
+      pagoData
+    );
+
+    // Maneja la respuesta según tu lógica
+    console.log("Respuesta de pago:", response.data);
+    setSnackbarMessage(response.data.descripcion);
+    setSnackbarOpen(true);
+    fetchClientes();
+    setMontoAPagar(0);
+    setCantidadPagada(0);
+    // Cierra el diálogo de proceso de pago
+    handleClose();
+    setTimeout(() => {
+      handleClosePaymentProcess();
+    }, 3000);
+  } catch (error) {
+    // Maneja los errores
+    console.error("Error al procesar el pagoA:", error);
+    setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
+  } finally {
+    // Finaliza la carga y actualiza el estado
+    setLoading(false);
+  }
+};
 
   const totalGeneral = proveedores.reduce(
     (acc, proveedor) => acc + proveedor.total,
@@ -278,74 +370,7 @@ const ReportesClientes = () => {
   const allSelected = selectedIds.length === groupedProveedores.length;
   const [cantidadPagada, setCantidadPagada] = useState(selectedTotal || 0);
 
-  let documentCounters = {};
-  proveedores.forEach((proveedor) => {
-    const tipoDocumento = proveedor.tipoDocumento.toUpperCase();
-    if (!documentCounters[tipoDocumento]) {
-      documentCounters[tipoDocumento] = 0;
-    }
-    documentCounters[tipoDocumento]++;
-  });
-
-  const groupedByRut = proveedores.reduce((groups, proveedor) => {
-    const rut = proveedor.rut;
-    if (!groups[rut]) {
-      groups[rut] = [];
-    }
-    groups[rut].push(proveedor);
-    return groups;
-  }, {});
-  const documentCountsByRut = {};
-
-  Object.keys(groupedByRut).forEach((rut) => {
-    const proveedoresGrupo = groupedByRut[rut];
-    const counters = proveedoresGrupo.reduce((counters, proveedor) => {
-      const tipoDocumento = proveedor.tipoDocumento.toUpperCase();
-      if (!counters[tipoDocumento]) {
-        counters[tipoDocumento] = 0;
-      }
-      counters[tipoDocumento]++;
-      return counters;
-    }, {});
-
-    documentCountsByRut[rut] = counters;
-  });
-
-  const [order, setOrder] = useState({
-    field: "",
-    direction: "asc",
-  });
-  
-
-  
-  const handleSort = (field) => {
-    let newDirection = "asc";
-    if (order.field === field && order.direction === "asc") {
-      newDirection = "desc";
-    }
-
-    const sorted = [...proveedores].sort((a, b) => {
-      if (numericFields.includes(field)) {
-        return newDirection === "asc" ? a[field] - b[field] : b[field] - a[field];
-      } else if (dateFields.includes(field)) {
-        return newDirection === "asc"
-          ? new Date(a[field]) - new Date(b[field])
-          : new Date(b[field]) - new Date(a[field]);
-      } else {
-        if (a[field] < b[field]) {
-          return newDirection === "asc" ? -1 : 1;
-        }
-        if (a[field] > b[field]) {
-          return newDirection === "asc" ? 1 : -1;
-        }
-        return 0;
-      }
-    });
-
-    setOrder({ field, direction: newDirection });
-    setSortedProveedores(sorted);
-  };
-
+  // Función ORDENAMIENTO DE DATOS //////
 
   //////Transferencias//////
   const handleTransferenciaModalOpen = () => {
@@ -534,221 +559,296 @@ const ReportesClientes = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchProveedores = async () => {
+      try {
+        const response = await axios.get(
+          "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
+        );
+        setProveedores(response.data.proveedorCompra.proveedorCompraCabeceras);
+      } catch (error) {
+        console.error("Error fetching proveedores:", error);
+      }
+    };
+    fetchProveedores();
+  }, []);
+
+  const compareRut = (a, b) => {
+    if (!a || !b) return 0;
+    return a.localeCompare(b);
+  };
+
+  const compareNumerical = (a, b) => {
+    return a - b;
+  };
+  const compareDate = (a, b) => {
+    return new Date(a) - new Date(b);
+  };
+
+  const handleSort = (field) => {
+    const isAsc = order.field === field && order.direction === "asc";
+    setOrder({ field, direction: isAsc ? "desc" : "asc" });
+  };
+
+  const sortData = (array, field, direction) => {
+    const sortedArray = [...array];
+    sortedArray.sort((a, b) => {
+      let comparison = 0;
+      if (field === "rut") {
+        comparison = compareRut(a.rut, b.rut);
+      } else if (field === "folio" || field === "total") {
+        comparison = compareNumerical(parseInt(a[field]), parseInt(b[field]));
+      } else if (field === "fecha") {
+        comparison = compareDate(a.fechaIngreso, b.fechaIngreso);
+      } else {
+        comparison = a[field] > b[field] ? 1 : -1;
+      }
+      return direction === "asc" ? comparison : -comparison;
+    });
+    return sortedArray;
+  };
+
+  const handleToggle = (rut) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [rut]: !prev[rut],
+    }));
+  };
+
+  const groupedData = proveedores.reduce((acc, item) => {
+    if (!acc[item.rut]) {
+      acc[item.rut] = [];
+    }
+    acc[item.rut].push(item);
+    return acc;
+  }, {});
+  console.log(" groupedData", groupedData);
+
+  const filteredGroupKeys = Object.keys(groupedData).filter((rut) =>
+    rut.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const sortedGroupKeys = sortData(filteredGroupKeys, "rut", order.direction);
+  // const sortedGroupKeys = sortData(
+  //   Object.keys(groupedData),
+  //   "rut",
+  //   order.direction
+  // );
+
   return (
     <div style={{ display: "flex" }}>
       <SideBar />
-      <Grid component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow sx={{ backgroundColor: "gainsboro" }}>
-            <TableCell></TableCell>
-            <TableCell onClick={() => handleSort("rut")}>
-              RUT
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "rut" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "rut" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSort("razonSocial")}>
-              Razon Social
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "razonSocial" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "razonSocial" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSort("tipoDocumento")}>
-              Tipo Documento
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "tipoDocumento" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "tipoDocumento" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSort("folio")}>
-              Folio
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "folio" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "folio" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSort("fechaIngreso")}>
-              Fecha
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "fechaIngreso" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "fechaIngreso" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell onClick={() => handleSort("total")}>
-              Total
-              <ArrowUpwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "total" && order.direction === "asc" ? "black" : "dimgrey",
-                }}
-              />
-              <ArrowDownwardIcon
-                fontSize="small"
-                style={{
-                  color: order.field === "total" && order.direction === "desc" ? "black" : "dimgrey",
-                }}
-              />
-            </TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {Object.entries(groupedByRut).map(([rut, proveedoresGrupo]) => (
-            <React.Fragment key={rut}>
-              <TableRow sx={{ borderRadius: "10px", boxShadow: 1, width: 800 }}>
-                <TableCell>
-                  <IconButton onClick={() => handleToggle(rut)}>
-                    {openGroups[rut] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </IconButton>
-                </TableCell>
-                <TableCell>
-                  <strong>{rut}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>{proveedoresGrupo[0].razonSocial}</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>
-                    Facturas: {documentCountsByRut[rut]?.FACTURA || 0}
-                  </strong>
-                  <br />
-                  <strong>
-                    Boletas: {documentCountsByRut[rut]?.BOLETA || 0}
-                  </strong>
-                  <br />
-                  <strong>
-                    Tickets: {documentCountsByRut[rut]?.TICKET || 0}
-                  </strong>
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  <strong>
-                    Total :${" "}
-                    {proveedoresGrupo.reduce((sum, p) => sum + p.total, 0)}
-                  </strong>
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell>
-                  <Button
-                    sx={{ width: "80%" }}
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handlePagarOpen(rut)}
-                  >
-                    Pagar
-                  </Button>
-                </TableCell>
-              </TableRow>
 
+      <Grid component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <TextField
+          label="Buscar por RUT"
+          variant="outlined"
+          margin="normal"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <TableContainer>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
-                  <Collapse in={openGroups[rut]} timeout="auto" unmountOnExit>
-                    <Box margin={1}>
-                      <Table size="small" aria-label="details">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>RUT</TableCell>
-                            <TableCell>Razon Social</TableCell>
-                            <TableCell>Tipo Documento</TableCell>
-                            <TableCell>Folio</TableCell>
-                            <TableCell>Fecha</TableCell>
-                            <TableCell>Total</TableCell>
-                            <TableCell>Acciones</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {proveedoresGrupo.map((proveedor) => (
-                            <TableRow key={proveedor.id}>
-                              <TableCell></TableCell>
-                              <TableCell>{proveedor.rut}</TableCell>
-                              <TableCell>{proveedor.razonSocial}</TableCell>
-                              <TableCell>{proveedor.tipoDocumento}</TableCell>
-                              <TableCell>{proveedor.folio}</TableCell>
-                              <TableCell>
-                                {dayjs(proveedor.fechaIngreso).format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell>{proveedor.total}</TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="contained"
-                                  color="secondary"
-                                  onClick={() => handlePagarOpen(proveedor.rut)}
-                                >
-                                  Pagar
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </Box>
-                  </Collapse>
-                </TableCell>
+                <TableCell></TableCell>
+                <TableCell>RUT</TableCell>
+
+                <TableCell>Razon Social</TableCell>
+                <TableCell>Documentos</TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
               </TableRow>
-            </React.Fragment>
-          ))}
-          <TableRow>
-            <TableCell colSpan={6}>
-              <strong>Total General</strong>
+            </TableHead>
+            <TableCell >
+              <strong>Total General:</strong><strong>${totalGeneral.toLocaleString("es-ES")}</strong>
             </TableCell>
-            <TableCell>
-              <strong>${totalGeneral}</strong>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+        
+            <TableCell></TableCell>
+            <TableBody>
+              {sortedGroupKeys.map((rut) => (
+                <React.Fragment key={rut}>
+                  <TableRow>
+                    <TableCell>
+                      <IconButton onClick={() => handleToggle(rut)}>
+                        {openGroups[rut] ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>{rut}</TableCell>
+                    <TableCell>
+                      <strong>{groupedData[rut][0].razonSocial}</strong>
+                    </TableCell>
+                    <TableCell>
+                      Facturas:{" "}
+                      {
+                        groupedData[rut].filter(
+                          (item) => item.descripcionComprobante === "Factura"
+                        ).length
+                      }
+                      <br />
+                      Boletas:{" "}
+                      {
+                        groupedData[rut].filter(
+                          (item) => item.descripcionComprobante === "Boleta"
+                        ).length
+                      }
+                      <br />
+                      Tickets:{" "}
+                      {
+                        groupedData[rut].filter(
+                          (item) => item.descripcionComprobante === "Ticket"
+                        ).length
+                      }
+                    </TableCell>
+                    <TableCell>
+                      $
+                      {groupedData[rut]
+                        .reduce((sum, item) => sum + item.total, 0)
+                        .toLocaleString("es-ES")}
+                    </TableCell>
+                    <TableCell>
+                    <Button
+                          sx={{ width: "80%" }}
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => handlePagarOpen(rut)}
+                        >
+                          Pagar
+                        </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      style={{ paddingBottom: 0, paddingTop: 0 }}
+                    >
+                      <Collapse
+                        in={openGroups[rut]}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <Box margin={1}>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>Razon Social</TableCell>
+                                <TableCell>Tipo Documento</TableCell>
+                                <TableCell onClick={() => handleSort("nroComprobante")}>
+                                  Folio
+                                  <ArrowUpwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "nroComprobante" &&
+                                        order.direction === "asc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                  <ArrowDownwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "nroComprobante" &&
+                                        order.direction === "desc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell onClick={() => handleSort("fecha")}>
+                                  Fecha
+                                  <ArrowUpwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "fecha" &&
+                                        order.direction === "asc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                  <ArrowDownwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "fecha" &&
+                                        order.direction === "desc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell onClick={() => handleSort("total")}>
+                                  Total
+                                  <ArrowUpwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "total" &&
+                                        order.direction === "asc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                  <ArrowDownwardIcon
+                                    fontSize="small"
+                                    style={{
+                                      color:
+                                        order.field === "total" &&
+                                        order.direction === "desc"
+                                          ? "black"
+                                          : "dimgrey",
+                                    }}
+                                  />
+                                </TableCell>
+
+                                <TableCell>Acciones</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {sortData(
+                                groupedData[rut],
+                                order.field,
+                                order.direction
+                              ).map((item) => (
+                                <TableRow key={item.id}>
+                                  <TableCell>{item.razonSocial}</TableCell>
+                                  <TableCell>{item.descripcionComprobante}</TableCell>
+                                  <TableCell>{item.nroComprobante}</TableCell>
+                                  <TableCell>
+                                    {new Date(
+                                      item.fecha
+                                    ).toLocaleDateString("es-ES")}
+                                  </TableCell>
+                                  <TableCell>
+                                    ${item.total.toLocaleString("es-ES")}
+                                  </TableCell>
+                                  <TableCell>
+                                  <Button variant="contained" onClick={() => handleDetailOpen(item)}>Detalle</Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Grid>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <Dialog open={detailOpen} onClose={handleDetailClose} maxWidth="md" fullWidth>
         <DialogTitle>Detalles del Cliente</DialogTitle>
         <DialogContent dividers>
-          {selectedProveedor && (
+          {selectedItem && (
             <div>
               <Paper>
                 <Box
@@ -764,9 +864,9 @@ const ReportesClientes = () => {
                   </Box>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="body2" sx={{ color: "#696c6f" }}>
-                      ID: {selectedProveedor.razonSocial}
+                      ID: {selectedItem.razonSocial}
                       <br />
-                      {selectedProveedor.rut}
+                      {selectedItem.rut}
                     </Typography>
                   </Box>
                   <Grid item xs={12}></Grid>
@@ -785,13 +885,13 @@ const ReportesClientes = () => {
                   <TableBody>
                     <TableRow>
                       <TableCell>
-                        {dayjs(selectedProveedor.fechaIngreso).format(
+                        {dayjs(selectedItem.fechaIngreso).format(
                           "DD-MM-YYYY"
                         )}
                       </TableCell>
-                      <TableCell>{selectedProveedor.tipoDocumento}</TableCell>
-                      <TableCell>{selectedProveedor.folio}</TableCell>
-                      <TableCell>${selectedProveedor.total}</TableCell>
+                      <TableCell>{selectedItem.tipoDocumento}</TableCell>
+                      <TableCell>{selectedItem.folio}</TableCell>
+                      <TableCell>${selectedItem.total}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -810,8 +910,8 @@ const ReportesClientes = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {selectedProveedor.proveedorCompraDetalles &&
-                      selectedProveedor.proveedorCompraDetalles.map(
+                    {selectedItem.proveedorCompraDetalles &&
+                      selectedItem.proveedorCompraDetalles.map(
                         (detalle) => (
                           <TableRow key={detalle.codProducto}>
                             <TableCell>{detalle.descripcionProducto}</TableCell>
@@ -831,24 +931,24 @@ const ReportesClientes = () => {
                 mt={2}
               >
                 <Typography variant="h6">
-                  Total Deuda : ${selectedProveedor.total}
+                  Total Deuda : ${selectedItem.total}
                 </Typography>
                 <Button
                   variant="contained"
                   color="primary"
                   // onClick={handleOpenPaymentProcess}
                   onClick={() =>
-                    handleOpenPaymentProcess("detalle", selectedProveedor.total)
+                    handleOpenPaymentProcess("detalle", selectedItem.total)
                   }
                 >
-                  Pagar Total $ ({selectedProveedor.total})
+                  Pagar Total $ ({selectedItem.total})
                 </Button>
               </Box>
             </div>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleDetailClose} color="primary">
             Cerrar
           </Button>
         </DialogActions>
