@@ -38,7 +38,11 @@ const menuItems = [
       { text: "Documentos por pagar ", link: "/proveedores/reportes", icon: <ReceiptIcon /> },
     ],
   },
-  { text: "Clientes", link: "/clientes", icon: <GroupsIcon/> },
+  { text: "Clientes", link: "/clientes", icon: <GroupsIcon/>, subMenuItems: [
+    
+    { text: "Documentos por cobrar", link: "/clientes/reportes", icon: <ReceiptIcon /> },
+  ], },
+  
   {
     text: "Productos",
     link: "/productos",

@@ -20,6 +20,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import ReportesClientes from './Pages/ReportesClientes';
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -40,6 +41,7 @@ function App() {
       <Route path="/precios" element={<ProtectedRoute element={<Precios />} />} />
       <Route path="/proveedores" element={<ProtectedRoute element={<Proveedores />} />} />
       <Route path="/clientes" element={<ProtectedRoute element={<Clientes />} />} />
+      <Route path="/clientes/reportes" element={<ProtectedRoute element={<ReportesClientes />} />} />
       <Route path="/productos" element={<ProtectedRoute element={<Productos />} />} />
       <Route path="/productos/categorias" element={<ProtectedRoute element={<Categorias />} />} />
       <Route path="/productos/subcategorias" element={<ProtectedRoute element={<SubCategorias />} />} />

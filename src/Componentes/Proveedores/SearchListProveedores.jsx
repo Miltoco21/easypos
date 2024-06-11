@@ -183,11 +183,11 @@ const SearchListProveedores = () => {
 
   useEffect(() => {
     fetchProveedores();
-    const intervalId = setInterval(() => {
-      fetchProveedores();
-    }, 3000); // Fetch providers every 3 seconds
+    // const intervalId = setInterval(() => {
+    //   fetchProveedores();
+    // }, 3000); // Fetch providers every 3 seconds
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    // return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   useEffect(() => {
@@ -315,16 +315,14 @@ const SearchListProveedores = () => {
   useEffect(() => {
     if (Array.isArray(proveedores)) {
       const filtered = proveedores.filter((proveedor) =>
-        proveedor.razonSocial
-          .toLowerCase()
-          .includes(searchTermProveedores.toLowerCase())
+        proveedor.razonSocial.toLowerCase().includes(searchTermProveedores.toLowerCase()) ||
+        proveedor.rut.toLowerCase().includes(searchTermProveedores.toLowerCase())
       );
       setPageProveedores(filtered.slice(0, ITEMS_PER_PAGE));
       setPageCount(filtered.length);
-      setCurrentPage(1); // Reset current page when the search term changes
+      setCurrentPage(1);
     }
   }, [searchTermProveedores, proveedores]);
-
   const handleSearchProveedores = (event) => {
     setSearchTermProveedores(event.target.value);
   };
@@ -405,6 +403,7 @@ const SearchListProveedores = () => {
         `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
       );
       setRefresh((prevRefresh) => !prevRefresh);
+      fetchProveedores();
       setOpenDeleteDialog(false);
       setSnackbarOpen(true);
       setSnackbarMessage("Proveedor eliminado con éxito");
@@ -441,6 +440,7 @@ const SearchListProveedores = () => {
     setCantidadPagada(totalSelected); // Ensure cantidadPagada is set to the selected total
     setMetodoPago("");
     setOpenPaymentProcess(true);
+    setError("");
   };
 
   const handleClosePaymentProcess = () => {
