@@ -1411,7 +1411,7 @@ const ReportesClientes = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <InputLabel sx={{ marginBottom: "4%" }}>
-                Ingresa Número de Cuenta{" "}
+                Ingresa Número de Cuentaa{" "}
               </InputLabel>
               <TextField
                 name="numeroCuenta"
