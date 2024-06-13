@@ -22,7 +22,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import ReportesClientes from './Pages/ReportesClientes';
-import Reportectacorriente from './Pages/Reportectacorriente';
+
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -52,7 +52,6 @@ function App() {
       <Route path="/proveedores/ingresodocumento" element={<ProtectedRoute element={<IngresoDocumento />} />} />
       <Route path="/proveedores/reportes" element={<ProtectedRoute element={<ReportesProv />} />} />
       <Route path="reportes" element={<ProtectedRoute element={<Reportes />} />} />
-      <Route path="reportes/cuentacorriente" element={<ProtectedRoute element={<Reportectacorriente />} />} />
     </Routes>
   );
 }
