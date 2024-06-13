@@ -99,14 +99,19 @@ const ReportesClientes = () => {
         "https://www.easyposdev.somee.com/api/ReporteClientes/GetAllClientesDeudas"
       );
       setProveedores(response.data.clienteDeudaAlls);
-      console.log(response.data.clienteDeudaAlls);
+      
     } catch (error) {
       console.error("Error fetching clientes:", error);
     }
   };
 
   useEffect(() => {
-    fetchClientes();
+  
+    const intervalId = setInterval(() => {
+         fetchClientes();
+        }, 3000); // Fetch users every 3 seconds
+    
+        return () => clearInterval(intervalId);
   }, []);
 
   // useEffect(() => {
@@ -185,34 +190,42 @@ const ReportesClientes = () => {
       : 0;
   };
 
+  
   // const handlePago = async () => {
   //   setLoading(true);
 
   //   let compraDeudaIds = [];
 
   //   // Si hay un proveedor seleccionado, agregamos su detalle de compra
-  //   if (selectedProveedor) {
-  //     compraDeudaIds.push({
-  //       idProveedorCompraCabecera: selectedProveedor.id,
-  //       total: parseInt(Math.round(selectedProveedor.total)),
-  //     });
+  //   if (selectedItem) {
+  //     console.log("selectedItem:", selectedItem);
+  //     if (selectedItem.id && selectedItem.total) {
+  //       compraDeudaIds.push({
+  //         idProveedorCompraCabecera: selectedItem.id,
+  //         total: parseInt(Math.round(selectedItem.total)),
+  //       });
+  //     } else {
+  //       console.error(
+  //         "Selected Proveedor is missing id or total:",
+  //         selectedProveedor
+  //       );
+  //     }
   //   }
 
   //   // Si hay proveedores agrupados, agregamos sus detalles de compra
   //   if (groupedProveedores.length > 0) {
   //     groupedProveedores.forEach((proveedor) => {
-  //       compraDeudaIds.push({
-  //         idProveedorCompraCabecera: proveedor.id,
-  //         total: parseInt(Math.round(proveedor.total)),
-  //       });
+  //       console.log("Grouped Proveedor:", proveedor);
+  //       if (proveedor.id && proveedor.total) {
+  //         compraDeudaIds.push({
+  //           idProveedorCompraCabecera: proveedor.id,
+  //           total: parseInt(Math.round(proveedor.total)),
+  //         });
+  //       } else {
+  //         console.error("Grouped Proveedor is missing id or total:", proveedor);
+  //       }
   //     });
   //   }
-
-  //   // if (compraDeudaIds.length === 0) {
-  //   //   alert("No hay solicitudes de pago válidas para procesar.");
-  //   //   setLoading(false);
-  //   //   return;
-  //   // }
 
   //   // Construye el objeto de datos de pago
   //   const pagoData = {
@@ -220,18 +233,21 @@ const ReportesClientes = () => {
   //     codigoUsuario: 0, // Ajusta según tu lógica
   //     codigoSucursal: 0, // Ajusta según tu lógica
   //     puntoVenta: "string", // Ajusta según tu lógica
-  //     compraDeudaIds: compraDeudaIds.toString(),
-  //     montoPagado: compraDeudaIds
-  //       .reduce((total, compra) => total + compra.total, 0)
-  //       .toString(),
+  //     compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
+  //     montoPagado: cantidadPagada,
+  //     // .reduce((total, compra) => total + compra.total, 0)
+  //     // .toString(),
   //     metodoPago: metodoPago,
   //     requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
   //   };
 
+  //   // Mostrar los datos antes de enviarlos
+  //   console.log("Datos a enviar:", pagoData);
+
   //   try {
   //     // Realiza la llamada a la API utilizando Axios
   //     const response = await axios.post(
-  //       "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
+  //       "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente",
   //       pagoData
   //     );
 
@@ -239,104 +255,23 @@ const ReportesClientes = () => {
   //     console.log("Respuesta de pago:", response.data);
   //     setSnackbarMessage(response.data.descripcion);
   //     setSnackbarOpen(true);
-  //     fetchProveedores();
+  //     fetchClientes();
   //     setMontoAPagar(0);
   //     setCantidadPagada(0);
-  //     /// Cierra el diálogo de proceso de pago
+  //     // Cierra el diálogo de proceso de pago
   //     handleClose();
   //     setTimeout(() => {
   //       handleClosePaymentProcess();
   //     }, 3000);
   //   } catch (error) {
   //     // Maneja los errores
-  //     console.error("Error al procesar el pago:", error);
+  //     console.error("Error al procesar el pagoA:", error);
   //     setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
   //   } finally {
   //     // Finaliza la carga y actualiza el estado
   //     setLoading(false);
   //   }
   // };
-  const handlePago = async () => {
-    setLoading(true);
-
-    let compraDeudaIds = [];
-
-    // Si hay un proveedor seleccionado, agregamos su detalle de compra
-    if (selectedItem) {
-      console.log("selectedItem:", selectedItem);
-      if (selectedItem.id && selectedItem.total) {
-        compraDeudaIds.push({
-          idProveedorCompraCabecera: selectedItem.id,
-          total: parseInt(Math.round(selectedItem.total)),
-        });
-      } else {
-        console.error(
-          "Selected Proveedor is missing id or total:",
-          selectedProveedor
-        );
-      }
-    }
-
-    // Si hay proveedores agrupados, agregamos sus detalles de compra
-    if (groupedProveedores.length > 0) {
-      groupedProveedores.forEach((proveedor) => {
-        console.log("Grouped Proveedor:", proveedor);
-        if (proveedor.id && proveedor.total) {
-          compraDeudaIds.push({
-            idProveedorCompraCabecera: proveedor.id,
-            total: parseInt(Math.round(proveedor.total)),
-          });
-        } else {
-          console.error("Grouped Proveedor is missing id or total:", proveedor);
-        }
-      });
-    }
-
-    // Construye el objeto de datos de pago
-    const pagoData = {
-      fechaIngreso: new Date().toISOString(),
-      codigoUsuario: 0, // Ajusta según tu lógica
-      codigoSucursal: 0, // Ajusta según tu lógica
-      puntoVenta: "string", // Ajusta según tu lógica
-      compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
-      montoPagado: cantidadPagada,
-      // .reduce((total, compra) => total + compra.total, 0)
-      // .toString(),
-      metodoPago: metodoPago,
-      requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
-    };
-
-    // Mostrar los datos antes de enviarlos
-    console.log("Datos a enviar:", pagoData);
-
-    try {
-      // Realiza la llamada a la API utilizando Axios
-      const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente",
-        pagoData
-      );
-
-      // Maneja la respuesta según tu lógica
-      console.log("Respuesta de pago:", response.data);
-      setSnackbarMessage(response.data.descripcion);
-      setSnackbarOpen(true);
-      fetchClientes();
-      setMontoAPagar(0);
-      setCantidadPagada(0);
-      // Cierra el diálogo de proceso de pago
-      handleClose();
-      setTimeout(() => {
-        handleClosePaymentProcess();
-      }, 3000);
-    } catch (error) {
-      // Maneja los errores
-      console.error("Error al procesar el pagoA:", error);
-      setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
-    } finally {
-      // Finaliza la carga y actualiza el estado
-      setLoading(false);
-    }
-  };
 
   const totalGeneral = proveedores.reduce(
     (acc, proveedor) => acc + proveedor.total,
@@ -509,9 +444,10 @@ const ReportesClientes = () => {
         return;
       } else setError("");
 
-      const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
+      const selectedDeudas = proveedores.filter((deuda) => deuda.selected);
+      console.log(selectedDeudas)
 
-      const deudaIds = selectedDebts.map((deuda) => ({
+      const deudaIds = proveedores.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
         total: deuda.total,
@@ -519,9 +455,9 @@ const ReportesClientes = () => {
 
       const requestBody = {
         deudaIds: deudaIds,
-        montoPagado: getTotalSelected(),
+        montoPagado: cantidadPagada,
         metodoPago: metodoPago,
-        idUsuario: selectedClient.codigoCliente,
+        idUsuario: 0,
         transferencias: {
           idCuentaCorrientePago: 0,
           nombre: nombre,
@@ -544,9 +480,11 @@ const ReportesClientes = () => {
       if (response.data.statusCode === 200) {
         setSnackbarOpen(true);
         setSnackbarMessage(response.data.descripcion);
-        handleClosePaymentDialog();
+        handleClosePaymentProcess();
         setCantidadPagada(0);
-        resetDeudaData();
+        fetchClientes();
+        handleDetailClose();
+        
 
         setTimeout(() => {
           handleClosePaymentProcess();
@@ -561,19 +499,19 @@ const ReportesClientes = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchProveedores = async () => {
-      try {
-        const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
-        );
-        setProveedores(response.data.proveedorCompra.proveedorCompraCabeceras);
-      } catch (error) {
-        console.error("Error fetching proveedores:", error);
-      }
-    };
-    fetchProveedores();
-  }, []);
+  // useEffect(() => {
+  //   const fetchProveedores = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
+  //       );
+  //       setProveedores(response.data.proveedorCompra.proveedorCompraCabeceras);
+  //     } catch (error) {
+  //       console.error("Error fetching proveedores:", error);
+  //     }
+  //   };
+  //   fetchProveedores();
+  // }, []);
 
   const compareRut = (a, b) => {
     if (!a || !b) return 0;
@@ -624,7 +562,7 @@ const ReportesClientes = () => {
     acc[item.rut].push(item);
     return acc;
   }, {});
-  console.log(" groupedData", groupedData);
+
 
   const filteredGroupKeys = Object.keys(groupedData).filter((rut) =>
     rut.toLowerCase().includes(searchTerm.toLowerCase())
@@ -925,8 +863,8 @@ const ReportesClientes = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {selectedItem.proveedorCompraDetalles &&
-                      selectedItem.proveedorCompraDetalles.map((detalle) => (
+                    {selectedItem.clienteVentaDetalles &&
+                      selectedItem.clienteVentaDetalles.map((detalle) => (
                         <TableRow key={detalle.codProducto}>
                           <TableCell>{detalle.descripcionProducto}</TableCell>
                           <TableCell>{detalle.cantidad}</TableCell>
@@ -1207,7 +1145,7 @@ const ReportesClientes = () => {
                   fullWidth
                   color="secondary"
                   disabled={!metodoPago || cantidadPagada <= 0 || loading}
-                  onClick={handlePago}
+                  onClick={handlePayment}
                 >
                   {loading ? (
                     <>

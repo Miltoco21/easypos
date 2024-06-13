@@ -21,6 +21,9 @@ import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
 import SchemaOutlinedIcon from '@mui/icons-material/SchemaOutlined';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+
 
 
 const drawerWidth = 240;
@@ -53,6 +56,16 @@ const menuItems = [
       { text: "Familia", link: "/productos/familias",icon:<StackedBarChartIcon/> },
       { text: "Sub-Familia", link: "/productos/subfamilias",icon:<SchemaOutlinedIcon/> },
       // Add more sub-menu items as needed
+    ],
+  },
+  {
+    text: "Reportes",
+    link: "/reportes",
+    icon: <FactCheckIcon />,
+    subMenuItems: [
+      { text: "Reporte", link: "/reportes/cuentacorriente",icon: <SummarizeIcon />},
+   
+    
     ],
   },
 ];
