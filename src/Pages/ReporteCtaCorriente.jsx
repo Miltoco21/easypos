@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import SideBar from "../Componentes/NavBar/SideBar";
 
-const ReporteCtaCorriente = () => {
+const Reportectacorriente = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [rut, setRut] = useState("");
@@ -184,4 +184,4 @@ const ReporteCtaCorriente = () => {
   );
 };
 
-export default ReporteCtaCorriente;
+export default Reportectacorriente;
