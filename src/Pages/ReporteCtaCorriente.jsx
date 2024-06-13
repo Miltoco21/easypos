@@ -17,7 +17,7 @@ import {
 import axios from "axios";
 import SideBar from "../Componentes/NavBar/SideBar";
 
-const Reportectacorriente = () => {
+const ReporteCtaCorriente = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [rut, setRut] = useState("");

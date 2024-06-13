@@ -22,7 +22,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import ReportesClientes from './Pages/ReportesClientes';
-import ReporteCtaCorriente from './Pages/ReporteCtaCorriente';
+import ReporteCtaCorriente from './Pages/Reportectacorriente';
 
 function App() {
   const [userData, setUserData] = useState(null);
