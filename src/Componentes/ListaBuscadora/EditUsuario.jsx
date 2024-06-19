@@ -208,6 +208,23 @@ const validateEmail = (email) => {
     if (Object.keys(errors).length > 0) {
       setErrores(errors);
     } else {
+      console.log('Datos antes del envío:', {
+        nombres,
+        apellidos,
+        correo,
+        direccion,
+        telefono,
+        region: selectedRegion.toString(),
+        comuna: selectedComuna,
+        codigoPostal,
+        rut,
+        codigoUsuario: selectedUser.codigoUsuario,
+        clave,
+        rol: selectedRol.toString(),
+        remuneracion,
+        credito
+      });
+  
       try {
         setLoading(true);
         const response = await axios.put(
@@ -228,6 +245,8 @@ const validateEmail = (email) => {
           }
         );
   
+        console.log('Respuesta del servidor:', response);
+  
         if (response.status === 200) {
           setSnackbarMessage(response.data.descripcion);
           setSnackbarOpen(true);
@@ -236,6 +255,8 @@ const validateEmail = (email) => {
           }, 3000);
         }
       } catch (error) {
+        console.log('Error durante el envío:', error);
+  
         if (error.response && error.response.status === 409) {
           setSnackbarMessage(error.response.data.descripcion);
           setSnackbarOpen(true);
@@ -245,6 +266,24 @@ const validateEmail = (email) => {
         }
       } finally {
         setLoading(false);
+        console.log('Datos después del envío:', {
+          nombres: "",
+          apellidos: "",
+          correo: "",
+          telefono: "",
+          direccion: "",
+          selectedRegion: "",
+          selectedComuna: "",
+          selectedRol: "",
+          codigoPostal: "",
+          rut: "",
+          codigoUsuario: "",
+          clave: "",
+          remuneracion: "",
+          credito: "",
+          errores: {},
+          userId: null
+        });
         setNombre("");
         setApellido("");
         setCorreo("");
@@ -264,6 +303,7 @@ const validateEmail = (email) => {
       }
     }
   };
+  
   
   // const handleSubmit = async (event) => {
   //   event.preventDefault();
@@ -427,6 +467,107 @@ const validateEmail = (email) => {
   };
   
 
+  //////VALIDACIONES////
+  const handleNumericKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es un número, backspace o delete
+    if (
+    !/\d/.test(key) && // números
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  
+  const handleTextKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
+    if (
+     !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  const handleEmailKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+  
+    // Prevenir espacios en cualquier parte del correo
+    if (charCode === 32) { // 32 es el código de la tecla espacio
+      event.preventDefault();
+    }
+  };
+  const handleRUTKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Permitir números (0-9), guion (-), backspace y delete
+    if (
+     !isNaN(key) || // números
+      key === 'Backspace' || // backspace
+      key === 'Delete' || // delete
+      (key === '-' && !input.includes('-')) // guion y no hay guion previamente
+    ) {
+      // Permitir la tecla
+    } else {
+      // Prevenir cualquier otra tecla
+      event.preventDefault();
+    }
+  
+    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
+    if (key === ' ' && (input.length === 0 || event.target.selectionStart === 0)) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextOnlyKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+  
+    // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
+    if (
+     !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key!== ' ' && // espacio
+      key!== 'Backspace' && // backspace
+      key!== 'Delete' // delete
+    ) {
+      event.preventDefault();
+    }
+  
+    // Previene espacios iniciales y al final de la cadena
+    if (
+      key === ' ' &&
+      (input.length === 0 || input.endsWith(' '))
+    ) {
+      event.preventDefault();
+    }
+  };
+  
+
+
 
   return (
     <Dialog open={open} onClose={handleCloseEditModal} maxWidth="md" fullWidth>
@@ -483,6 +624,7 @@ const validateEmail = (email) => {
                 autoFocus
                 value={nombres}
                 onChange={(e) => setNombre(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -501,6 +643,7 @@ const validateEmail = (email) => {
                 autoFocus
                 value={apellidos}
                 onChange={(e) => setApellido(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -518,7 +661,7 @@ const validateEmail = (email) => {
                 autoComplete="correo"
                 autoFocus
                 value={correo}
-                onChange={handleEmailChange}
+                onChange={handleEmailKeyDown}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -537,6 +680,11 @@ const validateEmail = (email) => {
                 autoFocus
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+                inputProps={{
+                  maxLength: 12,
+                }}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -555,6 +703,11 @@ const validateEmail = (email) => {
                 autoFocus
                 value={codigoUsuario}
                 onChange={(e) => setCodigoUsuario(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+                inputProps={{
+                  maxLength: 12,
+                }}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -675,6 +828,8 @@ const validateEmail = (email) => {
                 autoFocus
                 value={clave}
                 onChange={(e) => setClave(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+
               />
             </Grid>
             <Grid item xs={12} md={6}>

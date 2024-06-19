@@ -29,6 +29,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchListDocumento from "../Componentes/SearchlistDocumento.jsx/SearchListDocumento";
 
 const IngresoDocumentoProveedor = () => {
   const [open, setOpen] = useState(false);
@@ -409,6 +410,8 @@ const IngresoDocumentoProveedor = () => {
         >
           Ingresa Documento de Compra
         </Button>
+
+        <SearchListDocumento></SearchListDocumento>
         <Modal open={open} onClose={handleCloseModal}>
           <Box
             sx={{

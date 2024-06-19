@@ -704,6 +704,13 @@ const handlePago = async () => {
                           (item) => item.tipoDocumento === "Ticket"
                         ).length
                       }
+                         <br />
+                        Ingreso Interno:{" "}
+                      {
+                        groupedData[rut].filter(
+                          (item) => item.tipoDocumento === "Ingreso Interno"
+                        ).length
+                      }
                     </TableCell>
                     <TableCell>
                       $
