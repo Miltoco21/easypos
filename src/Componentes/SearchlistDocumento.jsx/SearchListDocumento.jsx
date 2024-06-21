@@ -19,10 +19,14 @@ import {
   Grid,
   Button,
   Dialog,
+  Select,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "@mui/material";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import EditIcon from "@mui/icons-material/Edit";
@@ -49,13 +53,16 @@ const validateDateInput = (e) => {
 };
 
 const SearchListDocumento = () => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs());
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // const [fecha, setFecha] = useState(dayjs());
+  const hoy = dayjs();
+  const inicioRango = dayjs().subtract(1, "week");
 
   const [editFormData, setEditFormData] = useState({
     idCabeceraCompra: 0,
@@ -71,6 +78,7 @@ const SearchListDocumento = () => {
 
   const [selectedTab, setSelectedTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermFolio, setSearchTermFolio] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -94,8 +102,8 @@ const SearchListDocumento = () => {
         `https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompraByFecha`,
         {
           params: {
-            fechaDesde: startDate,
-            fechaHasta: endDate,
+            fechaDesde: startDate.format("YYYY-MM-DD"),
+            fechaHasta: endDate.format("YYYY-MM-DD"),
           },
         }
       );
@@ -127,12 +135,49 @@ const SearchListDocumento = () => {
   };
 
   const handleEdit = async () => {
-    console.log("Datos antes de enviar:", editFormData); // Imprimir los datos antes de enviar
+    // Imprimir los datos antes de enviar
+    const formattedFechaIngreso = editFormData.fechaIngreso
+      ? editFormData.fechaIngreso.toISOString()
+      : null;
+    const formattedPagos = editFormData.proveedorCompraPagoUpdates.map(
+      (pago) => ({
+        ...pago,
+        fechaPago: pago.fechaPago ? pago.fechaPago.toISOString() : null,
+      })
+    );
+    const dataToSend = {
+      idCabeceraCompra: editFormData.idCabeceraCompra,
+      tipoDocumento: editFormData.tipoDocumento,
+      folio: editFormData.folio,
+      codigoProveedor: editFormData.codigoProveedor,
+      total: editFormData.total,
+      fechaIngreso: formattedFechaIngreso, // Aquí se utiliza la fecha formateada
 
+      proveedorCompraDetalleUpdates:
+        editFormData.proveedorCompraDetalleUpdates.map((detalle) => ({
+          idDetalle: detalle.idDetalle,
+          codProducto: detalle.codProducto,
+          descripcionProducto: detalle.descripcionProducto,
+          cantidad: detalle.cantidad,
+          precioUnidad: detalle.precioUnidad,
+        })),
+
+      proveedorCompraPagoUpdates: editFormData.proveedorCompraPagoUpdates.map(
+        (pago) => ({
+          idPago: pago.idPago,
+          fechaIngreso: pago.fechaPago, // Aquí se utiliza la fecha formateada
+
+          codigoUsuario: pago.codigoUsuario,
+          montoPagado: pago.montoPagado,
+          metodoPago: pago.metodoPago,
+        })
+      ),
+    };
+    console.log("Datos a enviar:", dataToSend);
     try {
       const response = await axios.put(
         `https://www.easyposdev.somee.com/api/Proveedores/PutProveedorCompra`,
-        editFormData
+        dataToSend
       );
 
       console.log("Respuesta del servidor:", response.data); // Imprimir la respuesta del servidor
@@ -149,12 +194,16 @@ const SearchListDocumento = () => {
 
   const filteredData = data.filter((compra) => {
     const lowercasedFilter = searchTerm.toLowerCase();
-    if (compra && compra.rut && compra.razonSocial) {
+    const lowercasedFolioFilter = searchTermFolio.toLowerCase();
+
+    if (compra && compra.rut && compra.razonSocial && compra.folio) {
       const rut = compra.rut.toString().toLowerCase();
       const razonSocial = compra.razonSocial.toString().toLowerCase();
-
+      const folio = compra.folio.toString().toLowerCase();
       return (
-        rut.includes(lowercasedFilter) || razonSocial.includes(lowercasedFilter)
+        (rut.includes(lowercasedFilter) ||
+          razonSocial.includes(lowercasedFilter)) &&
+        (folio.includes(lowercasedFolioFilter) || !lowercasedFolioFilter)
       );
     }
     return false;
@@ -162,6 +211,9 @@ const SearchListDocumento = () => {
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+  };
+  const handleSearchFolio = (value) => {
+    setSearchTermFolio(value);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -194,15 +246,41 @@ const SearchListDocumento = () => {
     setCompraToDelete(null);
   };
 
+  // const handleOpenEditDialog = (compra) => {
+  //   setEditFormData({
+  //     idCabeceraCompra: compra.idCabeceraCompra,
+  //     tipoDocumento: compra.tipoDocumento,
+
+  //     folio: compra.folio,
+  //     codigoProveedor: compra.codigoProveedor,
+  //     total: compra.total,
+  //     fechaIngreso: dayjs(compra.fechaIngreso), // Convertir la fecha a Dayjs
+  //     proveedorCompraDetalleUpdates: compra.detalles.map((detalle) => ({
+  //       idDetalle: detalle.idDetalle,
+  //       codProducto: detalle.codProducto,
+  //       descripcionProducto: detalle.descripcionProducto,
+  //       cantidad: detalle.cantidad,
+  //       precioUnidad: detalle.precioUnidad,
+  //     })),
+  //     proveedorCompraPagoUpdates: compra.pagos.map((pago) => ({
+  //       idPago: pago.idPago,
+  //       fechaPago: dayjs(pago.fechaPago),
+  //       total: 0,
+  //       codigoUsuario: pago.codigoUsuario,
+  //       montoPagado: pago.montoPagado,
+  //       metodoPago: pago.metodoPago,
+  //     })),
+  //   });
+  //   setEditDialogOpen(true);
+  // };
   const handleOpenEditDialog = (compra) => {
     setEditFormData({
       idCabeceraCompra: compra.idCabeceraCompra,
       tipoDocumento: compra.tipoDocumento,
-      rut: compra.rut,
       folio: compra.folio,
       codigoProveedor: compra.codigoProveedor,
       total: compra.total,
-      fechaIngreso: compra.fechaIngreso,
+      fechaIngreso: dayjs(compra.fechaIngreso), // Convertir la fecha a Dayjs
       proveedorCompraDetalleUpdates: compra.detalles.map((detalle) => ({
         idDetalle: detalle.idDetalle,
         codProducto: detalle.codProducto,
@@ -212,8 +290,8 @@ const SearchListDocumento = () => {
       })),
       proveedorCompraPagoUpdates: compra.pagos.map((pago) => ({
         idPago: pago.idPago,
-        fechaIngreso: pago.fechaPago,
-        total: 0,
+        fechaPago: dayjs(pago.fechaPago), // Convertir la fecha a Dayjs
+
         codigoUsuario: pago.codigoUsuario,
         montoPagado: pago.montoPagado,
         metodoPago: pago.metodoPago,
@@ -235,12 +313,27 @@ const SearchListDocumento = () => {
     setSnackbarMessage("");
   };
 
+  // const handleEditFormChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setEditFormData({
+  //     ...editFormData,
+  //     [name]: value,
+  //   });
+  // };
   const handleEditFormChange = (event) => {
-    const { name, value } = event.target;
-    setEditFormData({
-      ...editFormData,
-      [name]: value,
-    });
+    // Verificar si event es un objeto de DatePicker
+    if (event && event.isValid && event.$d) {
+      setEditFormData((prevState) => ({
+        ...prevState,
+        fechaIngreso: event,
+      }));
+    } else {
+      const { name, value } = event.target;
+      setEditFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
   };
 
   const handleEditDetailChange = (index, field, value) => {
@@ -252,13 +345,34 @@ const SearchListDocumento = () => {
     });
   };
 
+  // const handleEditPaymentChange = (index, field, value) => {
+  //   const updatedPayments = [...editFormData.proveedorCompraPagoUpdates];
+  //   if (field === "fechaPago") {
+  //     updatedPayments[index] = {
+  //       ...updatedPayments[index],
+  //       [field]: value,
+  //     };
+  //   } else {
+  //     updatedPayments[index] = {
+  //       ...updatedPayments[index],
+  //       [field]: value,
+  //     };
+  //   }
+  //   setEditFormData((prevState) => ({
+  //     ...prevState,
+  //     proveedorCompraPagoUpdates: updatedPayments,
+  //   }));
+  // };
   const handleEditPaymentChange = (index, field, value) => {
-    const newPayments = [...editFormData.proveedorCompraPagoUpdates];
-    newPayments[index][field] = value;
-    setEditFormData({
-      ...editFormData,
-      proveedorCompraPagoUpdates: newPayments,
-    });
+    const updatedPayments = [...editFormData.proveedorCompraPagoUpdates];
+    updatedPayments[index] = {
+      ...updatedPayments[index],
+      [field]: field === "fechaPago" ? dayjs(value) : value,
+    };
+    setEditFormData((prevState) => ({
+      ...prevState,
+      proveedorCompraPagoUpdates: updatedPayments,
+    }));
   };
 
   const handleNumericKeyDown = (event) => {
@@ -393,44 +507,11 @@ const SearchListDocumento = () => {
     }
   };
 
-  // const handleAddProductToSales = (product) => {
-  //   const existingProductIndex = selectedProducts.findIndex(
-  //     (p) => p.id === product.idProducto
-  //   );
-
-  //   if (existingProductIndex !== -1) {
-  //     const updatedProducts = selectedProducts.map((p, index) => {
-  //       if (index === existingProductIndex) {
-  //         const updatedQuantity = p.cantidad + 1;
-  //         return {
-  //           ...p,
-  //           cantidad: updatedQuantity,
-  //           total: updatedQuantity * p.precioCosto,
-  //         };
-  //       }
-  //       return p;
-  //     });
-  //     setSelectedProducts(updatedProducts);
-  //   } else {
-  //     const newProduct = {
-  //       id: product.idProducto,
-  //       nombre: product.nombre,
-  //       cantidad: 1,
-  //       precio: product.precioCosto,
-  //       total: product.precioCosto,
-  //       precioCosto: product.precioCosto,
-  //     };
-  //     setSelectedProducts([...selectedProducts, newProduct]);
-  //   }
-
-  //   setSearchedProducts([]);
-  // };
-
   const handleAddProductToSales = (product) => {
     const existingProductIndex = selectedProducts.findIndex(
       (p) => p.id === product.idProducto
     );
-  
+
     let updatedProducts;
     if (existingProductIndex !== -1) {
       updatedProducts = selectedProducts.map((p, index) => {
@@ -455,15 +536,15 @@ const SearchListDocumento = () => {
       };
       updatedProducts = [...selectedProducts, newProduct];
     }
-  
+
     setSelectedProducts(updatedProducts);
-  
+
     // Update the edit form data
     const updatedDetails = [...editFormData.proveedorCompraDetalleUpdates];
     const existingDetailIndex = updatedDetails.findIndex(
       (detail) => detail.idProducto === product.idProducto
     );
-  
+
     if (existingDetailIndex !== -1) {
       updatedDetails[existingDetailIndex].cantidad += 1;
       updatedDetails[existingDetailIndex].total =
@@ -478,19 +559,17 @@ const SearchListDocumento = () => {
         total: product.precioCosto,
       });
     }
-  
+
     setEditFormData({
       ...editFormData,
       proveedorCompraDetalleUpdates: updatedDetails,
     });
-  
+
     setSearchedProducts([]);
     handleCloseProduct();
     setSearchTermProd("");
     setSelectedProducts([]);
-
   };
-
 
   const handleQuantityChange = (value, index) => {
     const updatedProducts = [...selectedProducts];
@@ -529,7 +608,7 @@ const SearchListDocumento = () => {
       proveedorCompraDetalleUpdates: updatedDetails,
     });
   };
-
+  console.log("selectedProducts", selectedProducts);
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <Tabs value={selectedTab} onChange={handleTabChange}>
@@ -538,30 +617,36 @@ const SearchListDocumento = () => {
       <div role="tabpanel" hidden={selectedTab !== 0}>
         <Grid container spacing={2} sx={{ mt: 2 }}>
           <Grid item xs={12} md={3}>
-            <TextField
-              label="Fecha Inicio (AAAA-MM-DD)"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              onKeyDown={validateDateInput}
-              placeholder="AAAA-MM-DD"
-              margin="dense"
-              fullWidth
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Fecha Inicio"
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} sx={{ mb: 2 }} fullWidth />
+                )}
+              />
+            </LocalizationProvider>
           </Grid>
           <Grid item xs={12} md={3}>
-            <TextField
-              label="Fecha Término (AAAA-MM-DD)"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              onKeyDown={validateDateInput}
-              placeholder="AAAA-MM-DD"
-              margin="dense"
-              fullWidth
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Fecha Término"
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                renderInput={(params) => (
+                  <TextField {...params} sx={{ mb: 2 }} fullWidth />
+                )}
+              />
+            </LocalizationProvider>
           </Grid>
           <Grid item xs={12} md={3}>
-            <Button sx={{ p: 2, mb: 4 }}
-            variant="contained" onClick={handleBuscarClick} fullWidth>
+            <Button
+              sx={{ p: 2, mb: 4 }}
+              variant="contained"
+              onClick={handleBuscarClick}
+              fullWidth
+            >
               Buscar
             </Button>
           </Grid>
@@ -577,15 +662,28 @@ const SearchListDocumento = () => {
           />
         ) : (
           <>
-            <Grid>
-              <TextField
-                sx={{ width: 500 }}
-                label="Buscar por RUT o Razón Social"
-                variant="outlined"
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
+            <Grid gap={3} sx={{ display: "flex" }}>
+              <Grid item xs={12} md={8}>
+                <TextField
+                  sx={{ width: 500 }}
+                  label="Buscar por RUT o Razón Social"
+                  variant="outlined"
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  sx={{ width: 500 }}
+                  label="Buscar por Folio"
+                  variant="outlined"
+                  value={searchTermFolio}
+                  onChange={(e) => setSearchTermFolio(e.target.value)}
+                />
+              </Grid>
             </Grid>
+
             <TableContainer component={Paper} sx={{ mt: 2 }}>
               <Table size="small">
                 <TableHead>
@@ -640,8 +738,12 @@ const SearchListDocumento = () => {
           </>
         )}
       </div>
-
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
+      <Dialog
+        maxWidth="lg"
+        fullWidth
+        open={openDialog}
+        onClose={handleCloseDialog}
+      >
         <DialogTitle>Detalles del Documento</DialogTitle>
         <DialogContent
           style={{
@@ -753,17 +855,20 @@ const SearchListDocumento = () => {
           </TableContainer>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
+          <Button
+            onClick={handleCloseDialog}
+            color="primary"
+            variant="contained"
+          >
             Cerrar
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={editDialogOpen} onClose={handleCloseEditDialog}>
         <DialogTitle>Editar Documento</DialogTitle>
         <DialogContent>
           <TextField
-            name="tipoDocumento" // Asegúrate de que el nombre coincide con el campo en editFormData
+            name="tipoDocumento"
             margin="dense"
             select
             label="Tipo de documento"
@@ -777,17 +882,6 @@ const SearchListDocumento = () => {
             <MenuItem value="Ticket">Ticket</MenuItem>
             <MenuItem value="Ingreso Interno">Ingreso Interno</MenuItem>
           </TextField>
-          <TextField
-            fullWidth
-            id="rut"
-            label="ej: 11111111-1"
-            name="rut"
-            autoComplete="rut"
-            autoFocus
-            value={editFormData.rut}
-            onChange={handleEditFormChange}
-            onKeyDown={handleRUTKeyDown}
-          />
 
           <TextField
             margin="dense"
@@ -808,26 +902,29 @@ const SearchListDocumento = () => {
             onChange={handleEditFormChange}
             fullWidth
             onKeyDown={handleNumericKeyDown}
-            
-          />
-          <TextField
-            margin="dense"
-            name="fechaIngreso"
-            label="Fecha ingreso"
-            type="date" // Cambia el tipo a date para mostrar solo la fecha
-            InputLabelProps={{
-              shrink: true,
+            inputProps={{
+              readOnly: true,
             }}
-            value={
-              editFormData.fechaIngreso
-                ? new Date(editFormData.fechaIngreso)
-                    .toISOString()
-                    .split("T")[0]
-                : ""
-            }
-            onChange={handleEditFormChange}
-            fullWidth
           />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              sx={{ mt: 1 }}
+              label="Fecha ingreso"
+              value={
+                editFormData.fechaIngreso
+                  ? dayjs(editFormData.fechaIngreso)
+                  : null
+              }
+              onChange={handleEditFormChange} // Llamar directamente a handleEditFormChange
+              renderInput={(params) => (
+                <TextField {...params} margin="dense" fullWidth />
+              )}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </LocalizationProvider>
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table size="small">
@@ -844,7 +941,7 @@ const SearchListDocumento = () => {
                 {editFormData.proveedorCompraDetalleUpdates.map(
                   (detalle, index) => (
                     <TableRow key={index}>
-                      <TableCell sx={{width:"30%"}}>
+                      <TableCell sx={{ width: "30%" }}>
                         <TextField
                           margin="dense"
                           label="Descripción"
@@ -858,17 +955,14 @@ const SearchListDocumento = () => {
                           }
                           fullWidth
                           inputProps={{
-                           
-                            readOnly:true
+                            readOnly: true,
                           }}
-
                         />
                       </TableCell>
-                      <TableCell sx={{width:"30%"}}>
+                      <TableCell sx={{ width: "30%" }}>
                         <TextField
                           margin="dense"
                           label="Cantidad"
-                
                           value={detalle.cantidad}
                           onChange={(e) =>
                             handleEditDetailChange(
@@ -879,15 +973,12 @@ const SearchListDocumento = () => {
                           }
                           fullWidth
                           onKeyDown={handleNumericKeyDown}
-                        
                         />
                       </TableCell>
-                      <TableCell  sx={{width:"30%"}}>
+                      <TableCell sx={{ width: "30%" }}>
                         <TextField
-                       
                           margin="dense"
                           label="Precio Unidad"
-                         
                           value={detalle.precioUnidad}
                           onChange={(e) =>
                             handleEditDetailChange(
@@ -898,22 +989,22 @@ const SearchListDocumento = () => {
                           }
                           fullWidth
                           inputProps={{
-                           
-                            readOnly:true
+                            readOnly: true,
                           }}
                         />
                       </TableCell>
                       <TableCell>
                         {detalle.cantidad * detalle.precioUnidad}
                       </TableCell>
-                      <TableCell >
-                        <Grid sx={{display:"flex"}}> <IconButton onClick={handleOpenProduct}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => handleDeleteDetail(index)}>
-                          <DeleteIcon />
-                        </IconButton></Grid>
-                       
+                      <TableCell>
+                        <Grid sx={{ display: "flex" }}>
+                          <IconButton onClick={handleOpenProduct}>
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton onClick={() => handleDeleteDetail(index)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
                       </TableCell>
                     </TableRow>
                   )
@@ -926,11 +1017,9 @@ const SearchListDocumento = () => {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  {" "}
                   <TableCell>Monto Pagado</TableCell>
                   <TableCell>Método Pago</TableCell>
                   <TableCell>Fecha Pago</TableCell>
-                  <TableCell>Total</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -940,7 +1029,6 @@ const SearchListDocumento = () => {
                       <TextField
                         margin="dense"
                         label="Monto Pagado"
-                        type="number"
                         value={pago.montoPagado}
                         onChange={(e) =>
                           handleEditPaymentChange(
@@ -950,48 +1038,48 @@ const SearchListDocumento = () => {
                           )
                         }
                         fullWidth
+                        onKeyDown={handleNumericKeyDown}
                       />
+                    </TableCell>
+
+                    <TableCell>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Fecha Pago"
+                          value={pago.fechaPago ? dayjs(pago.fechaPago) : null}
+                          onChange={(newValue) =>
+                            handleEditPaymentChange(
+                              index,
+                              "fechaPago",
+                              newValue
+                            )
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} margin="dense" fullWidth />
+                          )}
+                        />
+                      </LocalizationProvider>
                     </TableCell>
                     <TableCell>
-                      <TextField
-                        margin="dense"
-                        label="Método Pago"
-                        value={pago.metodoPago}
-                        onChange={(e) =>
-                          handleEditPaymentChange(
-                            index,
-                            "metodoPago",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                      />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          label="Fecha Pago"
+                          name="fechaPago"
+                          value={pago.fechaPago ? dayjs(pago.fechaPago) : null}
+                          onChange={(newValue) =>
+                            handleEditPaymentChange(
+                              index,
+                              "fechaPago",
+                              newValue
+                            )
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} margin="dense" fullWidth />
+                          )}
+                        />
+                      </LocalizationProvider>
                     </TableCell>
-                    <TableCell>
-                      <TextField
-                        margin="dense"
-                        label="Fecha Pago"
-                        type="date"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        value={
-                          pago.fechaPago
-                            ? new Date(pago.fechaPago)
-                                .toISOString()
-                                .split("T")[0]
-                            : ""
-                        }
-                        onChange={(e) =>
-                          handleEditPaymentChange(
-                            index,
-                            "fechaPago",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                      />
-                    </TableCell>
+                    {/* 
                     <TableCell>
                       <TextField
                         margin="dense"
@@ -1006,31 +1094,34 @@ const SearchListDocumento = () => {
                           )
                         }
                         fullWidth
+                        InputProps={{
+                          readOnly: true,
+                        }}
                       />
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleCloseEditDialog} color="primary">
             Cancelar
           </Button>
-          <Button onClick={handleEdit} color="primary">
+          <Button onClick={handleEdit} color="secondary" variant="contained">
             EDITAR
           </Button>
         </DialogActions>
       </Dialog>
-
+      ;
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         message={snackbarMessage}
         onClose={handleSnackbarClose}
       />
-
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
@@ -1038,12 +1129,11 @@ const SearchListDocumento = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog}>Cancelar</Button>
-          <Button onClick={handleDelete} variant="contained"color="secondary">
+          <Button onClick={handleDelete} variant="contained" color="secondary">
             Eliminar
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={openProduct} onClose={handleCloseProduct}>
         <DialogTitle>Selecciona producto</DialogTitle>
         <DialogContent>
@@ -1129,7 +1219,10 @@ const SearchListDocumento = () => {
               </Table>
             </TableContainer>
 
-            <Grid gap={3}sx={{ display: "flex", justifyContent:"space-arround" }}>
+            <Grid
+              gap={3}
+              sx={{ display: "flex", justifyContent: "space-arround" }}
+            >
               <TextField
                 label="Total"
                 value={grandTotal}
@@ -1138,10 +1231,14 @@ const SearchListDocumento = () => {
                 }}
                 sx={{ mt: 2 }}
               />
-              <Button variant="contained"
+              <Button
+                variant="contained"
                 onClick={() => handleAddProductToSales(product)}
-               color="secondary"
-              sx={{ width:"60%", mt:2, }}>Agregar producto</Button>
+                color="secondary"
+                sx={{ width: "60%", mt: 2 }}
+              >
+                Agregar producto
+              </Button>
             </Grid>
           </div>
         </DialogContent>
