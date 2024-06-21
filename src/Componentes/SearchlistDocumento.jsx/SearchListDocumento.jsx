@@ -907,24 +907,23 @@ const SearchListDocumento = () => {
             }}
           />
 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              sx={{ mt: 1 }}
-              label="Fecha ingreso"
-              value={
-                editFormData.fechaIngreso
-                  ? dayjs(editFormData.fechaIngreso)
-                  : null
-              }
-              onChange={handleEditFormChange} // Llamar directamente a handleEditFormChange
-              renderInput={(params) => (
-                <TextField {...params} margin="dense" fullWidth />
-              )}
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </LocalizationProvider>
+<LocalizationProvider dateAdapter={AdapterDayjs}>
+  <TextField
+    sx={{ mt: 1 }}
+    label="Fecha ingreso"
+    value={
+      editFormData.fechaIngreso
+        ? dayjs(editFormData.fechaIngreso).format('DD/MM/YYYY')
+        : ''
+    }
+    InputProps={{
+      readOnly: true,
+    }}
+    fullWidth
+    margin="dense"
+  />
+</LocalizationProvider>
+
 
           <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table size="small">
