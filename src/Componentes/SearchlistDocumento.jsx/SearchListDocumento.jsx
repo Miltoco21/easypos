@@ -31,6 +31,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
+import EditDialog from "./EditDialog";
+import ProductDialog from "./ProductDialog";
 
 const validateDateInput = (e) => {
   const allowedKeys = [
@@ -60,7 +62,7 @@ const SearchListDocumento = () => {
   const [error, setError] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  // const [fecha, setFecha] = useState(dayjs());
+
   const hoy = dayjs();
   const inicioRango = dayjs().subtract(1, "week");
 
@@ -135,24 +137,27 @@ const SearchListDocumento = () => {
   };
 
   const handleEdit = async () => {
-    // Imprimir los datos antes de enviar
+    // Formatear la fecha de ingreso
     const formattedFechaIngreso = editFormData.fechaIngreso
       ? editFormData.fechaIngreso.toISOString()
       : null;
+
+    // Formatear las fechas de los pagos
     const formattedPagos = editFormData.proveedorCompraPagoUpdates.map(
       (pago) => ({
         ...pago,
         fechaPago: pago.fechaPago ? pago.fechaPago.toISOString() : null,
       })
     );
+
+    // Preparar los datos para enviar
     const dataToSend = {
       idCabeceraCompra: editFormData.idCabeceraCompra,
       tipoDocumento: editFormData.tipoDocumento,
       folio: editFormData.folio,
       codigoProveedor: editFormData.codigoProveedor,
       total: editFormData.total,
-      fechaIngreso: formattedFechaIngreso, // Aquí se utiliza la fecha formateada
-
+      fechaIngreso: formattedFechaIngreso, // Fecha formateada
       proveedorCompraDetalleUpdates:
         editFormData.proveedorCompraDetalleUpdates.map((detalle) => ({
           idDetalle: detalle.idDetalle,
@@ -160,20 +165,19 @@ const SearchListDocumento = () => {
           descripcionProducto: detalle.descripcionProducto,
           cantidad: detalle.cantidad,
           precioUnidad: detalle.precioUnidad,
+          idCabeceraCompra: detalle.idCabeceraCompra, // Asegurarse de incluir idCabeceraCompra
         })),
-
-      proveedorCompraPagoUpdates: editFormData.proveedorCompraPagoUpdates.map(
-        (pago) => ({
-          idPago: pago.idPago,
-          fechaIngreso: pago.fechaPago, // Aquí se utiliza la fecha formateada
-
-          codigoUsuario: pago.codigoUsuario,
-          montoPagado: pago.montoPagado,
-          metodoPago: pago.metodoPago,
-        })
-      ),
+      proveedorCompraPagoUpdates: formattedPagos.map((pago) => ({
+        idPago: pago.idPago,
+        fechaPago: pago.fechaPago, // Fecha formateada
+        codigoUsuario: pago.codigoUsuario,
+        montoPagado: pago.montoPagado,
+        metodoPago: pago.metodoPago,
+      })),
     };
+
     console.log("Datos a enviar:", dataToSend);
+
     try {
       const response = await axios.put(
         `https://www.easyposdev.somee.com/api/Proveedores/PutProveedorCompra`,
@@ -246,55 +250,32 @@ const SearchListDocumento = () => {
     setCompraToDelete(null);
   };
 
-  // const handleOpenEditDialog = (compra) => {
-  //   setEditFormData({
-  //     idCabeceraCompra: compra.idCabeceraCompra,
-  //     tipoDocumento: compra.tipoDocumento,
-
-  //     folio: compra.folio,
-  //     codigoProveedor: compra.codigoProveedor,
-  //     total: compra.total,
-  //     fechaIngreso: dayjs(compra.fechaIngreso), // Convertir la fecha a Dayjs
-  //     proveedorCompraDetalleUpdates: compra.detalles.map((detalle) => ({
-  //       idDetalle: detalle.idDetalle,
-  //       codProducto: detalle.codProducto,
-  //       descripcionProducto: detalle.descripcionProducto,
-  //       cantidad: detalle.cantidad,
-  //       precioUnidad: detalle.precioUnidad,
-  //     })),
-  //     proveedorCompraPagoUpdates: compra.pagos.map((pago) => ({
-  //       idPago: pago.idPago,
-  //       fechaPago: dayjs(pago.fechaPago),
-  //       total: 0,
-  //       codigoUsuario: pago.codigoUsuario,
-  //       montoPagado: pago.montoPagado,
-  //       metodoPago: pago.metodoPago,
-  //     })),
-  //   });
-  //   setEditDialogOpen(true);
-  // };
   const handleOpenEditDialog = (compra) => {
+    console.log(compra); // Verifica los datos de entrada
+
     setEditFormData({
-      idCabeceraCompra: compra.idCabeceraCompra,
-      tipoDocumento: compra.tipoDocumento,
-      folio: compra.folio,
-      codigoProveedor: compra.codigoProveedor,
-      total: compra.total,
-      fechaIngreso: dayjs(compra.fechaIngreso), // Convertir la fecha a Dayjs
+      idCabeceraCompra: compra.idCabeceraCompra || "",
+      tipoDocumento: compra.tipoDocumento || "",
+      folio: compra.folio || "",
+      codigoProveedor: compra.codigoProveedor || "",
+      total: compra.total || 0,
+      fechaIngreso: dayjs(compra.fechaIngreso) || null,
       proveedorCompraDetalleUpdates: compra.detalles.map((detalle) => ({
-        idDetalle: detalle.idDetalle,
-        codProducto: detalle.codProducto,
-        descripcionProducto: detalle.descripcionProducto,
-        cantidad: detalle.cantidad,
-        precioUnidad: detalle.precioUnidad,
+        idDetalle: detalle.idDetalle !== undefined ? detalle.idDetalle : "",
+        codProducto:
+          detalle.codProducto !== undefined ? detalle.codProducto : "",
+        descripcionProducto: detalle.descripcionProducto || "",
+        cantidad: detalle.cantidad !== undefined ? detalle.cantidad : 0,
+        precioUnidad:
+          detalle.precioUnidad !== undefined ? detalle.precioUnidad : 0,
       })),
       proveedorCompraPagoUpdates: compra.pagos.map((pago) => ({
-        idPago: pago.idPago,
-        fechaPago: dayjs(pago.fechaPago), // Convertir la fecha a Dayjs
-
-        codigoUsuario: pago.codigoUsuario,
-        montoPagado: pago.montoPagado,
-        metodoPago: pago.metodoPago,
+        idPago: pago.idPago !== undefined ? pago.idPago : "",
+        fechaPago: dayjs(pago.fechaPago) || null,
+        total: pago.total !== undefined ? pago.total : 0,
+        codigoUsuario: Number(pago.codigoUsuario) || 0, // Asegurarse de que sea un número entero
+        montoPagado: pago.montoPagado !== undefined ? pago.montoPagado : 0,
+        metodoPago: pago.metodoPago || "",
       })),
     });
     setEditDialogOpen(true);
@@ -312,68 +293,92 @@ const SearchListDocumento = () => {
     setSnackbarOpen(false);
     setSnackbarMessage("");
   };
+  const handleOpenProductDialog = () => {
+    setOpenProduct(true);
+  };
 
-  // const handleEditFormChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setEditFormData({
-  //     ...editFormData,
-  //     [name]: value,
+  const handleCloseProductDialog = () => {
+    setOpenProduct(false);
+  };
+ 
+  
+
+
+  // const handleAddProductToEdit = (product) => {
+  //   setEditFormData((prevData) => {
+  //     // Crear una nueva lista que sólo contiene el nuevo producto
+  //     const updatedDetails = [
+  //       {
+  //         idDetalle: product.idProducto,
+  //         codProducto: product.idProducto, // si es necesario agregar este campo
+  //         descripcionProducto: product.nombre,
+  //         cantidad: 1,
+  //         precioUnidad: product.precioCosto,
+  //       },
+  //     ];
+  
+  //     return {
+  //       ...prevData,
+  //       proveedorCompraDetalleUpdates: updatedDetails,
+  //     };
   //   });
   // };
+  
+  
+  const handleAddProductToEdit = (product) => {
+
+    
+    setEditFormData((prevData) => ({
+      ...prevData,
+      proveedorCompraDetalleUpdates: [
+        {
+          idDetalle: product.idProducto,
+          codProducto: product.idProducto, // Agregado este campo si es necesario
+          descripcionProducto: product.nombre,
+          cantidad: 1,
+          precioUnidad: product.precioCosto,
+        },
+      ],
+    }));
+   
+  };
+  
+  
+  
+  
+  
+
   const handleEditFormChange = (event) => {
-    // Verificar si event es un objeto de DatePicker
-    if (event && event.isValid && event.$d) {
-      setEditFormData((prevState) => ({
-        ...prevState,
-        fechaIngreso: event,
-      }));
-    } else {
-      const { name, value } = event.target;
-      setEditFormData((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    }
+    const { name, value } = event.target;
+    setEditFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleEditDetailChange = (index, field, value) => {
-    const newDetails = [...editFormData.proveedorCompraDetalleUpdates];
-    newDetails[index][field] = value;
-    setEditFormData({
-      ...editFormData,
-      proveedorCompraDetalleUpdates: newDetails,
-    });
-  };
-
-  // const handleEditPaymentChange = (index, field, value) => {
-  //   const updatedPayments = [...editFormData.proveedorCompraPagoUpdates];
-  //   if (field === "fechaPago") {
-  //     updatedPayments[index] = {
-  //       ...updatedPayments[index],
-  //       [field]: value,
-  //     };
-  //   } else {
-  //     updatedPayments[index] = {
-  //       ...updatedPayments[index],
-  //       [field]: value,
-  //     };
-  //   }
-  //   setEditFormData((prevState) => ({
-  //     ...prevState,
-  //     proveedorCompraPagoUpdates: updatedPayments,
-  //   }));
-  // };
-  const handleEditPaymentChange = (index, field, value) => {
-    const updatedPayments = [...editFormData.proveedorCompraPagoUpdates];
-    updatedPayments[index] = {
-      ...updatedPayments[index],
-      [field]: field === "fechaPago" ? dayjs(value) : value,
+    const updatedDetails = [...editFormData.proveedorCompraDetalleUpdates];
+    updatedDetails[index] = {
+      ...updatedDetails[index],
+      [field]: value,
     };
-    setEditFormData((prevState) => ({
-      ...prevState,
-      proveedorCompraPagoUpdates: updatedPayments,
+    setEditFormData((prevData) => ({
+      ...prevData,
+      proveedorCompraDetalleUpdates: updatedDetails,
     }));
   };
+
+  const handleDeleteDetail = (index) => {
+    const updatedDetails = [...editFormData.proveedorCompraDetalleUpdates];
+    updatedDetails.splice(index, 1);
+    setEditFormData((prevData) => ({
+      ...prevData,
+      proveedorCompraDetalleUpdates: updatedDetails,
+    }));
+  };
+
+
+
 
   const handleNumericKeyDown = (event) => {
     const key = event.key;
@@ -476,138 +481,7 @@ const SearchListDocumento = () => {
     setGrandTotal(total);
   };
 
-  ////////////BUSQUEDA PRODUCTO///////
-  const handleSearchButtonClick = async () => {
-    if (searchTermProd.trim() === "") {
-      setSearchedProducts([]);
-      setSnackbarMessage("El campo de búsqueda está vacío");
-      setSnackbarOpen(true);
-      return;
-    }
 
-    try {
-      const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTermProd}&codigoCliente=${0}`
-      );
-
-      if (response.data && response.data.cantidadRegistros > 0) {
-        setSearchedProducts(response.data.productos);
-        setSnackbarMessage(`Productos encontrados`);
-      } else {
-        setSearchedProducts([]);
-        setSnackbarMessage(
-          `No se encontraron resultados para "${searchTermProd}"`
-        );
-      }
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error al buscar el producto:", error);
-      setSnackbarMessage("Error al buscar el producto");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const handleAddProductToSales = (product) => {
-    const existingProductIndex = selectedProducts.findIndex(
-      (p) => p.id === product.idProducto
-    );
-
-    let updatedProducts;
-    if (existingProductIndex !== -1) {
-      updatedProducts = selectedProducts.map((p, index) => {
-        if (index === existingProductIndex) {
-          const updatedQuantity = p.cantidad + 1;
-          return {
-            ...p,
-            cantidad: updatedQuantity,
-            total: updatedQuantity * p.precioCosto,
-          };
-        }
-        return p;
-      });
-    } else {
-      const newProduct = {
-        id: product.idProducto,
-        nombre: product.nombre,
-        cantidad: 1,
-        precio: product.precioCosto,
-        total: product.precioCosto,
-        precioCosto: product.precioCosto,
-      };
-      updatedProducts = [...selectedProducts, newProduct];
-    }
-
-    setSelectedProducts(updatedProducts);
-
-    // Update the edit form data
-    const updatedDetails = [...editFormData.proveedorCompraDetalleUpdates];
-    const existingDetailIndex = updatedDetails.findIndex(
-      (detail) => detail.idProducto === product.idProducto
-    );
-
-    if (existingDetailIndex !== -1) {
-      updatedDetails[existingDetailIndex].cantidad += 1;
-      updatedDetails[existingDetailIndex].total =
-        updatedDetails[existingDetailIndex].cantidad *
-        updatedDetails[existingDetailIndex].precioUnidad;
-    } else {
-      updatedDetails.push({
-        idProducto: product.idProducto,
-        descripcionProducto: product.nombre,
-        cantidad: 1,
-        precioUnidad: product.precioCosto,
-        total: product.precioCosto,
-      });
-    }
-
-    setEditFormData({
-      ...editFormData,
-      proveedorCompraDetalleUpdates: updatedDetails,
-    });
-
-    setSearchedProducts([]);
-    handleCloseProduct();
-    setSearchTermProd("");
-    setSelectedProducts([]);
-  };
-
-  const handleQuantityChange = (value, index) => {
-    const updatedProducts = [...selectedProducts];
-    const parsedValue = parseInt(value);
-
-    if (isNaN(parsedValue) || parsedValue < 0) {
-      updatedProducts[index].cantidad = 0;
-      updatedProducts[index].total = 0;
-    } else {
-      updatedProducts[index].cantidad = parsedValue;
-      updatedProducts[index].total =
-        parsedValue * updatedProducts[index].precio;
-    }
-
-    setSelectedProducts(updatedProducts);
-  };
-
-  const handleDeleteProduct = (index) => {
-    const updatedProducts = [...selectedProducts];
-    updatedProducts.splice(index, 1);
-    setSelectedProducts(updatedProducts);
-  };
-
-  const grandTotal = selectedProducts.reduce(
-    (total, product) => total + product.total,
-    0
-  );
-
-  ///////////FIN BUSQUEDA PRODUCTO///////
-  const handleDeleteDetail = (index) => {
-    const updatedDetails = editFormData.proveedorCompraDetalleUpdates.filter(
-      (detail, detailIndex) => detailIndex !== index
-    );
-    setEditFormData({
-      ...editFormData,
-      proveedorCompraDetalleUpdates: updatedDetails,
-    });
-  };
   console.log("selectedProducts", selectedProducts);
   return (
     <Box sx={{ p: 2, mb: 4 }}>
@@ -864,257 +738,25 @@ const SearchListDocumento = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={editDialogOpen} onClose={handleCloseEditDialog}>
-        <DialogTitle>Editar Documento</DialogTitle>
-        <DialogContent>
-          <TextField
-            name="tipoDocumento"
-            margin="dense"
-            select
-            label="Tipo de documento"
-            value={editFormData.tipoDocumento}
-            onChange={handleEditFormChange}
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            <MenuItem value="Factura">Factura</MenuItem>
-            <MenuItem value="Boleta">Boleta</MenuItem>
-            <MenuItem value="Ticket">Ticket</MenuItem>
-            <MenuItem value="Ingreso Interno">Ingreso Interno</MenuItem>
-          </TextField>
-
-          <TextField
-            margin="dense"
-            name="folio"
-            label="Folio"
-            value={editFormData.folio}
-            onChange={handleEditFormChange}
-            onKeyDown={handleNumericKeyDown}
-            fullWidth
-          />
-
-          <TextField
-            margin="dense"
-            name="total"
-            label="Total"
-            type="number"
-            value={editFormData.total}
-            onChange={handleEditFormChange}
-            fullWidth
-            onKeyDown={handleNumericKeyDown}
-            inputProps={{
-              readOnly: true,
-            }}
-          />
-
-<LocalizationProvider dateAdapter={AdapterDayjs}>
-  <TextField
-    sx={{ mt: 1 }}
-    label="Fecha ingreso"
-    value={
-      editFormData.fechaIngreso
-        ? dayjs(editFormData.fechaIngreso).format('DD/MM/YYYY')
-        : ''
-    }
-    InputProps={{
-      readOnly: true,
-    }}
-    fullWidth
-    margin="dense"
-  />
-</LocalizationProvider>
+      <EditDialog
+        editDialogOpen={editDialogOpen}
+        handleCloseEditDialog={handleCloseEditDialog}
+        editFormData={editFormData}
+        handleEditFormChange={handleEditFormChange}
+        handleNumericKeyDown={handleNumericKeyDown}
+        handleEditDetailChange={handleEditDetailChange}
+        handleOpenProduct={handleOpenProduct}
+        handleDeleteDetail={handleDeleteDetail}
+        // handleEditPaymentChange={handleEditPaymentChange}
+        handleEdit={handleEdit}
+      />
+        <ProductDialog 
+        openProduct={openProduct} 
+        handleCloseProduct={handleCloseProductDialog} 
+        handleAddProductToEdit={handleAddProductToEdit} 
+      />
 
 
-          <TableContainer component={Paper} sx={{ mt: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Producto</TableCell>
-                  <TableCell>Cantidad</TableCell>
-                  <TableCell>Precio Unidad</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {editFormData.proveedorCompraDetalleUpdates.map(
-                  (detalle, index) => (
-                    <TableRow key={index}>
-                      <TableCell sx={{ width: "30%" }}>
-                        <TextField
-                          margin="dense"
-                          label="Descripción"
-                          value={detalle.descripcionProducto}
-                          onChange={(e) =>
-                            handleEditDetailChange(
-                              index,
-                              "descripcionProducto",
-                              e.target.value
-                            )
-                          }
-                          fullWidth
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ width: "30%" }}>
-                        <TextField
-                          margin="dense"
-                          label="Cantidad"
-                          value={detalle.cantidad}
-                          onChange={(e) =>
-                            handleEditDetailChange(
-                              index,
-                              "cantidad",
-                              e.target.value
-                            )
-                          }
-                          fullWidth
-                          onKeyDown={handleNumericKeyDown}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ width: "30%" }}>
-                        <TextField
-                          margin="dense"
-                          label="Precio Unidad"
-                          value={detalle.precioUnidad}
-                          onChange={(e) =>
-                            handleEditDetailChange(
-                              index,
-                              "precioUnidad",
-                              e.target.value
-                            )
-                          }
-                          fullWidth
-                          inputProps={{
-                            readOnly: true,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {detalle.cantidad * detalle.precioUnidad}
-                      </TableCell>
-                      <TableCell>
-                        <Grid sx={{ display: "flex" }}>
-                          <IconButton onClick={handleOpenProduct}>
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton onClick={() => handleDeleteDetail(index)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Grid>
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <TableContainer component={Paper} sx={{ mt: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Monto Pagado</TableCell>
-                  <TableCell>Método Pago</TableCell>
-                  <TableCell>Fecha Pago</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {editFormData.proveedorCompraPagoUpdates.map((pago, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <TextField
-                        margin="dense"
-                        label="Monto Pagado"
-                        value={pago.montoPagado}
-                        onChange={(e) =>
-                          handleEditPaymentChange(
-                            index,
-                            "montoPagado",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        onKeyDown={handleNumericKeyDown}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          label="Fecha Pago"
-                          value={pago.fechaPago ? dayjs(pago.fechaPago) : null}
-                          onChange={(newValue) =>
-                            handleEditPaymentChange(
-                              index,
-                              "fechaPago",
-                              newValue
-                            )
-                          }
-                          renderInput={(params) => (
-                            <TextField {...params} margin="dense" fullWidth />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </TableCell>
-                    <TableCell>
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          label="Fecha Pago"
-                          name="fechaPago"
-                          value={pago.fechaPago ? dayjs(pago.fechaPago) : null}
-                          onChange={(newValue) =>
-                            handleEditPaymentChange(
-                              index,
-                              "fechaPago",
-                              newValue
-                            )
-                          }
-                          renderInput={(params) => (
-                            <TextField {...params} margin="dense" fullWidth />
-                          )}
-                        />
-                      </LocalizationProvider>
-                    </TableCell>
-                    {/* 
-                    <TableCell>
-                      <TextField
-                        margin="dense"
-                        label="total"
-                        type="number"
-                        value={pago.total}
-                        onChange={(e) =>
-                          handleEditPaymentChange(
-                            index,
-                            "total",
-                            e.target.value
-                          )
-                        }
-                        fullWidth
-                        InputProps={{
-                          readOnly: true,
-                        }}
-                      />
-                    </TableCell> */}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleCloseEditDialog} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleEdit} color="secondary" variant="contained">
-            EDITAR
-          </Button>
-        </DialogActions>
-      </Dialog>
-      ;
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -1132,116 +774,6 @@ const SearchListDocumento = () => {
             Eliminar
           </Button>
         </DialogActions>
-      </Dialog>
-      <Dialog open={openProduct} onClose={handleCloseProduct}>
-        <DialogTitle>Selecciona producto</DialogTitle>
-        <DialogContent>
-          <div style={{ alignItems: "center" }}>
-            <TextField
-              fullWidth
-              placeholder="Buscar producto por descripción"
-              value={searchTermProd}
-              onChange={(e) => setSearchTermProd(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSearchButtonClick();
-                }
-              }}
-              sx={{ mb: 2 }}
-            />
-            <Button
-              variant="contained"
-              onClick={handleSearchButtonClick}
-              sx={{ mb: 2 }}
-            >
-              Buscar
-            </Button>
-            <TableContainer component={Paper} style={{ maxHeight: 200 }}>
-              <Table>
-                <TableBody>
-                  {searchedProducts.map((product) => (
-                    <TableRow key={product.idProducto}>
-                      <TableCell>{product.nombre}</TableCell>
-                      <TableCell>Plu: {product.idProducto}</TableCell>
-                      <TableCell>Precio Costo: {product.precioCosto}</TableCell>
-                      <TableCell>
-                        <Button
-                          onClick={() => handleAddProductToSales(product)}
-                          variant="contained"
-                          color="secondary"
-                        >
-                          Agregar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <TableContainer component={Paper} style={{ maxHeight: 200 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Descripción</TableCell>
-                    <TableCell>Precio Costo</TableCell>
-                    <TableCell>Cantidad</TableCell>
-                    <TableCell>Total</TableCell>
-                    <TableCell>Eliminar</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {selectedProducts.map((product, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{product.nombre}</TableCell>
-                      <TableCell>{product.precioCosto}</TableCell>
-                      <TableCell>
-                        <TextField
-                          value={product.cantidad}
-                          onChange={(e) =>
-                            handleQuantityChange(e.target.value, index)
-                          }
-                          InputProps={{
-                            maxLength: 3,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>{product.total}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleDeleteProduct(index)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            <Grid
-              gap={3}
-              sx={{ display: "flex", justifyContent: "space-arround" }}
-            >
-              <TextField
-                label="Total"
-                value={grandTotal}
-                InputProps={{
-                  readOnly: true,
-                }}
-                sx={{ mt: 2 }}
-              />
-              <Button
-                variant="contained"
-                onClick={() => handleAddProductToSales(product)}
-                color="secondary"
-                sx={{ width: "60%", mt: 2 }}
-              >
-                Agregar producto
-              </Button>
-            </Grid>
-          </div>
-        </DialogContent>
-        <DialogActions></DialogActions>
       </Dialog>
     </Box>
   );

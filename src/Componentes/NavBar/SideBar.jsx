@@ -63,7 +63,7 @@ const menuItems = [
     link: "/reportes",
     icon: <FactCheckIcon />,
     subMenuItems: [
-      { text: "Reporte", link: "/reportes/cuentacorriente",icon: <SummarizeIcon />},
+      { text: "Cuenta corriente Cliente", link: "/reportes/cuentacorriente",icon: <SummarizeIcon />},
    
     
     ],
@@ -90,7 +90,7 @@ export default function PermanentDrawerLeft() {
           flexShrink: 0,
           "& .MuiDrawer-paper": {
             width: drawerWidth,
-            boxSizing: "border-box",
+           
           },
         }}
         variant="permanent"
