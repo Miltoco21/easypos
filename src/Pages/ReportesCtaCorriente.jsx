@@ -16,39 +16,42 @@ import {
   Collapse,
   IconButton,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import {
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import axios from "axios";
 import SideBar from "../Componentes/NavBar/SideBar";
-
-const validateDateInput = (e) => {
-  const allowedKeys = [
-    "Backspace",
-    "ArrowLeft",
-    "ArrowRight",
-    "ArrowUp",
-    "ArrowDown",
-    "Tab",
-  ];
-  if (allowedKeys.includes(e.key)) return;
-
-  const dateRegex = /^(\d{0,4})\/?(\d{0,2})\/?(\d{0,2})$/;
-  const currentValue = e.target.value;
-  const newValue = currentValue + e.key;
-
-  if (!dateRegex.test(newValue)) {
-    e.preventDefault();
-  }
-};
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const ReportesCtaCorriente = () => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [rut, setRut] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [openRows, setOpenRows] = useState({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermFolio, setSearchTermFolio] = useState("");
+  const [hideZeroSaldo, setHideZeroSaldo] = useState(false);
+
+  const handleBuscarClick = () => {
+    fetchData();
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -58,26 +61,24 @@ const ReportesCtaCorriente = () => {
         `https://www.easyposdev.somee.com/api/ReporteClientes/GetClientesDeudasByFecha`,
         {
           params: {
-            fechaDesde: startDate,
-            fechaHasta: endDate,
-            rut,
+            fechaDesde: startDate ? startDate.format("DD-MM-YYYY") : "",
+            fechaHasta: endDate ? endDate.format("DD-MM-YYYY") : "",
           },
         }
       );
-      const groupedData = groupDataByClient(response.data.clienteDeudaByFechas);
-      setData(groupedData);
-      console.log("RESPONSE FECHAS", groupedData);
+      setData(response.data.clienteDeudaByFechas);
+      console.log("respuesta fechas", response.data);
     } catch (error) {
       setError("Error fetching data");
+      setSnackbarMessage("Error al buscar los datos");
+      setSnackbarOpen(true);
     }
     setLoading(false);
   };
 
   const groupDataByClient = (data) => {
     const groupedData = data.reduce((acc, curr) => {
-      const clientIndex = acc.findIndex(
-        (item) => item.rut === curr.rut
-      );
+      const clientIndex = acc.findIndex((item) => item.rut === curr.rut);
       if (clientIndex !== -1) {
         acc[clientIndex].transactions.push(curr);
       } else {
@@ -92,15 +93,55 @@ const ReportesCtaCorriente = () => {
     return groupedData;
   };
 
-  const handleSearch = () => {
-    fetchData();
-  };
-
   const toggleRow = (rowId) => {
     setOpenRows((prevOpenRows) => ({
       ...prevOpenRows,
       [rowId]: !prevOpenRows[rowId],
     }));
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleOpenDialog = (products) => {
+    setSelectedProducts(products);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedProducts([]);
+  };
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+  };
+
+  const handleSearchFolio = (value) => {
+    setSearchTermFolio(value);
+  };
+
+  const groupedData = groupDataByClient(data);
+
+  const filteredData = groupedData.filter((client) => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+
+    return (
+      client.rut.toLowerCase().includes(lowercasedFilter) ||
+      client.razonSocial.toLowerCase().includes(lowercasedFilter)
+    );
+  });
+
+  const sortedData = filteredData.sort((a, b) => a.rut.localeCompare(b.rut));
+
+  const calculateSaldo = (total, pagos) => {
+    const totalPagos = pagos.reduce((sum, pago) => sum + pago.montoPagado, 0);
+    return total - totalPagos;
+  };
+
+  const toggleHideZeroSaldo = () => {
+    setHideZeroSaldo((prev) => !prev);
   };
 
   return (
@@ -109,54 +150,83 @@ const ReportesCtaCorriente = () => {
 
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
         <Grid container spacing={1} alignItems="center">
-          <Grid item xs={12} md={3}>
-            <InputLabel sx={{ margin: 1.5 }}>Ingresa Rut</InputLabel>
-            <TextField
-              value={rut}
-              onChange={(e) => setRut(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <InputLabel sx={{ margin: 1.5 }}>Ingresa fecha de Inicio (AAAA/MM/DD)</InputLabel>
-            <TextField
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              placeholder="AAAA/MM/DD"
-              fullWidth
-              onKeyDown={validateDateInput}
-            />
-          </Grid>
-          <Grid item xs={12} md={5}>
-            <InputLabel sx={{ margin: 1.5 }}>Ingresa fecha de Termino (AAAA/MM/DD)</InputLabel>
-            <TextField
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              placeholder="AAAA/MM/DD"
-              fullWidth
-              onKeyDown={validateDateInput}
-            />
-          </Grid>
-          <Grid item xs={12} md={2}>
-            <InputLabel sx={{ margin: 1.5 }}></InputLabel>
-            <Button
-              sx={{ width: "40%" }}
-              variant="contained"
-              color="primary"
-              onClick={handleSearch}
-            >
-              Buscar
-            </Button>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12} md={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Fecha Inicio"
+                  value={startDate}
+                  onChange={(newValue) => setStartDate(newValue)}
+                  slotProps={{
+                    textField: {
+                      sx: { mb: 2 },
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Fecha Término"
+                  value={endDate}
+                  onChange={(newValue) => setEndDate(newValue)}
+                  slotProps={{
+                    textField: {
+                      sx: { mb: 2 },
+                      fullWidth: true,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Button
+                sx={{ p: 2, mb: 3 }}
+                variant="contained"
+                onClick={handleBuscarClick}
+                fullWidth
+              >
+                Buscar
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
+
+        <Grid container spacing={1} alignItems="center">
+          <Grid item xs={12} md={3}>
+            <TextField
+              label="Buscar por RUT o Razón Social"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+
+        <Button onClick={toggleHideZeroSaldo}variant="contained" color="secondary"    sx={{ p: 2, mt: 4 }}>
+          {hideZeroSaldo ? "Mostrar Saldos en Cero" : "Ocultar Saldos en Cero"}
+        </Button>
 
         {loading ? (
           <CircularProgress />
         ) : error ? (
           <Snackbar
-            open={Boolean(error)}
+            open={snackbarOpen}
             autoHideDuration={6000}
-            message={error}
+            onClose={handleCloseSnackbar}
+            message={snackbarMessage}
+            action={
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleCloseSnackbar}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            }
           />
         ) : (
           <TableContainer component={Paper} sx={{ mt: 4 }}>
@@ -166,17 +236,11 @@ const ReportesCtaCorriente = () => {
                   <TableCell />
                   <TableCell>Rut</TableCell>
                   <TableCell>Razon Social</TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>Nombre Cliente</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((client) => (
+                {sortedData.map((client) => (
                   <React.Fragment key={client.rut}>
                     <TableRow>
                       <TableCell>
@@ -190,6 +254,7 @@ const ReportesCtaCorriente = () => {
                       </TableCell>
                       <TableCell>{client.rut}</TableCell>
                       <TableCell>{client.razonSocial}</TableCell>
+                      <TableCell>{client.transactions[0].nombreApellidoCliente}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
@@ -204,39 +269,68 @@ const ReportesCtaCorriente = () => {
                                   <TableCell>Cargo</TableCell>
                                   <TableCell>Abono</TableCell>
                                   <TableCell>Saldo</TableCell>
-                                  <TableCell>Productos</TableCell>
+                                  <TableCell></TableCell>
                                 </TableRow>
                               </TableHead>
                               <TableBody>
-                                {client.transactions.map((transaction) => (
-                                  <TableRow key={transaction.id}>
-                                    <TableCell>{new Date(transaction.fecha).toLocaleDateString()}</TableCell>
-                                    <TableCell>{transaction.descripcionComprobante}</TableCell>
-                                    <TableCell>{transaction.nroComprobante}</TableCell>
-                                    <TableCell>{transaction.total}</TableCell>
-                                    <TableCell>
-                                      {transaction.clientePagarDeudasTransFerencias.map((payment, index) => (
-                                        <div key={index}>
-                                          {payment.metodoPago} - {payment.montoPagado}
-                                        </div>
-                                      ))}
-                                      <div>
-                                        <strong>Total Abono: {transaction.clientePagarDeudasTransFerencias.reduce(
-                                          (sum, payment) => sum + payment.montoPagado,
-                                          0
-                                        )}</strong>
-                                      </div>
-                                    </TableCell>
-                                    <TableCell>ABONO -CARGO</TableCell>
-                                    <TableCell>
-                                      {transaction.clienteVentaDetalles.map((product, index) => (
-                                        <div key={index}>
-                                          {product.descripcionProducto} - {product.cantidad} x {product.precioUnidad}
-                                        </div>
-                                      ))}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
+                                {client.transactions
+                                  .filter(
+                                    (transaction) =>
+                                      !hideZeroSaldo ||
+                                      calculateSaldo(
+                                        transaction.total,
+                                        transaction.clienteDeudasPagadas
+                                      ) !== 0
+                                  )
+                                  .map((transaction) => (
+                                    <TableRow key={transaction.id}>
+                                      <TableCell>
+                                        {new Date(transaction.fechaIngreso).toLocaleDateString(
+                                          "es-ES",
+                                          {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                          }
+                                        )}
+                                      </TableCell>
+                                      <TableCell>{transaction.descripcionComprobante}</TableCell>
+                                      <TableCell>{transaction.nroComprobante}</TableCell>
+                                      <TableCell>{transaction.total}</TableCell>
+                                      <TableCell>
+                                        {transaction.clienteDeudasPagadas.length > 0 &&
+                                          transaction.clienteDeudasPagadas.map((payment) => (
+                                            <div key={payment.id}>
+                                              {payment.montoPagado} <br />
+                                              {payment.metodoPago}
+                                              <br />
+                                              {new Date(payment.fechaIngreso).toLocaleDateString(
+                                                "es-ES",
+                                                {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                  year: "numeric",
+                                                }
+                                              )}
+                                            </div>
+                                          ))}
+                                      </TableCell>
+                                      <TableCell>
+                                        {calculateSaldo(
+                                          transaction.total,
+                                          transaction.clienteDeudasPagadas
+                                        )}
+                                      </TableCell>
+                                      <TableCell>
+                                        <Button
+                                          variant="contained"
+                                          onClick={() => handleOpenDialog(transaction.productos)}
+                                        >
+                                          Detalles
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
                               </TableBody>
                             </Table>
                           </Box>
@@ -249,6 +343,38 @@ const ReportesCtaCorriente = () => {
             </Table>
           </TableContainer>
         )}
+
+        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+          <DialogTitle>Detalles de Productos</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Aquí están los detalles de los productos seleccionados:
+            </DialogContentText>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Descripción</TableCell>
+                  <TableCell>Cantidad</TableCell>
+                  <TableCell>Precio Unidad</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedProducts.map((product, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{product.descripcionProducto}</TableCell>
+                    <TableCell>{product.cantidad}</TableCell>
+                    <TableCell>{product.precioUnidad}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Cerrar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   );
