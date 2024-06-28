@@ -23,6 +23,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import ReportesClientes from './Pages/ReportesClientes';
 import ReportesCtaCorriente from './Pages/ReportesCtaCorriente';
+import ReportesCtaCorrienteProv from './Pages/ReportesCtaCorrienteProv';
 
 
 function App() {
@@ -53,7 +54,9 @@ function App() {
       <Route path="/proveedores/ingresodocumento" element={<ProtectedRoute element={<IngresoDocumento />} />} />
       <Route path="/proveedores/reportes" element={<ProtectedRoute element={<ReportesProv />} />} />
       <Route path="reportes" element={<ProtectedRoute element={<Reportes />} />} />
-      <Route path="reportes/cuentacorriente" element={<ProtectedRoute element={<ReportesCtaCorriente />} />} />
+      <Route path="reportes/cuentacorrienteclientes" element={<ProtectedRoute element={<ReportesCtaCorriente />} />} />
+      <Route path="reportes/cuentacorrienteproveedores" element={<ProtectedRoute element={<ReportesCtaCorrienteProv />} />} />
+
     </Routes>
   );
 }

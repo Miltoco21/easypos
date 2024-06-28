@@ -63,7 +63,8 @@ const menuItems = [
     link: "/reportes",
     icon: <FactCheckIcon />,
     subMenuItems: [
-      { text: "Cuenta corriente Cliente", link: "/reportes/cuentacorriente",icon: <SummarizeIcon />},
+      { text: "Cuentas corrientes clientes", link: "/reportes/cuentacorrienteclientes",icon: <SummarizeIcon />},
+      { text: "Cuentas corrientes proveedores", link: "/reportes/cuentacorrienteproveedores",icon: <SummarizeIcon />},
    
     
     ],
