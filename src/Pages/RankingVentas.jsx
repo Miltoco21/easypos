@@ -155,7 +155,8 @@ const RankingVentas = () => {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow>
+                    {/* sx={{display:"none"}} */}
+                      <TableRow >
                       <TableCell></TableCell>
                       <TableCell></TableCell>
                       <TableCell></TableCell>
@@ -172,8 +173,7 @@ const RankingVentas = () => {
                           {grandTotalSuma.toLocaleString("es-CL")}
                         </TableCell>
                         <TableCell>
-                          <strong>Total Participación: </strong>
-                          100%
+                        
                         </TableCell>
                       </TableRow>
                     </TableHead>
