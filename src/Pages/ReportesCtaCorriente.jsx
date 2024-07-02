@@ -61,8 +61,8 @@ const ReportesCtaCorriente = () => {
         `https://www.easyposdev.somee.com/api/ReporteClientes/GetClientesDeudasByFecha`,
         {
           params: {
-            fechaDesde: startDate ? startDate.format("DD-MM-YYYY") : "",
-            fechaHasta: endDate ? endDate.format("DD-MM-YYYY") : "",
+            fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",
+            fechaHasta: endDate ? endDate.format("YYYY-MM-DD") : "",
           },
         }
       );
@@ -296,16 +296,16 @@ const ReportesCtaCorriente = () => {
                                       </TableCell>
                                       <TableCell>{transaction.descripcionComprobante}</TableCell>
                                       <TableCell>{transaction.nroComprobante}</TableCell>
-                                      <TableCell>{transaction.total}</TableCell>
+                                      <TableCell>{transaction.total.toLocaleString("es-CL")}</TableCell>
                                       <TableCell>
                                         {transaction.clienteDeudasPagadas.length > 0 &&
                                           transaction.clienteDeudasPagadas.map((payment) => (
                                             <div key={payment.id}>
-                                              {payment.montoPagado} <br />
+                                              {payment.montoPagado.toLocaleString("es-CL")} <br />
                                               {payment.metodoPago}
                                               <br />
                                               {new Date(payment.fechaIngreso).toLocaleDateString(
-                                                "es-ES",
+                                                "es-CL",
                                                 {
                                                   day: "2-digit",
                                                   month: "2-digit",
@@ -319,7 +319,7 @@ const ReportesCtaCorriente = () => {
                                         {calculateSaldo(
                                           transaction.total,
                                           transaction.clienteDeudasPagadas
-                                        )}
+                                        ).toLocaleString("es-CL")}
                                       </TableCell>
                                       <TableCell>
                                         <Button

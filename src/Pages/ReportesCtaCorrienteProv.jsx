@@ -297,6 +297,8 @@ const ReportesCtaCorrienteProv = () => {
                                       key={transaction.idCabeceraCompra}
                                     >
                                       <TableCell>
+
+                                    
                                         {" "}
                                         {new Date(
                                           transaction.fechaIngreso
@@ -310,18 +312,30 @@ const ReportesCtaCorrienteProv = () => {
                                         {transaction.tipoDocumento}
                                       </TableCell>
                                       <TableCell>{transaction.folio}</TableCell>
-                                      <TableCell>{transaction.total}</TableCell>
+                                      <TableCell> {transaction.pagos.length > 0 &&
+                                          transaction.pagos.map((payment) => (
+                                            <div key={payment.id}>
+                                              {payment.montoPagado.toLocaleString("es-CL")} <br />
+                                              {payment.metodoPago}
+                                              <br />
+                                              {new Date(payment.fechaPago).toLocaleDateString(
+                                                "es-ES",
+                                                {
+                                                  day: "2-digit",
+                                                  month: "2-digit",
+                                                  year: "numeric",
+                                                }
+                                              )}
+                                            </div>
+                                          ))}</TableCell>
+                                      <TableCell>{transaction.total.toLocaleString("es-CL")}</TableCell>
+              
                                       <TableCell>
-                                        {transaction.pagos.reduce(
-                                          (sum, pago) => sum + pago.montoPagado,
-                                          0
-                                        )}
-                                      </TableCell>
-                                      <TableCell>
+                                        
                                         {calculateSaldo(
                                           transaction.total,
                                           transaction.pagos
-                                        )}
+                                        ).toLocaleString("es-CL")}
                                       </TableCell>
                                       <TableCell>
                                         <Button
