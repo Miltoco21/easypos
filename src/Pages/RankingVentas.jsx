@@ -245,7 +245,7 @@ const RankingVentas = () => {
       <TableHead>
         <TableRow>
           <TableCell align="center" sx={{backgroundColor:"gainsboro"}}>
-            <strong>Porcentaje Participación</strong>
+            <strong> % del total</strong>
           </TableCell>
         </TableRow>
       </TableHead>
