@@ -53,12 +53,15 @@ const ReportesCtaCorriente = () => {
     fetchData();
   };
 
+
+  const apiUrl = import.meta.env.VITE_URL_API2;
+  console.log("apiUrl",apiUrl);
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await axios.get(
-        `https://www.easypos.somee.com/api/ReporteClientes/GetClientesDeudasByFecha`,
+        `${import.meta.env.VITE_URL_API2}/ReporteClientes/GetClientesDeudasByFecha`,
         {
           params: {
             fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",

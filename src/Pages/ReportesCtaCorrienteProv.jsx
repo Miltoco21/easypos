@@ -46,7 +46,7 @@ const ReportesCtaCorrienteProv = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [hideZeroBalance, setHideZeroBalance] = useState(false);
-
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const handleBuscarClick = () => {
     fetchData();
   };
@@ -56,7 +56,7 @@ const ReportesCtaCorrienteProv = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompraByFecha`,
+        `${import.meta.env.VITE_URL_API2}/Proveedores/GetProveedorCompraByFecha`,
         {
           params: {
             fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",
@@ -65,7 +65,7 @@ const ReportesCtaCorrienteProv = () => {
         }
       );
       setData(response.data.proveedorCompraCabeceraReportes);
-      console.log("respuesta Provedores", response.data);
+      console.log("respuesta Provedoress", response.data);
     } catch (error) {
       setError("Error fetching data");
       setSnackbarMessage("Error al buscar los datos");

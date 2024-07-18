@@ -27,8 +27,9 @@ const EditarSubFamilia = ({
   });
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
-  
+
   const [errorMessage, setErrorMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_URL_API2;
 
   useEffect(() => {
     if (subfamily) {
@@ -52,7 +53,7 @@ const EditarSubFamilia = ({
   
     try {
       const response = await axios.put(
-        `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateSubFamilia`,
+        `${import.meta.env.VITE_URL_API2}NivelMercadoLogicos/UpdateSubFamilia`,
         {
           idSubFamilia: editSubFamily.idSubFamilia,
           descripcionSubFamilia: editSubFamily.descripcion,

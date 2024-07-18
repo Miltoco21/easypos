@@ -24,6 +24,8 @@ const EditarProveedor = ({
   fetchProveedores,
   onEditSuccess,
 }) => {
+
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [editProveedor, setEditProveedor] = useState({
     codigoProveedor: "",
     razonSocial: "",
@@ -94,7 +96,7 @@ const EditarProveedor = ({
 
     try {
       const response = await axios.put(
-        `https://www.easyposdev.somee.com/api/Proveedores/UpdateProveedor`,
+        `${import.meta.env.VITE_URL_API2}/Proveedores/UpdateProveedor`,
         editProveedor
       );
 

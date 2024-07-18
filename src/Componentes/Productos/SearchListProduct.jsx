@@ -31,6 +31,7 @@ import Editp2 from "../Productos/Editp2";
 
 const ITEMS_PER_PAGE = 10;
 const SearchListProducts = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [searchTerm, setSearchTerm] = useState("");
   const [product, setProduct] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -63,7 +64,7 @@ const SearchListProducts = () => {
     const fetchProduct = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
+          `${import.meta.env.VITE_URL_API2}/ProductosTmp/GetProductos`
         );
         console.log("API Response:", response.data);
         if (Array.isArray(response.data.productos)) {
@@ -113,7 +114,7 @@ const SearchListProducts = () => {
   //     );
   //     console.log(response)
   //     if (response.status === 200) {
-      
+
   //       setSnackbarMessage("Producto eliminado correctamente");
   //       setOpenSnackbar(true);
   //       setRefresh((prevRefresh) => !prevRefresh);
@@ -133,18 +134,18 @@ const SearchListProducts = () => {
       }, 3000); // Cierra el Snackbar después de 3 segundos
     }
   }, [openSnackbar]);
-  
+
   const handleDelete = async (id) => {
     try {
       // Eliminar el producto localmente
       const updatedProducts = product.filter((p) => p.idProducto !== id);
       setProduct(updatedProducts);
-  
+
       // Llamada a la API para eliminar el producto
       const response = await axios.delete(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/DeleteProducto?id=${id}`
+        `${import.meta.env.VITE_URL_API2}/ProductosTmp/DeleteProducto?id=${id}`
       );
-  
+
       if (response.data.statusCode === 201) {
         setSnackbarMessage("Producto eliminado correctamente");
         setOpenSnackbar(true); // Establecer openSnackbar en true
@@ -157,12 +158,10 @@ const SearchListProducts = () => {
       console.error("Error deleting product:", error);
     }
   };
-  
-  
+
   // Dentro de useEffect, después de eliminar el producto, actualiza la lista de productos
   useEffect(() => {
     if (refresh) {
-      
       setRefresh(false);
     }
   }, [refresh]);
@@ -175,7 +174,6 @@ const SearchListProducts = () => {
     }
     return () => clearTimeout(timeout);
   }, [openSnackbar]);
-  
 
   const handleEdit = (product) => {
     console.log("Edit button pressed for product:", product);

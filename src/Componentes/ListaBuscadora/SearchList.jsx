@@ -14,12 +14,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Snackbar
+  Snackbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
-import PaymentsIcon from '@mui/icons-material/Payments';
+import PaymentsIcon from "@mui/icons-material/Payments";
 
 const SearchList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,11 +32,13 @@ const SearchList = () => {
   const [userToDelete, setUserToDelete] = useState("");
   const perPage = 5;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://www.easyposdev.somee.com/api/Usuarios/GetAllUsuarios");
+      const response = await axios.get(
+        `${import.meta.env.VITE_URL_API2}/Usuarios/GetAllUsuarios`
+      );
       // console.log("API response:", response.data);
       setUsers(response.data.usuarios);
     } catch (error) {
@@ -78,22 +80,30 @@ const SearchList = () => {
     const userId = userToDelete.codigoUsuario;
     console.log("ID de usuario a eliminar:", userId);
     try {
-      const response = await axios.delete(`https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`);
-      
-      if (response.status === 200 && response.data.descripcion === "Usuario Eliminado.") {
+      const response = await axios.delete(
+        `https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`
+      );
+
+      if (
+        response.status === 200 &&
+        response.data.descripcion === "Usuario Eliminado."
+      ) {
         console.log("Usuario eliminado exitosamente:", response.data);
         setRefresh(!refresh); // Refresh the users list after deletion
         setDeleteConfirmationOpen(false); // Cerrar el diálogo de confirmación después de eliminar
-        setSnackbarMessage('Usuario eliminado exitosamente.');
+        setSnackbarMessage("Usuario eliminado exitosamente.");
         setSnackbarOpen(true);
       } else {
-        console.error("Error inesperado en la respuesta de eliminación:", response.data);
-        setSnackbarMessage('Error inesperado al eliminar usuario.');
+        console.error(
+          "Error inesperado en la respuesta de eliminación:",
+          response.data
+        );
+        setSnackbarMessage("Error inesperado al eliminar usuario.");
         setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error eliminando usuario:", error);
-      setSnackbarMessage('Error eliminando usuario.');
+      setSnackbarMessage("Error eliminando usuario.");
       setSnackbarOpen(true);
     }
   };
@@ -171,16 +181,22 @@ const SearchList = () => {
                     <DeleteIcon />
                   </Button>
                   <Button onClick={() => handleEdit(user)}>
-                    <EditIcon />   
+                    <EditIcon />
                   </Button>
-                  
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 2,
+        }}
+      >
         <Typography variant="body2">
           Página {currentPage} de {totalPages}
         </Typography>
@@ -199,25 +215,29 @@ const SearchList = () => {
           </Button>
         </Box>
         <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={6000}
-            onClose={handleSnackbarClose}
-            message={snackbarMessage}
-            sx={{ position: "absolute", bottom: 1, left: '10%',  bgcolor: 'rgba(0, 0, 0, 0.7)', color: '#fff' }}
-
-            action={
-              <Button color="inherit" size="small" onClick={handleSnackbarClose}>
-                Cerrar
-              </Button>
-            }
-          />
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          message={snackbarMessage}
+          sx={{
+            position: "absolute",
+            bottom: 1,
+            left: "10%",
+            bgcolor: "rgba(0, 0, 0, 0.7)",
+            color: "#fff",
+          }}
+          action={
+            <Button color="inherit" size="small" onClick={handleSnackbarClose}>
+              Cerrar
+            </Button>
+          }
+        />
       </Box>
-      <EditUsuario 
+      <EditUsuario
         selectedUser={selectedUser}
         open={modalEditOpen}
         handleCloseEditModal={handleCloseEditModal}
       />
-       
 
       {/* Delete Confirmation Dialog */}
       <Dialog
@@ -225,7 +245,9 @@ const SearchList = () => {
         onClose={handleDeleteConfirmationClose}
         aria-labelledby="delete-confirmation-dialog-title"
       >
-        <DialogTitle id="delete-confirmation-dialog-title">Confirmación de eliminación</DialogTitle>
+        <DialogTitle id="delete-confirmation-dialog-title">
+          Confirmación de eliminación
+        </DialogTitle>
         <DialogContent>
           ¿Estás seguro de que deseas eliminar este usuario?
         </DialogContent>

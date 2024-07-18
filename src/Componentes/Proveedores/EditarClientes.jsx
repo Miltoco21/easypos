@@ -7,23 +7,24 @@ import {
   Button,
   TextField,
   MenuItem,
-  Snackbar, 
-  Grid
+  Snackbar,
+  Grid,
 } from "@mui/material";
 import axios from "axios";
 
 const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [editedCliente, setEditedCliente] = useState({});
-  const [errors, setErrors] = useState({}); 
+  const [errors, setErrors] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
- 
+
   useEffect(() => {
     setEditedCliente(cliente); // Al recibir un nuevo cliente, actualizamos el estado de cliente editado
     setSelectedRegion(cliente.regionId); // Actualizamos la región seleccionada
     setSelectedComuna(cliente.comunaId); // Actualizamos la comuna seleccionada
   }, [cliente]);
-   
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setEditedCliente((prevCliente) => ({
@@ -35,7 +36,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
   const [comunas, setComunas] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedComuna, setSelectedComuna] = useState("");
-  console.log("editedCliente:",editedCliente);
+  console.log("editedCliente:", editedCliente);
   useEffect(() => {
     // Obtener regiones
     axios
@@ -49,9 +50,8 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
   }, []);
 
   const handleRegionChange = (event) => {
-
     const selectedRegionId = event.target.value;
-   
+
     setSelectedRegion(selectedRegionId);
 
     // Obtener comunas para la región seleccionada
@@ -69,9 +69,8 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
 
   const handleSaveChanges = async () => {
     try {
-      
       const updatedCliente = {
-        codigoCliente:editedCliente.codigoCliente|| "",
+        codigoCliente: editedCliente.codigoCliente || "",
         rut: editedCliente.rut || "",
         nombre: editedCliente.nombre || "",
         apellido: editedCliente.apellido || "",
@@ -84,33 +83,33 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
         urlPagina: editedCliente.urlPagina || "",
         formaPago: editedCliente.formaPago || "",
         usaCuentaCorriente: editedCliente.usaCuentaCorriente || 0,
-        razonSocial: editedCliente.razonSocial || ""
+        razonSocial: editedCliente.razonSocial || "",
       };
-  
+
       // Depuración: Imprimir datos antes de la solicitud
       console.log("Datos enviados antes de la solicitud:", updatedCliente);
-  
+
       const response = await axios.put(
-        "https://www.easyposdev.somee.com/api/Clientes/PutClienteCliente",
+        `${import.meta.env.VITE_URL_API2}/Clientes/PutClienteCliente`,
         updatedCliente
       );
-  
+
       // Depuración: Imprimir detalles de la respuesta
       console.log("Respuesta del servidor:", response);
-  
+
       if (response.status === 200) {
-        setSnackbarMessage( response.data.descripcion);
+        setSnackbarMessage(response.data.descripcion);
         setSnackbarOpen(true);
         onEditSuccess();
       } else {
         throw new Error("No se pudo editar el cliente");
       }
-      
+
       // Depuración: Imprimir datos después de la solicitud
       console.log("Datos recibidos después de la solicitud:", response.data);
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
-  
+
       // Depuración: Imprimir detalles del error
       if (error.response) {
         console.error("Respuesta de error del servidor:", error.response);
@@ -119,16 +118,14 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
       } else {
         console.error("Error general:", error.message);
       }
-  
+
       // Lógica para manejar el error
     }
   };
-  
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
-
 
   return (
     <>
@@ -225,7 +222,6 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
         message={snackbarMessage}
       />
     </>
-   
   );
 };
 

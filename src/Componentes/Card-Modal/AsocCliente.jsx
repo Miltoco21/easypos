@@ -29,6 +29,8 @@ import TablaNivel from "./TablaNivel";
 import BoxBuscador from "./BoxBuscador";
 
 export const defaultTheme = createTheme();
+const apiUrl = import.meta.env.VITE_URL_API2;
+
 
 const PreciosGenerales = () => {
   const handleSubmit = (e) => {
@@ -61,7 +63,7 @@ const PreciosGenerales = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
+          `${import.meta.env.VITE_URL_API2}/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
         setProducts(response.data.productos);
         console.log(response.data.productos);

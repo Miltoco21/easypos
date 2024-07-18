@@ -19,7 +19,9 @@ import axios from "axios";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const EditUsuario = ({ selectedUser, open, handleCloseEditModal }) => {
-const [nombres, setNombre] = useState("");
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
+  const [nombres, setNombre] = useState("");
   const [apellidos, setApellido] = useState("");
   const [correo, setCorreo] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -42,6 +44,7 @@ const [nombres, setNombre] = useState("");
   const [selectedRol, setSelectedRol] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [userId, setUserId] = useState(null);
+
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -69,7 +72,7 @@ const [nombres, setNombre] = useState("");
     const fetchRegions = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
+          `${import.meta.env.VITE_URL_API2}/RegionComuna/GetAllRegiones`
         );
         setRegionOptions(response.data.regiones);
       } catch (error) {
@@ -85,7 +88,7 @@ const [nombres, setNombre] = useState("");
       if (selectedRegion) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+             `${import.meta.env.VITE_URL_API2}RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
           setComunaOptions(
             response.data.comunas.map((comuna) => comuna.comunaNombre)
@@ -103,7 +106,7 @@ const [nombres, setNombre] = useState("");
     async function fetchRoles() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Usuarios/GetAllRolUsuario"
+          `${import.meta.env.VITE_URL_API2}/Usuarios/GetAllRolUsuario`
         );
         setRolesOptions(response.data.usuarios);
         console.log("ROLES", response.data.usuarios);
@@ -228,7 +231,7 @@ const validateEmail = (email) => {
       try {
         setLoading(true);
         const response = await axios.put(
-          'https://www.easyposdev.somee.com/api/Usuarios/UpdateUsuario',
+          `${import.meta.env.VITE_URL_API2}/Usuarios/UpdateUsuario`,
           {
             nombres,
             apellidos,
@@ -305,139 +308,7 @@ const validateEmail = (email) => {
   };
   
   
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-  //   const errors = {};
-
-  //   //Validaciones
-  //   if (!rut) {
-  //     errors.rut = "Favor completar campo";
-  //   } else if (
-  //     !/^([1-9]|[1-9]\d|[1-9]\d{2})((\.\d{3})*|(\d{3})*)-(\d|k|K)$/.test(rut)
-  //   ) {
-  //     errors.rut = "Ingresa tu rut con puntos y guión";
-  //   }
-
-  //   if (!nombres) {
-  //     errors.nombres = "Favor completar nombres ";
-  //   }
-  //   if (!apellidos) {
-  //     errors.apellidos = "Favor completar apellidos ";
-  //   }
-  //   if (!correo) {
-  //     errors.correo = "Favor completar email ";
-  //   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-  //     errors.correo = "Formato de correo no es válido";
-  //   }
-  //   if (!direccion) {
-  //     errors.direccion = "Favor completar dirección ";
-  //   }
-  //   if (!telefono) {
-  //     errors.telefono = "Favor completar telefono ";
-  //   }
-  //   if (!selectedComuna || selectedComuna.length === 0) {
-  //     errors.comuna = "Favor completar comuna ";
-  //   }
-  //   if (!selectedRegion) {
-  //     errors.selectedRegion = "Favor completar región ";
-  //   }
-  //   if (!codigoPostal) {
-  //     errors.codigoPostal = "Favor completar codigo postal ";
-  //   }
-  //   // if (!rut) {
-  //   //   errors.rut = "Favor completar rut ";
-  //   // }
-  //   // if (!validarRutChileno(rut)) {
-  //   //   errors.rut = "El RUT ingresado NO es válido.";
-  //   // }
-  //   if (!selectedRol) {
-  //     errors.selectedRol = "Favor completar rol";
-  //   }
-  //   if (!codigoUsuario) {
-  //     errors.codigoUsuario = "Favor completar código  ";
-  //   }
-  //   if (!clave) {
-  //     errors.clave = "Favor completar clave ";
-  //   }
-  //   if (!remuneracion) {
-  //     errors.remuneracion = "Favor completar remuneración ";
-  //   }
-  //   if (!credito) {
-  //     errors.credito = "Favor completar crédito ";
-  //   }
-
-  //   if (Object.keys(errors).length > 0) {
-  //     setErrores(errors);
-  //   } else {
-  //     const usuario = {
-  //       nombres: nombres,
-  //       apellidos: apellidos,
-  //       correo: correo,
-  //       direccion: direccion,
-  //       telefono: telefono,
-  //       region: selectedRegion.toString(),
-  //       comuna: selectedComuna,
-  //       codigoPostal: codigoPostal,
-  //       rut: rut,
-        
-    
-  //       codigoUsuario: selectedUser.codigoUsuario,
-  //       clave: clave,
-  //       // remuneracion: remuneracion,
-  //       // credito: credito,
-  //       rol: selectedRol.toString(),
-  //     };
-  //     console.log("Datos antes de enviar:", usuario);
-  //     try {
-  //       setLoading(true);
-  //       const response = await axios.put(
-          
-  //         'https://www.easyposdev.somee.com/api/Usuarios/UpdateUsuario',
-  //         usuario
-  //       );
-  //       console.log("Respuesta de la solicitud:", response);
-
-  //       if (response.status === 200) {
-  //         setSnackbarMessage(response.data.descripcion); 
-  //         setSnackbarOpen(true);
-  //       }
-  //       setTimeout(() => {
-  //         handleCloseEditModal();
-  //       }, 3000);
-  //     } catch (error) {
-  //       if ( error.response.status === 409) {
-  //         setSnackbarMessage(error.response.descripcion);
-  //         setSnackbarOpen(true);
-  //       } else {
-  //         console.error("Error:", error);
-  //         setModalOpen(true);
-  //       }
-  //     } finally {
-  //       setLoading(false);
-  //       console.log("Datos después de enviar:", usuario);
-  //       setNombre("");
-  //       setApellido("");
-  //       setCorreo("");
-  //       setTelefono("");
-  //       setDireccion("");
-  //       setSelectedRegion("");
-  //       setSelectedComuna("");
-  //       setSelectedRol("");
-  //       setCodigoPostal("");
-  //       setRut("");
-  //       setCodigoUsuario("");
-  //       setClave("");
-  //       setRemuneracion("");
-  //       setCredito("");
-  //       setErrores({});
-       
-  //       setUserId(null);
-
-        
-       
-  //     }
-  //   }
-  // };
+  
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);

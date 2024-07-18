@@ -20,6 +20,7 @@ const EditarCategoria = ({ category, open, handleClose }) => {
     idCategoria: 0,
     descripcionCategoria: ""
   });
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,7 +47,7 @@ const EditarCategoria = ({ category, open, handleClose }) => {
 
     try {
       const response = await axios.put(
-        `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateCategoria`,
+         `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/UpdateCategoria`,
         {
           idCategoria: editCategory.idCategoria,
           descripcionCategoria: editCategory.descripcionCategoria,

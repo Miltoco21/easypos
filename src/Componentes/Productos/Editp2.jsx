@@ -23,6 +23,8 @@ import {
 } from "@mui/material";
 
 const Editp2 = ({ product, open, handleClose }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [editedProduct, setEditedProduct] = useState({});
   const [refresh, setRefresh] = useState(false);
 
@@ -60,7 +62,7 @@ const Editp2 = ({ product, open, handleClose }) => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
@@ -77,7 +79,7 @@ const Editp2 = ({ product, open, handleClose }) => {
       if (selectedCategoryId ) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
+            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
           );
           
           console.log("Subcategories Response:", response.data.subCategorias);
@@ -91,81 +93,7 @@ const Editp2 = ({ product, open, handleClose }) => {
     fetchSubCategories();
   }, [selectedCategoryId]);
 
-  // useEffect(() => {
-  //   const fetchSubCategories = async () => {
-  //     if (selectedCategoryId !== "") {
-  //       try {
-  //         const response = await axios.get(
-  //           `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
-  //         );
-          
-  //         console.log("Subcategories Response:", response.data.subCategorias);
-  //         setSubCategories(response.data.subCategorias);
-  //       } catch (error) {
-  //         console.error("Error fetching subcategories:", error);
-  //       }
-  //     }
-  //   };
 
-  //   fetchSubCategories();
-  // }, [selectedCategoryId]);
-
-  // useEffect(() => {
-  //   async function fetchCategories() {
-  //     try {
-  //       const response = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
-  //       );
-  //       console.log("n3 API response Categorias:", response.data.categorias); // Add this line
-  //       setCategories(response.data.categorias);
-
-  //       const responseSubC = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllSubCategorias"
-  //       );
-  //       console.log("n3 API response SubCategorias:", response.data.categorias); // Add this line
-  //       setSubCategoriesFind(responseSubC.data.subCategorias);
-
-  //       const responseFam = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllFamilias"
-  //       );
-  //       console.log("n3 API response Familias:", response.data.categorias); // Add this line
-  //       setFamiliesFind(responseFam.data.familias);
-
-  //       const responseSubFam = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllSubFamilias"
-  //       );
-  //       console.log("n3 API response SubFamilias:", response.data.categorias); // Add this line
-  //       setSubFamiliesFind(responseSubFam.data.subFamilias);
-
-  //     } catch (error) {
-  //       console.error("Error fetching Categorias:", error);
-  //     }
-  //   }
-
-  //   fetchCategories();
-  // }, []);
-  // useEffect(() => {
-  //   const fetchSubCategories = async () => {
-  //     if (selectedCategoryId !== "") {
-  //       try {
-  //         console.log("selectedCategoryId",selectedCategoryId);
-  //         console.log("categories",categories);
-  //         const idCategoriaFind = categories.find(categoria=> categoria.descripcion ===selectedCategoryId);
-
-  //         const response = await axios.get(
-  //           `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
-  //         );
-
-  //         console.log("n4 API response SubCategoria:", response.data.subCategorias);
-  //         setSubCategories(response.data.subCategorias);
-  //       } catch (error) {
-  //         console.error("Error fetching subcategories:", error);
-  //       }
-  //     }
-  //   };
-
-  //   fetchSubCategories();
-  // }, [selectedCategoryId]);
 
   useEffect(() => {
     const fetchFamilies = async () => {
@@ -177,7 +105,7 @@ const Editp2 = ({ product, open, handleClose }) => {
           console.log("idCategoriaFind", SubCategoriaFind)
 
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${SubCategoriaFind.idSubcategoria}`
+            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${SubCategoriaFind.idSubcategoria}`
           );
 
           console.log("n5 Families Response:", response.data.familias);
@@ -207,7 +135,7 @@ const Editp2 = ({ product, open, handleClose }) => {
           console.log("familiaFind", familiaFind)
 
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${familiaFind.idFamilia}`
+            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${familiaFind.idFamilia}`
           );
 
           console.log("n6 SubFamilies Response:", response.data.subFamilias);
@@ -332,7 +260,7 @@ const Editp2 = ({ product, open, handleClose }) => {
 
     try {
       const response = await axios.put(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto", nuevoObjetoActualizado
+      `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`, nuevoObjetoActualizado
       );
       console.log("API Response:", response.data);
 
@@ -628,10 +556,10 @@ const Editp2 = ({ product, open, handleClose }) => {
 
           <Grid item xs={12}>
             <Button variant="contained" color="primary" onClick={handleSave}>
-              Save
+              Guardar
             </Button>
             <Button variant="contained" onClick={handleClose}>
-              Cancel
+              Cerrar
             </Button>
           </Grid>
         </Grid>

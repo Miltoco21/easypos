@@ -54,11 +54,12 @@ const BoxCtaCorriente = ({ onClose }) => {
     searchText,
     setSearchText,
   } = useContext(SelectedOptionsContext);
+  const apiUrl = import.meta.env.VITE_URL_API2;
 
   const fetchDeudaData = async () => {
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedCodigoClienteSucursal}&codigoCliente=${selectedCodigoCliente}`
+        `${import.meta.env.VITE_URL_API2}/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedCodigoClienteSucursal}&codigoCliente=${selectedCodigoCliente}`
       );
 
       console.log("Nuevas Deudas:", response.data);
@@ -265,12 +266,12 @@ const BoxCtaCorriente = ({ onClose }) => {
       setLoading(true);
 
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+     ` ${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`;
 
       // Si el método de pago es TRANSFERENCIA, cambiar el endpoint y agregar datos de transferencia
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
 
         // Validar datos de transferencia
         if (

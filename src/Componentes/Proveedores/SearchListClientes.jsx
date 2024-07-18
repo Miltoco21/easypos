@@ -41,6 +41,8 @@ import dayjs from "dayjs";
 const ITEMS_PER_PAGE = 10;
 
 const SearchListClientes = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [clientes, setClientes] = useState([]);
   const [filteredClientes, setFilteredClientes] = useState([]);
@@ -86,7 +88,7 @@ const SearchListClientes = () => {
       if (selectedClient) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedClient.clienteSucursal}&codigoCliente=${selectedClient.codigoCliente}`
+            `${import.meta.env.VITE_URL_API2}/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedClient.clienteSucursal}&codigoCliente=${selectedClient.codigoCliente}`
           );
           setDeudaData(response.data.clienteDeuda); // Actualiza el estado de deudaData
         } catch (error) {
@@ -146,9 +148,9 @@ const SearchListClientes = () => {
     async function fetchClientes() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/clientes/GetAllClientes"
+         `${import.meta.env.VITE_URL_API2}/Clientes/GetAllClientes`
         );
-        console.log("API response:", response.data);
+        console.log("API response GetAllClientes:", response.data);
         setClientes(response.data.cliente);
         setFilteredClientes(response.data.cliente.slice(0, ITEMS_PER_PAGE));
         setPageCount(response.data.cliente.length);
@@ -315,11 +317,11 @@ const SearchListClientes = () => {
       setLoading(true);
   
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`;
   
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+          `${import.meta.env.VITE_URL_API2}//Clientes/PostClientePagarDeudaTransferenciaByIdCliente `;
   
         if (
           nombre === "" ||
@@ -448,7 +450,8 @@ const SearchListClientes = () => {
     try {
       if (selectedClient) {
         const response = await axios.get(
-          `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedClient.clienteSucursal}&codigoCliente=${selectedClient.codigoCliente}`
+          
+          `${import.meta.env.VITE_URL_API2}/Clientes/GetClientesDeudasByIdCliente?codigoClienteSucursal=${selectedClient.clienteSucursal}&codigoCliente=${selectedClient.codigoCliente}`
         );
         console.log("DeudaCLiente:", response.data.clienteDeuda);
 
@@ -487,7 +490,7 @@ const SearchListClientes = () => {
     try {
       const codigoCliente = selectedCliente.codigoCliente;
       await axios.delete(
-        `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoCliente}`
+        `${import.meta.env.VITE_URL_API2}/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoCliente}`
       );
       setRefresh((prevRefresh) => !prevRefresh);
       setOpenDeleteDialog(false);

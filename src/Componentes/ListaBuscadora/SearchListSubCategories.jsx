@@ -12,6 +12,9 @@ import EditarSubCategoria from "./EditarSubcategoria";
 
 const ITEMS_PER_PAGE = 10;
 const SearchListSubCategories = () => {
+
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
@@ -50,7 +53,7 @@ const SearchListSubCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias");
+        const response = await axios.get(`${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`);
         setCategories(response.data.categorias);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -64,8 +67,8 @@ const SearchListSubCategories = () => {
     const fetchSubCategories = async () => {
       if (selectedCategoryId !== "") {
         try {
-          const response = await axios.get(`https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`);
-          console.log("https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}");
+          const response = await axios.get(`${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`);
+          console.log(`${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID=${selectedCategoryId}`);
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
         } catch (error) {

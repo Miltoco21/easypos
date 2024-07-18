@@ -27,6 +27,7 @@ import EditarFamilia from "./EditarFamilia";
 const ITEMS_PER_PAGE = 10;
 
 const SearchListFamilias = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [searchTerm, setSearchTerm] = useState("");
   const [families, setFamilies] = useState([]);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
@@ -68,7 +69,7 @@ const SearchListFamilias = () => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias);
         setCategories(response.data.categorias);
@@ -85,10 +86,10 @@ const SearchListFamilias = () => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `${import.meta.env.VITE_URL_API2}NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           console.log(
-            "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}"
+            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID=${selectedCategoryId}`
           );
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
@@ -105,7 +106,7 @@ const SearchListFamilias = () => {
     if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
       try {
         const response = await axios.get(
-          `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
+          `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
         );
         console.log("API Response:", response.data.familias);
         setFamilies(response.data.familias);

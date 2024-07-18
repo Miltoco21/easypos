@@ -23,6 +23,7 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_URL_API2;
 
   useEffect(() => {
     if (family) {
@@ -46,7 +47,7 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
 
     try {
       const response = await axios.put(
-        `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateFamilia`,
+        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/UpdateFamilia`,
         {
           idFamilia: editFamily.idFamilia,
           descripcionFamilia: editFamily.descripcion,

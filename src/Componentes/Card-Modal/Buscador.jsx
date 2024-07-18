@@ -6,12 +6,13 @@ const Buscador = ({ onSelectProduct }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const apiUrl = import.meta.env.VITE_URL_API2;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}`
+          `${import.meta.env.VITE_URL_API2}/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}`
         );
         setProducts(response.data.productos);
       } catch (error) {

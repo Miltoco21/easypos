@@ -29,6 +29,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 export const defaultTheme = createTheme();
 
 const PreciosGenerales = ({ onClose }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
 
@@ -59,7 +60,7 @@ const PreciosGenerales = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Clientes/GetAllClientes"
+          `${import.meta.env.VITE_URL_API2}/Clientes/GetAllClientes`
         );
         setClientes(response.data.cliente);
         console.log("clientes:", response.data);

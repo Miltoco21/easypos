@@ -21,6 +21,7 @@ import EditarCategoria from "./EditarCategoria";
 
 const ITEMS_PER_PAGE = 10;
 const SearchListCategories = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
@@ -48,7 +49,7 @@ const SearchListCategories = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API Response:", response.data.categorias);
         setCategories(response.data.categorias);

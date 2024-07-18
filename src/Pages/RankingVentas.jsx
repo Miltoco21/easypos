@@ -27,6 +27,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 const RankingVentas = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [data, setData] = useState([]);
@@ -45,7 +47,7 @@ const RankingVentas = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/ReporteVentas/ReporteVentasPorTipoComprobanteYMetodoPagoGET`,
+        `${import.meta.env.VITE_URL_API2}/ReporteVentas/ReporteVentasPorTipoComprobanteYMetodoPagoGET`,
         {
           params: {
             fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",

@@ -44,6 +44,8 @@ import dayjs from "dayjs";
 const ITEMS_PER_PAGE = 10;
 
 const SearchListProveedores = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTermProveedores, setSearchTermProveedores] = useState(""); // Separate state for proveedores search
   const [proveedores, setProveedores] = useState([]);
@@ -200,7 +202,7 @@ const SearchListProveedores = () => {
   const fetchComprasProvedeedor = async () => {
     try {
       const response = await axios.get(
-        "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
+        `${import.meta.env.VITE_URL_API2}/Proveedores/GetProveedorCompra`
       );
       const comprasConSeleccion =
         response.data.proveedorCompra.proveedorCompraCabeceras.map(
@@ -270,7 +272,7 @@ const SearchListProveedores = () => {
 
     axios
       .post(
-        "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
+        `${import.meta.env.VITE_URL_API2}/Proveedores/AddProveedorCompraPagar `,
         pagoData
       )
       .then((response) => {
@@ -400,7 +402,7 @@ const SearchListProveedores = () => {
     try {
       const codigoProveedor = selectedProveedorToDelete.codigoProveedor;
       await axios.delete(
-        `https://www.easyposdev.somee.com/api/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
+        `${import.meta.env.VITE_URL_API2}/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
       );
       setRefresh((prevRefresh) => !prevRefresh);
       fetchProveedores();
@@ -509,11 +511,11 @@ const SearchListProveedores = () => {
       setLoading(true);
   
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`
   
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
   
         if (
           nombre === "" ||

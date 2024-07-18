@@ -29,7 +29,7 @@ const EditarSubCategoria = ({
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
-
+  const apiUrl = import.meta.env.VITE_URL_API2;
   useEffect(() => {
     if (subcategory) {
       console.log("Subcategory:", subcategory);
@@ -59,7 +59,7 @@ const EditarSubCategoria = ({
 
     try {
       const response = await axios.put(
-        `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/UpdateSubCategoria`,
+        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/UpdateSubCategoria`,
         {
           idSubCategoria: editSubCategory.idSubCategoria,
           descripcionSubCategoria: editSubCategory.descripcionSubCategoria,
