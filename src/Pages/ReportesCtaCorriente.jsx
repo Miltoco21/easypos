@@ -58,7 +58,7 @@ const ReportesCtaCorriente = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/ReporteClientes/GetClientesDeudasByFecha`,
+        `https://www.easypos.somee.com/api/ReporteClientes/GetClientesDeudasByFecha`,
         {
           params: {
             fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",
@@ -67,7 +67,7 @@ const ReportesCtaCorriente = () => {
         }
       );
       setData(response.data.clienteDeudaByFechas);
-      console.log("respuesta fechas", response.data);
+      console.log("respuesta fechasS", response.data);
     } catch (error) {
       setError("Error fetching data");
       setSnackbarMessage("Error al buscar los datos");

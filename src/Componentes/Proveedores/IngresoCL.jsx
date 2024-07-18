@@ -212,6 +212,9 @@ const IngresoCL = ({ handleCloseModalCL }) => {
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
+  const handleCloseFormulario = () => {
+    handleCloseModalCL()
+  };
 
   const validarRutChileno = (rut) => {
     if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut)) {
@@ -221,7 +224,7 @@ const IngresoCL = ({ handleCloseModalCL }) => {
     const partesRut = rut.split("-");
     const digitoVerificador = partesRut[1].toUpperCase();
     const numeroRut = partesRut[0];
-    
+
     if (numeroRut.length < 7) {
       return false;
     }
@@ -296,8 +299,6 @@ const IngresoCL = ({ handleCloseModalCL }) => {
       errors.giro = "Favor completar giro";
     }
 
-    
-
     if (!formaPago) {
       errors.formaPago = "Favor completar forma de pago";
     }
@@ -320,7 +321,6 @@ const IngresoCL = ({ handleCloseModalCL }) => {
         formaPago,
       }).every((value) => !value)
     ) {
-      
       setCamposVacios("Todos los campos están vacíos, Favor completar");
       setLoading(false);
       return;
@@ -330,7 +330,7 @@ const IngresoCL = ({ handleCloseModalCL }) => {
 
     if (Object.keys(errors).length > 0) {
       setErrors(errors);
-      setLoading(false); 
+      setLoading(false);
       return;
     } else {
       const cliente = {
@@ -338,16 +338,16 @@ const IngresoCL = ({ handleCloseModalCL }) => {
         nombre,
         apellido,
         giro,
-        correo:email,
+        correo: email,
         sucursal,
         direccion,
         telefono,
         region: selectedRegion.toString(),
         comuna: selectedComuna,
-        urlPagina:pagina,
+        urlPagina: pagina,
         formaPago,
         rut,
-        usaCuentaCoriente:0
+        usaCuentaCoriente: 0,
       };
       console.log("Datos a enviar:", cliente); // Aquí se muestran los datos en la consola
 
@@ -377,11 +377,10 @@ const IngresoCL = ({ handleCloseModalCL }) => {
           setRut("");
           setApellido("");
           setNombre("");
-      
 
           setTimeout(() => {
             handleCloseModalCL(); ////Cierre Modal al finalizar
-          }, 3000);
+          }, 1700);
         }
       } catch (error) {
         console.error(error);
@@ -392,78 +391,75 @@ const IngresoCL = ({ handleCloseModalCL }) => {
     }
   };
 
-
   const handleNumericKeyDown = (event) => {
     const key = event.key;
     const input = event.target.value;
-  
+
     // Verifica si el carácter es un número, backspace o delete
     if (
-    !/\d/.test(key) && // números
-      key!== 'Backspace' && // backspace
-      key!== 'Delete' // delete
+      !/\d/.test(key) && // números
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
     ) {
       event.preventDefault();
     }
-  
+
     // Previene espacios iniciales y al final de la cadena
-    if (
-      key === ' ' &&
-      (input.length === 0 || input.endsWith(' '))
-    ) {
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
       event.preventDefault();
     }
   };
-  
+
   const handleTextKeyDown = (event) => {
     const key = event.key;
     const input = event.target.value;
-  
+
     // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
     if (
-     !/^[a-zA-Z0-9]$/.test(key) && // letras y números
-      key!== ' ' && // espacio
-      key!== 'Backspace' && // backspace
-      key!== 'Delete' // delete
+      !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
     ) {
       event.preventDefault();
     }
-  
+
     // Previene espacios iniciales y al final de la cadena
-    if (
-      key === ' ' &&
-      (input.length === 0 || input.endsWith(' '))
-    ) {
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
       event.preventDefault();
     }
   };
   const handleEmailKeyDown = (event) => {
     const charCode = event.which ? event.which : event.keyCode;
-  
+
     // Prevenir espacios en cualquier parte del correo
-    if (charCode === 32) { // 32 es el código de la tecla espacio
+    if (charCode === 32) {
+      // 32 es el código de la tecla espacio
       event.preventDefault();
     }
   };
   const handleRUTKeyDown = (event) => {
     const key = event.key;
     const input = event.target.value;
-  
+
     // Permitir números (0-9), guion (-), backspace y delete
     if (
-     !isNaN(key) || // números
-      key === 'Backspace' || // backspace
-      key === 'Delete' || // delete
-      (key === '-' && !input.includes('-')) // guion y no hay guion previamente
+      !isNaN(key) || // números
+      key === "Backspace" || // backspace
+      key === "Delete" || // delete
+      (key === "-" && !input.includes("-")) // guion y no hay guion previamente
     ) {
       // Permitir la tecla
     } else {
       // Prevenir cualquier otra tecla
       event.preventDefault();
     }
-  
+
     // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
-    if (key === ' ' && (input.length === 0 || event.target.selectionStart === 0)) {
+    if (
+      key === " " &&
+      (input.length === 0 || event.target.selectionStart === 0)
+    ) {
       event.preventDefault();
     }
   };
@@ -471,26 +467,22 @@ const IngresoCL = ({ handleCloseModalCL }) => {
   const handleTextOnlyKeyDown = (event) => {
     const key = event.key;
     const input = event.target.value;
-  
+
     // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
     if (
-     !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
-      key!== ' ' && // espacio
-      key!== 'Backspace' && // backspace
-      key!== 'Delete' // delete
+      !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
     ) {
       event.preventDefault();
     }
-  
+
     // Previene espacios iniciales y al final de la cadena
-    if (
-      key === ' ' &&
-      (input.length === 0 || input.endsWith(' '))
-    ) {
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
       event.preventDefault();
     }
   };
-  
 
   return (
     <ThemeProvider theme={theme}>
@@ -539,12 +531,11 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                 )}
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%"}}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
                   Ingresa rut sin puntos y con guión
                 </InputLabel>
                 <TextField
                   fullWidth
-                
                   id="rut"
                   label="ej: 11111111-1"
                   name="rut"
@@ -556,7 +547,7 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%"}}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
                   Ingresa Nombre
                 </InputLabel>
                 <TextField
@@ -570,7 +561,7 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <InputLabel sx={{ marginBottom: "2%"}}>
+                <InputLabel sx={{ marginBottom: "2%" }}>
                   Ingresa apellido
                 </InputLabel>
                 <TextField
@@ -603,7 +594,6 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                 </InputLabel>
                 <TextField
                   fullWidth
-             
                   id="telefono"
                   label="Teléfono"
                   name="telefono"
@@ -634,7 +624,6 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                   Selecciona Región
                 </InputLabel>
                 <TextField
-               
                   fullWidth
                   id="region"
                   select
@@ -656,7 +645,6 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                   Selecciona Comuna
                 </InputLabel>
                 <TextField
-             
                   id="comuna"
                   select
                   fullWidth
@@ -726,11 +714,20 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                   onKeyDown={handleTextOnlyKeyDown}
                 />
               </Grid>
+
+              <Grid item xs={12}
+              sx={{display:"flex",
+                    justifyContent:"space-between"
+                   
               
 
-             
-              <Grid item xs={12}>
-              <Button type="submit" disabled={loading} variant="contained">
+                  }}>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant="contained"
+                  color="secondary"
+                >
                   {loading ? (
                     <>
                       Guardando... <CircularProgress size={24} />
@@ -739,33 +736,9 @@ const IngresoCL = ({ handleCloseModalCL }) => {
                     "Guardar"
                   )}
                 </Button>
-                {/* <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleExportExcel}
-                  sx={{ ml: 2 }}
-                  startIcon={<UploadFileIcon />}
-                >
-                  Exportar Excel
+                <Button color="primary" variant="contained" onClick={ handleCloseFormulario}>
+                  Cerrar
                 </Button>
-                <input
-                  accept=".xlsx, .xls"
-                  style={{ display: "none" }}
-                  id="file-upload"
-                  type="file"
-                  onChange={handleFileUpload}
-                />
-                <label htmlFor="file-upload">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    component="span"
-                    sx={{ ml: 2 }}
-                    startIcon={<UploadFileIcon />}
-                  >
-                    Cargar Archivo
-                  </Button>
-                </label> */}
               </Grid>
             </Grid>
           </form>
