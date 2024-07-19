@@ -38,10 +38,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const ReportesProv = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [proveedores, setProveedores] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedProveedor, setSelectedProveedor] = useState([]);
   const [openPagar, setOpenPagar] = useState(false);
+  const [openPaymentGroupProcess, setOpenPaymentGroupProcess] = useState(false);
+
   const [groupedProveedores, setGroupedProveedores] = useState([]);
   const [openPaymentProcess, setOpenPaymentProcess] = useState(false);
   const [metodoPago, setMetodoPago] = useState("");
@@ -56,16 +59,16 @@ const ReportesProv = () => {
   const [openGroups, setOpenGroups] = useState({});
 
   const [selectedItem, setSelectedItem] = useState(null);
-const [detailOpen, setDetailOpen] = useState(false);
-const handleDetailOpen = (item) => {
-  setSelectedItem(item);
-  setDetailOpen(true);
-};
+  const [detailOpen, setDetailOpen] = useState(false);
+  const handleDetailOpen = (item) => {
+    setSelectedItem(item);
+    setDetailOpen(true);
+  };
 
-const handleDetailClose = () => {
-  setDetailOpen(false);
-  setSelectedItem(null);
-};
+  const handleDetailClose = () => {
+    setDetailOpen(false);
+    setSelectedItem(null);
+  };
 
   const [order, setOrder] = useState({
     field: "",
@@ -76,7 +79,11 @@ const handleDetailClose = () => {
   // const [documentCountsByRut, setDocumentCountsByRut] = useState({});
 
   const [openTransferenciaModal, setOpenTransferenciaModal] = useState(false);
+  const [openTransferenciaModal2, setOpenTransferenciaModal2] = useState(false);
+
   const [openChequeModal, setOpenChequeModal] = useState(false);
+  const [errorTransferenciaError2, setTransferenciaError2] = useState("");
+
   const [errorTransferenciaError, setTransferenciaError] = useState("");
   const [fecha, setFecha] = useState(dayjs());
   const [nombre, setNombre] = useState(""); // Estado para almacenar el nombre
@@ -96,7 +103,7 @@ const handleDetailClose = () => {
   const fetchProveedores = async () => {
     try {
       const response = await axios.get(
-        "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
+        `${import.meta.env.VITE_URL_API2}/Proveedores/GetProveedorCompra`
       );
       setProveedores(response.data.proveedorCompra.proveedorCompraCabeceras);
     } catch (error) {
@@ -126,8 +133,6 @@ const handleDetailClose = () => {
     setSelectedProveedor(null);
   };
 
-
-
   const handlePagarOpen = (rut) => {
     const filteredProveedores = proveedores.filter(
       (proveedor) => proveedor.rut === rut
@@ -141,23 +146,11 @@ const handleDetailClose = () => {
     setGroupedProveedores([]);
   };
 
-  // const handleOpenPaymentProcess = (origin, total) => {
-  //   setCantidadPagada(total);
-  //   setTotalDeuda(total);
-  //   setMetodoPago("");
-  //   setPaymentOrigin(origin);
-  //   setOpenPaymentProcess(true);
-  // };
-  const handleOpenPaymentProcess = (origin, total) => {
+  const handleOpenPaymentProcess = () => {
     setError("");
-    if (origin === "detalle") {
-      setMontoAPagar(selectedItem.total);
-      setCantidadPagada(selectedItem.total);
-    }
-    if (origin === "totalProveedores") {
-      setMontoAPagar(selectedTotal);
-      setCantidadPagada(selectedTotal);
-    }
+
+    setMontoAPagar(selectedItem.total);
+    setCantidadPagada(selectedItem.total);
 
     console.log(montoAPagar);
 
@@ -186,7 +179,6 @@ const handleDetailClose = () => {
       : 0;
   };
 
-  // const handlePago = async () => {
   //   setLoading(true);
 
   //   let compraDeudaIds = [];
@@ -229,7 +221,6 @@ const handleDetailClose = () => {
   //     requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
   //   };
 
-
   //   try {
   //     // Realiza la llamada a la API utilizando Axios
   //     const response = await axios.post(
@@ -258,84 +249,157 @@ const handleDetailClose = () => {
   //     setLoading(false);
   //   }
   // };
-const handlePago = async () => {
-  setLoading(true);
-
-  let compraDeudaIds = [];
-
-  // Si hay un proveedor seleccionado, agregamos su detalle de compra
-  if (selectedItem) {
-    console.log("selectedItem:", selectedItem);
-    if (selectedItem.id && selectedItem.total) {
-      compraDeudaIds.push({
-        idProveedorCompraCabecera: selectedItem.id,
-        total: parseInt(Math.round(selectedItem.total)),
-      });
-    } else {
-      console.error("Selected Proveedor is missing id or total:", selectedProveedor);
-    }
-  }
-
-  // Si hay proveedores agrupados, agregamos sus detalles de compra
-  if (groupedProveedores.length > 0) {
-    groupedProveedores.forEach((proveedor) => {
-      console.log("Grouped Proveedor:", proveedor);
-      if (proveedor.id && proveedor.total) {
-        compraDeudaIds.push({
-          idProveedorCompraCabecera: proveedor.id,
-          total: parseInt(Math.round(proveedor.total)),
-        });
-      } else {
-        console.error("Grouped Proveedor is missing id or total:", proveedor);
+  const handleIndividualPayment = async () => {
+    try {
+      setLoading(true);
+  
+      let endpoint = "";
+      let requestBody = {};
+  
+      switch (metodoPago) {
+        case "TRANSFERENCIA":
+          endpoint = `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
+  
+          if (nombre === "") {
+            setTransferenciaError("Por favor, ingresa el nombre.");
+            setLoading(false);
+            return;
+          }
+          if (rut === "") {
+            setTransferenciaError("Por favor, ingresa el RUT.");
+            setLoading(false);
+            return;
+          }
+          if (!validarRutChileno(rut)) {
+            setTransferenciaError("El RUT ingresado NO es válido.");
+            setLoading(false);
+            return;
+          }
+          if (selectedBanco === "") {
+            setTransferenciaError("Por favor, selecciona el banco.");
+            setLoading(false);
+            return;
+          }
+          if (tipoCuenta === "") {
+            setTransferenciaError("Por favor, selecciona el tipo de cuenta.");
+            setLoading(false);
+            return;
+          }
+          if (nroCuenta === "") {
+            setTransferenciaError("Por favor, ingresa el número de cuenta.");
+            setLoading(false);
+            return;
+          }
+          if (fecha === "") {
+            setTransferenciaError("Por favor, selecciona la fecha.");
+            setLoading(false);
+            return;
+          }
+          if (nroOperacion === "") {
+            setTransferenciaError("Por favor, ingresa el número de operación.");
+            setLoading(false);
+            return;
+          }
+  
+          requestBody = {
+            deudaIds: [
+              {
+                idCuentaCorriente: selectedItem.id,
+                idCabecera: selectedItem.idCabecera,
+                total: selectedItem.total.toString(),
+              },
+            ],
+            montoPagado: montoAPagar,
+            metodoPago: metodoPago,
+            idUsuario: 0,
+            transferencias: {
+              idCuentaCorrientePago: selectedItem.id,
+              nombre: nombre,
+              rut: rut,
+              banco: selectedBanco,
+              tipoCuenta: tipoCuenta,
+              nroCuenta: nroCuenta,
+              fecha: fecha,
+              nroOperacion: nroOperacion,
+            },
+          };
+          break;
+  
+        case "CHEQUE":
+          endpoint = `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaChequeByIdCliente`;
+  
+          requestBody = {
+            deudaIds: [
+              {
+                idCuentaCorriente: selectedItem.id.toString(),
+                idCabecera: selectedItem.idCabecera.toString(),
+                total: selectedItem.total.toString(),
+              },
+            ],
+            montoPagado: montoAPagar,
+            metodoPago: metodoPago,
+            idUsuario: 0,
+            // Add cheque-specific fields here if needed
+          };
+          break;
+  
+        case "EFECTIVO":
+          endpoint = `${import.meta.env.VITE_URL_API2}/Proveedores/AddProveedorCompraPagar`;
+  
+          requestBody = {
+            fechaIngreso: new Date().toISOString(),
+            codigoUsuario: 0, // Ajusta según tu lógica
+            codigoSucursal: 0, // Ajusta según tu lógica
+            puntoVenta: "string", // Ajusta según tu lógica
+            compraDeudaIds: [
+              {
+                idProveedorCompraCabecera: selectedItem.id,
+                total: parseInt(Math.round(selectedItem.total)),
+              },
+            ],
+            montoPagado: parseInt(Math.round(selectedItem.total)),
+            metodoPago: metodoPago,
+          };
+          break;
       }
-    });
-  }
-
-  // Construye el objeto de datos de pago
-  const pagoData = {
-    fechaIngreso: new Date().toISOString(),
-    codigoUsuario: 0, // Ajusta según tu lógica
-    codigoSucursal: 0, // Ajusta según tu lógica
-    puntoVenta: "string", // Ajusta según tu lógica
-    compraDeudaIds: compraDeudaIds, // Aquí debe ser un array, no un string
-    montoPagado: cantidadPagada,
-      // .reduce((total, compra) => total + compra.total, 0)
-      // .toString(),
-    metodoPago: metodoPago,
-    requestProveedorCompraPagar: "valor requerido", // Ajusta el valor según lo que requiera el servidor
+  
+      console.log("Request Body:", requestBody);
+  
+      const response = await axios.post(endpoint, requestBody);
+  
+      console.log("Response:", response.data);
+      console.log("ResponseStatus:", response.data.statusCode);
+  
+      if (response.data.statusCode === 201 ) {
+        setSnackbarOpen(true);
+        setSnackbarMessage(response.data.descripcion);
+        handleClosePaymentProcess();
+        setCantidadPagada(0);
+    
+        handleDetailClose();
+        handleTransferenciaModalClose();
+        fetchProveedores();
+  
+        setNombre("");
+        setRut("");
+        setSelectedBanco("");
+        setTipoCuenta("");
+        setNroCuenta("");
+        setNroOperacion("");
+  
+        setTimeout(() => {
+          handleClosePaymentProcess();
+        }, 2000);
+      } else {
+        console.error("Error al realizar el pago");
+      }
+    } catch (error) {
+      console.error("Error al realizar el pago:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Mostrar los datos antes de enviarlos
-  console.log("Datos a enviar:", pagoData);
-
-  try {
-    // Realiza la llamada a la API utilizando Axios
-    const response = await axios.post(
-      "https://www.easyposdev.somee.com/api/Proveedores/AddProveedorCompraPagar",
-      pagoData
-    );
-
-    // Maneja la respuesta según tu lógica
-    console.log("Respuesta de pago:", response.data);
-    setSnackbarMessage(response.data.descripcion);
-    setSnackbarOpen(true);
-    fetchProveedores();
-    setMontoAPagar(0);
-    setCantidadPagada(0);
-    // Cierra el diálogo de proceso de pago
-    handleClose();
-    setTimeout(() => {
-      handleClosePaymentProcess();
-    }, 3000);
-  } catch (error) {
-    // Maneja los errores
-    console.error("Error al procesar el pago:", error);
-    setError("Error al procesar el pago. Inténtalo de nuevo más tarde.");
-  } finally {
-    // Finaliza la carga y actualiza el estado
-    setLoading(false);
-  }
-};
+  
 
   const totalGeneral = proveedores.reduce(
     (acc, proveedor) => acc + proveedor.total,
@@ -374,12 +438,24 @@ const handlePago = async () => {
 
   //////Transferencias//////
   const handleTransferenciaModalOpen = () => {
-    setMetodoPago("TRANSFERENCIA"); // Establece el método de pago como "Transferencia"
+    setMetodoPago("TRANSFERENCIA");
+    setError("");
+    setTransferenciaError("");
+
     setOpenTransferenciaModal(true);
-    setCantidadPagada(getTotalSelected());
   };
   const handleTransferenciaModalClose = () => {
     setOpenTransferenciaModal(false);
+  };
+  const handleTransferenciaModalOpen2 = () => {
+    setMetodoPago("TRANSFERENCIA");
+    setError("");
+    setTransferenciaError2("");
+
+    setOpenTransferenciaModal2(true);
+  };
+  const handleTransferenciaModalClose2 = () => {
+    setOpenTransferenciaModal2(false);
   };
   const handleChequeModalOpen = () => {
     setMetodoPago("CHEQUE"); // Establece el método de pago como "Transferencia"
@@ -427,16 +503,44 @@ const handlePago = async () => {
   };
   const hoy = dayjs();
   const inicioRango = dayjs().subtract(1, "week"); // Resta 1 semanas
+
+  const validarRutChileno = (rut) => {
+    if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut)) {
+      return false;
+    }
+
+    const partesRut = rut.split("-");
+    const digitoVerificador = partesRut[1].toUpperCase();
+    const numeroRut = partesRut[0];
+
+    if (numeroRut.length < 7) {
+      return false;
+    }
+
+    const calcularDigitoVerificador = (T) => {
+      let M = 0;
+      let S = 1;
+      for (; T; T = Math.floor(T / 10)) {
+        S = (S + (T % 10) * (9 - (M++ % 6))) % 11;
+      }
+      return S ? String(S - 1) : "K";
+    };
+
+    return calcularDigitoVerificador(numeroRut) === digitoVerificador;
+  };
+
   const handlePayment = async () => {
     try {
       setLoading(true);
 
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+        "https://www.easypos.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+
+      let requestBody = {};
 
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+          "https://www.easypos.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
 
         if (
           nombre === "" ||
@@ -454,48 +558,160 @@ const handlePago = async () => {
           return;
         }
 
-        if (nombre === "") {
-          setTransferenciaError("Por favor, ingresa el nombre.");
-          setLoading(false);
-          return;
-        }
-        if (rut === "") {
-          setTransferenciaError("Por favor, ingresa el RUT.");
-          setLoading(false);
-          return;
-        }
         if (!validarRutChileno(rut)) {
           setTransferenciaError("El RUT ingresado NO es válido.");
           setLoading(false);
           return;
         }
 
-        if (selectedBanco === "") {
-          setTransferenciaError("Por favor, selecciona el banco.");
+        requestBody = {
+          montoPagado: montoAPagar,
+          metodoPago: metodoPago,
+          idUsuario: 0,
+          transferencias: {
+            idCuentaCorrientePago: 0,
+            nombre: nombre,
+            rut: rut,
+            banco: selectedBanco,
+            tipoCuenta: tipoCuenta,
+            nroCuenta: nroCuenta,
+            fecha: fecha,
+            nroOperacion: nroOperacion,
+          },
+        };
+      } else if (metodoPago === "CHEQUE") {
+        endpoint =
+          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaChequeByIdCliente";
+        requestBody = {
+          montoPagado: montoAPagar,
+          metodoPago: metodoPago,
+          idUsuario: 0,
+          cheque: {
+            idCuentaCorrientePago: 0,
+            nombre: nombre,
+            numeroCheque: nroOperacion, // Assuming this is where the cheque number goes
+            fecha: fecha,
+          },
+        };
+      } else if (metodoPago === "EFECTIVO") {
+        endpoint = `${
+          import.meta.env.VITE_URL_API2
+        }/Clientes/PostClientePagarDeudaEfectivoByIdCliente`;
+        requestBody = {
+          montoPagado: montoAPagar,
+          metodoPago: metodoPago,
+          idUsuario: 0,
+          efectivo: {
+            idCuentaCorrientePago: 0,
+            fecha: fecha,
+          },
+        };
+      } else {
+        if (!metodoPago) {
+          setError("Por favor, selecciona un método de pago.");
+          setLoading(false);
+          return;
+        } else setError("");
+        requestBody = {
+          montoPagado: montoAPagar,
+          metodoPago: metodoPago,
+          idUsuario: 0,
+        };
+      }
+
+      let deudaIds = [];
+      let idCuentaCorrientePago = 0;
+
+      if (paymentOrigin === "detalle" && selectedItem) {
+        // Pago individual
+        deudaIds = [
+          {
+            idCuentaCorriente: selectedItem.id,
+            idCabecera: selectedItem.idCabecera,
+            total: selectedItem.total,
+          },
+        ];
+        idCuentaCorrientePago = selectedItem.id;
+      } else {
+        // Pago agrupado
+        const selectedDeudas = proveedores.filter((deuda) => deuda.selected);
+        if (selectedDeudas.length === 0) {
+          setError("Por favor, selecciona al menos una deuda para pagar.");
+          setLoading(false);
+          return;
+        }
+        deudaIds = selectedDeudas.map((deuda) => ({
+          idCuentaCorriente: deuda.id,
+          idCabecera: deuda.idCabecera,
+          total: deuda.total,
+        }));
+        idCuentaCorrientePago =
+          deudaIds.length > 0 ? deudaIds[0].idCuentaCorriente : 0;
+      }
+
+      // Añadir deudaIds al cuerpo de la solicitud para todos los métodos de pago
+      requestBody.deudaIds = deudaIds;
+
+      console.log("Request Body antes de enviar:", requestBody);
+
+      const response = await axios.post(endpoint, requestBody);
+
+      console.log("Response:", response.data);
+      console.log("ResponseStatus:", response.data.statusCode);
+      ///acciones post pago////
+      if (response.data.statusCode === 200) {
+        setSnackbarOpen(true);
+        setSnackbarMessage(response.data.descripcion);
+        handleClosePaymentProcess();
+        handleClosePaymentGroupProcess();
+        setCantidadPagada(0);
+        fetchClientes();
+        handleDetailClose();
+
+        setTimeout(() => {
+          handleClosePaymentGroupProcess();
+        }, 2000);
+      } else {
+        console.error("Error al realizar el pago");
+      }
+    } catch (error) {
+      console.error("Error al realizar el pago:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGroupedPayment = async () => {
+    try {
+      setLoading(true);
+
+      let endpoint = `${
+        import.meta.env.VITE_URL_API2
+      }/Clientes/PostClientePagarDeudaByIdCliente`;
+
+      if (metodoPago === "TRANSFERENCIA") {
+        endpoint = `${
+          import.meta.env.VITE_URL_API2
+        }/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
+
+        if (
+          nombre === "" ||
+          rut === "" ||
+          selectedBanco === "" ||
+          tipoCuenta === "" ||
+          nroCuenta === "" ||
+          fecha === "" ||
+          nroOperacion === ""
+        ) {
+          setTransferenciaError(
+            "Por favor, completa todos los campos necesarios para la transferencia."
+          );
           setLoading(false);
           return;
         }
 
-        if (tipoCuenta === "") {
-          setTransferenciaError("Por favor, selecciona el tipo de cuenta.");
-          setLoading(false);
-          return;
-        }
-
-        if (nroCuenta === "") {
-          setTransferenciaError("Por favor, ingresa el número de cuenta.");
-          setLoading(false);
-          return;
-        }
-
-        if (fecha === "") {
-          setTransferenciaError("Por favor, selecciona la fecha.");
-          setLoading(false);
-          return;
-        }
-
-        if (nroOperacion === "") {
-          setTransferenciaError("Por favor, ingresa el número de operación.");
+        if (!validarRutChileno(rut)) {
+          setTransferenciaError("El RUT ingresado NO es válido.");
           setLoading(false);
           return;
         }
@@ -507,9 +723,16 @@ const handlePago = async () => {
         return;
       } else setError("");
 
-      const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
+      const selectedDeudas = groupedProveedores.filter((deuda) =>
+        selectedIds.includes(deuda.id)
+      );
+      if (selectedDeudas.length === 0) {
+        setError("Por favor, selecciona al menos una deuda para pagar.");
+        setLoading(false);
+        return;
+      }
 
-      const deudaIds = selectedDebts.map((deuda) => ({
+      const deudaIds = selectedDeudas.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
         total: deuda.total,
@@ -517,19 +740,23 @@ const handlePago = async () => {
 
       const requestBody = {
         deudaIds: deudaIds,
-        montoPagado: getTotalSelected(),
+        montoPagado: montoAPagar,
         metodoPago: metodoPago,
-        idUsuario: selectedClient.codigoCliente,
-        transferencias: {
-          idCuentaCorrientePago: 0,
-          nombre: nombre,
-          rut: rut,
-          banco: selectedBanco,
-          tipoCuenta: tipoCuenta,
-          nroCuenta: nroCuenta,
-          fecha: fecha,
-          nroOperacion: nroOperacion,
-        },
+        idUsuario: 0,
+        transferencias:
+          metodoPago === "TRANSFERENCIA"
+            ? {
+                idCuentaCorrientePago:
+                  deudaIds.length > 0 ? deudaIds[0].idCuentaCorriente : 0,
+                nombre: nombre,
+                rut: rut,
+                banco: selectedBanco,
+                tipoCuenta: tipoCuenta,
+                nroCuenta: nroCuenta,
+                fecha: fecha,
+                nroOperacion: nroOperacion,
+              }
+            : null,
       };
 
       console.log("Request Body:", requestBody);
@@ -538,13 +765,17 @@ const handlePago = async () => {
 
       console.log("Response:", response.data);
       console.log("ResponseStatus:", response.data.statusCode);
-      ///acciones post pago////
+
       if (response.data.statusCode === 200) {
         setSnackbarOpen(true);
         setSnackbarMessage(response.data.descripcion);
-        handleClosePaymentDialog();
+        handleClosePaymentProcess();
         setCantidadPagada(0);
-        resetDeudaData();
+        fetchClientes();
+        handleDetailClose();
+        handleTransferenciaModalClose2();
+        handleClosePaymentGroupProcess();
+        handlePagarClose();
 
         setTimeout(() => {
           handleClosePaymentProcess();
@@ -563,7 +794,7 @@ const handlePago = async () => {
     const fetchProveedores = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Proveedores/GetProveedorCompra"
+          "https://www.easypos.somee.com/api/Proveedores/GetProveedorCompra"
         );
         setProveedores(response.data.proveedorCompra.proveedorCompraCabeceras);
       } catch (error) {
@@ -633,6 +864,99 @@ const handlePago = async () => {
   //   "rut",
   //   order.direction
   // );
+
+  const handleNumericKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+
+    // Verifica si el carácter es un número, backspace o delete
+    if (
+      !/\d/.test(key) && // números
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
+
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+
+    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
+    if (
+      !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
+
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
+  const handleEmailKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
+
+    // Prevenir espacios en cualquier parte del correo
+    if (charCode === 32) {
+      // 32 es el código de la tecla espacio
+      event.preventDefault();
+    }
+  };
+  const handleRUTKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+
+    // Permitir números (0-9), guion (-), backspace y delete
+    if (
+      !isNaN(key) || // números
+      key === "Backspace" || // backspace
+      key === "Delete" || // delete
+      (key === "-" && !input.includes("-")) // guion y no hay guion previamente
+    ) {
+      // Permitir la tecla
+    } else {
+      // Prevenir cualquier otra tecla
+      event.preventDefault();
+    }
+
+    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
+    if (
+      key === " " &&
+      (input.length === 0 || event.target.selectionStart === 0)
+    ) {
+      event.preventDefault();
+    }
+  };
+
+  const handleTextOnlyKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
+
+    // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
+    if (
+      !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
+
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -704,8 +1028,8 @@ const handlePago = async () => {
                           (item) => item.tipoDocumento === "Ticket"
                         ).length
                       }
-                         <br />
-                        Ingreso Interno:{" "}
+                      <br />
+                      Ingreso Interno:{" "}
                       {
                         groupedData[rut].filter(
                           (item) => item.tipoDocumento === "Ingreso Interno"
@@ -719,14 +1043,14 @@ const handlePago = async () => {
                         .toLocaleString("es-ES")}
                     </TableCell>
                     <TableCell>
-                    <Button
-                          sx={{ width: "80%" }}
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handlePagarOpen(rut)}
-                        >
-                          Pagar
-                        </Button>
+                      <Button
+                        sx={{ width: "80%" }}
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handlePagarOpen(rut)}
+                      >
+                        Pagar
+                      </Button>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -831,13 +1155,18 @@ const handlePago = async () => {
                                   <TableCell>
                                     {new Date(
                                       item.fechaIngreso
-                                    ).toLocaleDateString("es-ES")}
+                                    ).toLocaleDateString("es-CL")}
                                   </TableCell>
                                   <TableCell>
-                                    ${item.total.toLocaleString("es-ES")}
+                                    ${item.total.toLocaleString("es-CL")}
                                   </TableCell>
                                   <TableCell>
-                                  <Button variant="contained" onClick={() => handleDetailOpen(item)}>Detalle</Button>
+                                    <Button
+                                      variant="contained"
+                                      onClick={() => handleDetailOpen(item)}
+                                    >
+                                      Detalle
+                                    </Button>
                                   </TableCell>
                                 </TableRow>
                               ))}
@@ -854,7 +1183,12 @@ const handlePago = async () => {
         </TableContainer>
       </Grid>
 
-      <Dialog open={detailOpen} onClose={handleDetailClose} maxWidth="md" fullWidth>
+      <Dialog
+        open={detailOpen}
+        onClose={handleDetailClose}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Detalles del Proveedor</DialogTitle>
         <DialogContent dividers>
           {selectedItem && (
@@ -894,9 +1228,7 @@ const handlePago = async () => {
                   <TableBody>
                     <TableRow>
                       <TableCell>
-                        {dayjs(selectedItem.fechaIngreso).format(
-                          "DD-MM-YYYY"
-                        )}
+                        {dayjs(selectedItem.fechaIngreso).format("DD-MM-YYYY")}
                       </TableCell>
                       <TableCell>{selectedItem.tipoDocumento}</TableCell>
                       <TableCell>{selectedItem.folio}</TableCell>
@@ -920,16 +1252,14 @@ const handlePago = async () => {
                   </TableHead>
                   <TableBody>
                     {selectedItem.proveedorCompraDetalles &&
-                      selectedItem.proveedorCompraDetalles.map(
-                        (detalle) => (
-                          <TableRow key={detalle.codProducto}>
-                            <TableCell>{detalle.descripcionProducto}</TableCell>
-                            <TableCell>{detalle.cantidad}</TableCell>
-                            <TableCell>{detalle.precioUnidad}</TableCell>
-                            <TableCell>${detalle.costo}</TableCell>
-                          </TableRow>
-                        )
-                      )}
+                      selectedItem.proveedorCompraDetalles.map((detalle) => (
+                        <TableRow key={detalle.codProducto}>
+                          <TableCell>{detalle.descripcionProducto}</TableCell>
+                          <TableCell>{detalle.cantidad}</TableCell>
+                          <TableCell>{detalle.precioUnidad}</TableCell>
+                          <TableCell>${detalle.costo}</TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -946,9 +1276,7 @@ const handlePago = async () => {
                   variant="contained"
                   color="primary"
                   // onClick={handleOpenPaymentProcess}
-                  onClick={() =>
-                    handleOpenPaymentProcess("detalle", selectedItem.total)
-                  }
+                  onClick={() => handleOpenPaymentProcess()}
                 >
                   Pagar Total $ ({selectedItem.total})
                 </Button>
@@ -1036,9 +1364,7 @@ const handlePago = async () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() =>
-                    handleOpenPaymentProcess("totalProveedores", selectedTotal)
-                  }
+                  onClick={() => handleOpenPaymentProcess()}
                 >
                   Pagar Total ${selectedTotal}
                 </Button>
@@ -1054,7 +1380,7 @@ const handlePago = async () => {
       </Dialog>
 
       <Dialog open={openPaymentProcess} onClose={handleClosePaymentProcess}>
-        <DialogTitle>Procesamiento de Pago</DialogTitle>
+        <DialogTitle>Procesamiento de Pago Grupales</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} item xs={12} md={6} lg={12}>
             <Grid item xs={12} md={12} lg={12}>
@@ -1071,7 +1397,7 @@ const handlePago = async () => {
                 label="Monto a Pagar"
                 variant="outlined"
                 // value={getTotalSelected()}
-                value={montoAPagar}
+                value={montoAPagar.toLocaleString("es-CL")}
                 fullWidth
                 inputProps={{
                   inputMode: "numeric",
@@ -1104,7 +1430,9 @@ const handlePago = async () => {
                 fullWidth
                 type="number"
                 label="Por pagar"
-                value={Math.max(0, montoAPagar - cantidadPagada)}
+                value={Math.max(0, montoAPagar - cantidadPagada).toLocaleString(
+                  "es-CL"
+                )}
                 InputProps={{ readOnly: true }}
               />
               {calcularVuelto() > 0 && (
@@ -1178,7 +1506,143 @@ const handlePago = async () => {
                     metodoPago === "TRANSFERENCIA" ? "contained" : "outlined"
                   }
                   onClick={() => {
-                    setMetodoPago("TRANSFERENCIA");
+                    handleTransferenciaModalOpen2();
+                  }}
+                  disabled={loading} // Deshabilitar si hay una carga en progreso
+                >
+                  Transferencia
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                <Button
+                  sx={{ height: "100%" }}
+                  variant="contained"
+                  fullWidth
+                  color="secondary"
+                  disabled={!metodoPago || loading}
+                  onClick={handleGroupedPayment}
+                >
+                  {loading ? (
+                    <>
+                      <CircularProgress size={20} /> Procesando...
+                    </>
+                  ) : (
+                    "Pagar"
+                  )}
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePaymentProcess} disabled={loading}>
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openPaymentProcess} onClose={handleClosePaymentProcess}>
+        <DialogTitle>Procesamiento de Pago Detalle</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} item xs={12} md={6} lg={12}>
+            <Grid item xs={12} md={12} lg={12}>
+              {error && (
+                <Grid item xs={12}>
+                  <Typography variant="body1" color="error">
+                    {error}
+                  </Typography>
+                </Grid>
+              )}
+              <TextField
+                sx={{ marginBottom: "5%" }}
+                margin="dense"
+                label="Monto a Pagar"
+                variant="outlined"
+                // value={getTotalSelected()}
+                value={montoAPagar.toLocaleString("es-CL")}
+                fullWidth
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                }}
+                InputProps={{ readOnly: true }}
+              />
+              <TextField
+                margin="dense"
+                fullWidth
+                label="Cantidad pagada"
+                value={cantidadPagada.toLocaleString("es-CL")}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!value.trim()) {
+                    setCantidadPagada(0);
+                  } else {
+                    setCantidadPagada(parseFloat(value));
+                  }
+                }}
+                disabled={metodoPago !== "EFECTIVO"} // Deshabilitar la edición excepto para el método "EFECTIVO"
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  maxLength: 10,
+                }}
+              />
+              <TextField
+                margin="dense"
+                fullWidth
+                type="number"
+                label="Por pagar"
+                value={Math.max(0, montoAPagar - cantidadPagada).toLocaleString(
+                  "es-CL"
+                )}
+                InputProps={{ readOnly: true }}
+              />
+              {calcularVuelto() > 0 && (
+                <TextField
+                  margin="dense"
+                  fullWidth
+                  type="number"
+                  label="Vuelto"
+                  value={calcularVuelto()}
+                  InputProps={{ readOnly: true }}
+                />
+              )}
+            </Grid>
+
+            <Grid
+              container
+              spacing={2}
+              item
+              sm={12}
+              md={12}
+              lg={12}
+              sx={{ width: "100%", display: "flex", justifyContent: "center" }}
+            >
+              <Typography sx={{ marginTop: "7%" }} variant="h6">
+                Selecciona Método de Pago:
+              </Typography>
+              <Grid item xs={12} sm={12} md={12}>
+                <Button
+                  sx={{ height: "100%" }}
+                  id="efectivo-btn"
+                  fullWidth
+                  disabled={loading} // Deshabilitar si hay una carga en progreso
+                  variant={metodoPago === "EFECTIVO" ? "contained" : "outlined"}
+                  onClick={() => {
+                    setMetodoPago("EFECTIVO");
+                  }}
+                >
+                  Efectivo
+                </Button>
+              </Grid>
+
+              <Grid item xs={12} sm={12} md={12}>
+                <Button
+                  sx={{ height: "100%" }}
+                  id="credito-btn"
+                  variant={metodoPago === "CHEQUE" ? "contained" : "outlined"}
+                  onClick={() => {
+                    setMetodoPago("CHEQUE");
                     setCantidadPagada(
                       paymentOrigin === "detalleProveedor"
                         ? selectedProveedor.total
@@ -1187,6 +1651,23 @@ const handlePago = async () => {
                             0
                           )
                     );
+                    handleChequeModalOpen();
+                  }}
+                  fullWidth
+                  disabled={loading} // Deshabilitar si hay una carga en progreso
+                >
+                  CHEQUE
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={12} md={12}>
+                <Button
+                  id="transferencia-btn"
+                  fullWidth
+                  sx={{ height: "100%" }}
+                  variant={
+                    metodoPago === "TRANSFERENCIA" ? "contained" : "outlined"
+                  }
+                  onClick={() => {
                     handleTransferenciaModalOpen();
                   }}
                   disabled={loading} // Deshabilitar si hay una carga en progreso
@@ -1200,8 +1681,9 @@ const handlePago = async () => {
                   variant="contained"
                   fullWidth
                   color="secondary"
-                  disabled={!metodoPago || cantidadPagada <= 0 || loading}
-                  onClick={handlePago}
+                  disabled={!metodoPago || loading}
+                  // onClick={handlePayment}
+                  onClick={handleIndividualPayment}
                 >
                   {loading ? (
                     <>
@@ -1244,7 +1726,7 @@ const handlePago = async () => {
                 value={nombre}
                 name="nombre"
                 onChange={(e) => setNombre(e.target.value)}
-                onKeyDown={(event) => handleKeyDown(event, "nombre")}
+                onKeyDown={handleTextOnlyKeyDown}
                 variant="outlined"
                 fullWidth
               />
@@ -1261,7 +1743,6 @@ const handlePago = async () => {
                 fullWidth
                 value={rut}
                 onChange={(e) => setRut(e.target.value)}
-                onKeyDown={(event) => handleKeyDown(event, "rut")}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -1307,14 +1788,15 @@ const handlePago = async () => {
                 label="Número de cuenta"
                 variant="outlined"
                 fullWidth
-                type="number"
+              
                 inputProps={{
                   inputMode: "numeric",
                   pattern: "[0-9]*",
+                  maxLength: 12,
                 }}
                 value={nroCuenta}
                 onChange={(e) => setNroCuenta(e.target.value)}
-                onKeyDown={(event) => handleKeyDown(event, "numeroCuenta")}
+                onKeyDown={handleNumericKeyDown}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -1355,14 +1837,15 @@ const handlePago = async () => {
                 name="numeroCuenta"
                 label="Numero Operación"
                 variant="outlined"
-                type="number"
+     
                 fullWidth
                 value={nroOperacion}
                 onChange={(e) => setNroOperacion(e.target.value)}
-                onKeyDown={(event) => handleKeyDown(event, "numeroCuenta")}
+                onKeyDown={handleNumericKeyDown}
                 inputProps={{
                   inputMode: "numeric",
                   pattern: "[0-9]*",
+                  maxLength: 12,
                 }}
               />
             </Grid>
@@ -1372,8 +1855,8 @@ const handlePago = async () => {
                 variant="contained"
                 fullWidth
                 color="secondary"
-                disabled={!metodoPago || cantidadPagada <= 0}
-                onClick={handlePayment}
+                disabled={!metodoPago || loading}
+                onClick={handleIndividualPayment}
               >
                 {loading ? (
                   <>
@@ -1388,6 +1871,173 @@ const handlePago = async () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleTransferenciaModalClose}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openTransferenciaModal2}
+        onClose={handleTransferenciaModalClose2}
+      >
+        <DialogTitle>Transferencia 2</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={12} lg={12}>
+              {errorTransferenciaError && (
+                <p style={{ color: "red" }}> {errorTransferenciaError2}</p>
+              )}
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Nombre
+              </InputLabel>
+              <TextField
+                label="Nombre"
+                value={nombre}
+                name="nombre"
+                onChange={(e) => setNombre(e.target.value)}
+                onKeyDown={handleTextOnlyKeyDown}
+                variant="outlined"
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa rut sin puntos y con guión
+              </InputLabel>
+              <TextField
+                name="rut"
+                label="ej: 11111111-1"
+                variant="outlined"
+                fullWidth
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>Ingresa Banco</InputLabel>
+              <TextField
+                select
+                label="Banco"
+                value={selectedBanco}
+                onChange={handleBancoChange}
+                fullWidth
+              >
+                {bancosChile.map((banco) => (
+                  <MenuItem key={banco.id} value={banco.nombre}>
+                    {banco.nombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Tipo de Cuenta{" "}
+              </InputLabel>
+              <TextField
+                select
+                label="Tipo de Cuenta"
+                value={tipoCuenta}
+                onChange={handleChangeTipoCuenta}
+                fullWidth
+              >
+                {Object.entries(tiposDeCuenta).map(([key, value]) => (
+                  <MenuItem key={key} value={value}>
+                    {key}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Número de Cuenta{" "}
+              </InputLabel>
+              <TextField
+                name="numeroCuenta"
+                label="Número de cuenta"
+                variant="outlined"
+                fullWidth
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  maxLength: "12",
+                }}
+                value={nroCuenta}
+                onChange={(e) => setNroCuenta(e.target.value)}
+                onKeyDown={handleNumericKeyDown}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <InputLabel sx={{ marginBottom: "4%" }}>
+                  Selecciona Fecha{" "}
+                </InputLabel>
+                <DatePicker
+                  format="DD-MM-YYYY"
+                  value={fecha}
+                  onChange={(newValue) => {
+                    setFecha(newValue);
+                  }}
+                  minDate={inicioRango}
+                  maxDate={hoy}
+                  textField={(params) => (
+                    <TextField
+                      {...params}
+                      label="Ingresa Fecha"
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {formatFecha(fecha)}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <InputLabel sx={{ marginBottom: "4%" }}>
+                Ingresa Numero Operación
+              </InputLabel>
+              <TextField
+                name="numeroCuenta"
+                label="Numero Operación"
+                variant="outlined"
+                fullWidth
+                value={nroOperacion}
+                onKeyDown={handleNumericKeyDown}
+                onChange={(e) => setNroOperacion(e.target.value)}
+                inputProps={{
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  maxLength: "12",
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={12}>
+              <Button
+                sx={{ height: "100%" }}
+                variant="contained"
+                fullWidth
+                color="secondary"
+                disabled={!metodoPago || loading}
+                onClick={handleGroupedPayment}
+              >
+                {loading ? (
+                  <>
+                    <CircularProgress size={20} /> Procesando...
+                  </>
+                ) : (
+                  "Pagar"
+                )}
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleTransferenciaModalClose2}>Cerrar</Button>
         </DialogActions>
       </Dialog>
 

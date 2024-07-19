@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = ({ setUserData }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2; 
   const [rutOrCode, setRutOrCode] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +39,7 @@ const Login = ({ setUserData }) => {
       setLoading(true);
 
       const response = await axios.post(
-        'https://www.easyposdev.somee.com/api/Usuarios/LoginUsuario',
+        `${import.meta.env.VITE_URL_API2}/Usuarios/LoginUsuario`,
         {
           codigoUsuario: 0,
           rut: rutOrCode,

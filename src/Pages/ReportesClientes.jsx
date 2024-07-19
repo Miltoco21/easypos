@@ -38,6 +38,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const ReportesClientes = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2; 
   const [proveedores, setProveedores] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedProveedor, setSelectedProveedor] = useState([]);
@@ -101,7 +102,7 @@ const ReportesClientes = () => {
   const fetchClientes = async () => {
     try {
       const response = await axios.get(
-        "https://www.easypos.somee.com/api/ReporteClientes/GetAllClientesDeudas"
+        `${import.meta.env.VITE_URL_API2}/ReporteClientes/GetAllClientesDeudas`
       );
       // "https://www.easyposdev.somee.com/api/ReporteClientes/GetAllClientesDeudas"
       setProveedores(response.data.clienteDeudaAlls);
@@ -208,7 +209,7 @@ const ReportesClientes = () => {
       switch (metodoPago) {
         case "TRANSFERENCIA":
           endpoint =
-            "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+          `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
 
           // if (
           //   nombre === "" ||
@@ -296,7 +297,7 @@ const ReportesClientes = () => {
 
         case "CHEQUE":
           endpoint =
-            "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaChequeByIdCliente";
+            `${import.meta.env.VITE_URL_API2}Clientes/PostClientePagarDeudaChequeByIdCliente`;
 
           requestBody = {
             deudaIds: [
@@ -315,7 +316,7 @@ const ReportesClientes = () => {
 
         case "EFECTIVO":
           endpoint =
-            "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+          `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`;
 
           requestBody = {
             deudaIds: [
@@ -506,13 +507,13 @@ const ReportesClientes = () => {
       setLoading(true);
 
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+        "https://www.easypos.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
 
       let requestBody = {};
 
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+          "https://www.easypos.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
 
         if (
           nombre === "" ||
@@ -567,7 +568,7 @@ const ReportesClientes = () => {
         };
       } else if (metodoPago === "EFECTIVO") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaEfectivoByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaEfectivoByIdCliente`;
         requestBody = {
           montoPagado: montoAPagar,
           metodoPago: metodoPago,
@@ -660,11 +661,11 @@ const ReportesClientes = () => {
       setLoading(true);
   
       let endpoint =
-        "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaByIdCliente";
+      `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`;
   
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          "https://www.easyposdev.somee.com/api/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
   
         if (
           nombre === "" ||
@@ -1103,11 +1104,11 @@ const ReportesClientes = () => {
                                   <TableCell>{item.nroComprobante}</TableCell>
                                   <TableCell>
                                     {new Date(item.fecha).toLocaleDateString(
-                                      "es-ES"
+                                      "es-CL"
                                     )}
                                   </TableCell>
                                   <TableCell>
-                                    ${item.total.toLocaleString("es-ES")}
+                                    ${item.total.toLocaleString("es-CL")}
                                   </TableCell>
                                   <TableCell>
                                     <Button
