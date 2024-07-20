@@ -46,6 +46,7 @@ const Login = ({ setUserData }) => {
           clave: password,
         }
       );
+      console.log(apiUrl)
 
       if (response.data.responseUsuario) {
         setUserData(response.data.responseUsuario);
