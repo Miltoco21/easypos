@@ -25,6 +25,8 @@ import ReportesClientes from './Pages/ReportesClientes';
 import ReportesCtaCorriente from './Pages/ReportesCtaCorriente';
 import ReportesCtaCorrienteProv from './Pages/ReportesCtaCorrienteProv';
 import RankingVentas from './Pages/RankingVentas';
+import RankingProductos from './Pages/RankingProductos';
+import RankingLibroVentas from './Pages/RankingLibroVentas';
 
 
 function App() {
@@ -58,6 +60,9 @@ function App() {
       <Route path="reportes/cuentacorrienteclientes" element={<ProtectedRoute element={<ReportesCtaCorriente />} />} />
       <Route path="reportes/cuentacorrienteproveedores" element={<ProtectedRoute element={<ReportesCtaCorrienteProv />} />} />
       <Route path="reportes/rankingventas" element={<ProtectedRoute element={<RankingVentas />} />} />
+      <Route path="reportes/rankingproductos" element={<ProtectedRoute element={<RankingProductos />} />} />
+      <Route path="reportes/rankinglibroventas" element={<ProtectedRoute element={<RankingLibroVentas />} />} />
+
 
     </Routes>
   );
