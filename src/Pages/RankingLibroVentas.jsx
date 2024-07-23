@@ -57,7 +57,7 @@ const RankingLibroVentas = () => {
     console.log("Iniciando fetchData con params:", params);
     
     try {
-      const url = `${apiUrl}/ReporteVentas/ReporteLibroIVA`;
+      const url = `https://www.easypos.somee.com/api/ReporteVentas/ReporteLibroIVA`;
       console.log("URL being fetched:", url);
       
       const response = await axios.get(url, { params });
