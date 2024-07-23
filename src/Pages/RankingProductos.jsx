@@ -49,7 +49,7 @@ const RankingProductos = () => {
     console.log("Iniciando fetchData con params:", params);
     
     try {
-      const url = `${apiUrl}/ReporteVentas/ReporteVentasRankingProductoGET`;
+      const url = `https://www.easypos.somee.com/api/ReporteVentas/ReporteVentasRankingProductoGET`;
       console.log("URL being fetched:", url);
       
       const response = await axios.get(url, { params });
