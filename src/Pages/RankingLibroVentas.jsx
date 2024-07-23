@@ -216,7 +216,7 @@ const RankingLibroVentas = () => {
           </Grid>
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
-              <p>Total Valores: {totalValues.toLocaleString("es-CL")}</p>
+              <p>Total General: {totalValues.toLocaleString("es-CL")}</p>
             </Grid>
             <Grid item xs={12} md={3}>
               <p>Total IVA: {totalIVA.toLocaleString("es-CL")}</p>
