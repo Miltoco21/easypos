@@ -41,7 +41,8 @@ const Login = ({ setUserData }) => {
 
       const response = await axios.post(
         // `${import.meta.env.VITE_URL_API2}/Usuarios/LoginUsuario`
-        `https://www.easypos.somee.com/api/Usuarios/LoginUsuario`,
+        // `https://www.easypos.somee.com/api/Usuarios/LoginUsuario`
+        `${import.meta.env.VITE_URL_API2}/Usuarios/LoginUsuario`,
         {
           codigoUsuario: 0,
           rut: rutOrCode,
