@@ -87,8 +87,9 @@ export default function IngresoUsuarios({ onClose}) {
       if (selectedRegion) {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_URL_API2}RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+            `${import.meta.env.VITE_URL_API2}/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
+          console.log("comunas:",response.data.comunas)
           setComunaOptions(
             response.data.comunas.map((comuna) => comuna.comunaNombre)
           );
@@ -245,7 +246,7 @@ export default function IngresoUsuarios({ onClose}) {
         setLoading(true);
         const response = await axios.post(
           
-          "https://www.easyposdev.somee.com/api/Usuarios/AddUsuario",
+          `${import.meta.env.VITE_URL_API2}/Usuarios/AddUsuario`,
           usuario
         );
         console.log("Respuesta de la solicitud:", response);
