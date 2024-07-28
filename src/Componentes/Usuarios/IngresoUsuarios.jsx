@@ -108,7 +108,7 @@ export default function IngresoUsuarios({ onClose}) {
     async function fetchRoles() {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_URL_API2}Usuarios/GetAllRolUsuario`
+          `${import.meta.env.VITE_URL_API2}/Usuarios/GetAllRolUsuario`
         );
         setRolesOptions(response.data.usuarios);
         console.log("ROLES", response.data.usuarios);
@@ -184,11 +184,15 @@ export default function IngresoUsuarios({ onClose}) {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       errors.correo = "Formato de correo no es válido";
     }
-    if (!direccion) {
-      errors.direccion = "Favor completar dirección ";
-    }
+   
     if (!telefono) {
       errors.telefono = "Favor completar telefono ";
+    } 
+    if (!codigoUsuario) {
+      errors.codigoUsuario = "Favor completar código de Usuario ";
+    } 
+    if (!direccion) {
+      errors.direccion = "Favor completar dirección ";
     }
     if (!selectedComuna || selectedComuna.length === 0) {
       errors.comuna = "Favor completar comuna ";
