@@ -27,6 +27,9 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 export const defaultTheme = createTheme();
 
 export default function IngresoUsuarios({ onClose}) {
+
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [nombres, setNombre] = useState("");
   const [apellidos, setApellido] = useState("");
   const [correo, setCorreo] = useState("");
@@ -68,7 +71,7 @@ export default function IngresoUsuarios({ onClose}) {
     const fetchRegions = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
+          `${import.meta.env.VITE_URL_API2}/RegionComuna/GetAllRegiones`
         );
         setRegionOptions(response.data.regiones);
       } catch (error) {
@@ -84,7 +87,7 @@ export default function IngresoUsuarios({ onClose}) {
       if (selectedRegion) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+            `${import.meta.env.VITE_URL_API2}RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
           setComunaOptions(
             response.data.comunas.map((comuna) => comuna.comunaNombre)
@@ -104,7 +107,7 @@ export default function IngresoUsuarios({ onClose}) {
     async function fetchRoles() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/Usuarios/GetAllRolUsuario"
+          `${import.meta.env.VITE_URL_API2}Usuarios/GetAllRolUsuario`
         );
         setRolesOptions(response.data.usuarios);
         console.log("ROLES", response.data.usuarios);
