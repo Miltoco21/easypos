@@ -5,6 +5,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  Typography,
   TableContainer,
   TableHead,
   TableRow,
@@ -12,14 +13,12 @@ import {
   CircularProgress,
   Snackbar,
   TextField,
-  InputLabel,
   Collapse,
   IconButton,
   Box,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from "@mui/material";
 import {
@@ -46,8 +45,23 @@ const ReportesCtaCorrienteProv = () => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [hideZeroBalance, setHideZeroBalance] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
   const apiUrl = import.meta.env.VITE_URL_API2;
   const handleBuscarClick = () => {
+    if (!startDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de inicio.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!endDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de término.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    
+
     fetchData();
   };
 
@@ -56,7 +70,7 @@ const ReportesCtaCorrienteProv = () => {
     setError(null);
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_URL_API2}/Proveedores/GetProveedorCompraByFecha`,
+        `${apiUrl}/Proveedores/GetProveedorCompraByFecha`,
         {
           params: {
             fechaDesde: startDate ? startDate.format("YYYY-MM-DD") : "",
@@ -65,7 +79,7 @@ const ReportesCtaCorrienteProv = () => {
         }
       );
       setData(response.data.proveedorCompraCabeceraReportes);
-      console.log("respuesta Provedoress", response.data);
+      console.log("resultado prov",response.data.proveedorCompraCabeceraReportes);
     } catch (error) {
       setError("Error fetching data");
       setSnackbarMessage("Error al buscar los datos");
@@ -75,7 +89,7 @@ const ReportesCtaCorrienteProv = () => {
   };
 
   const groupDataByProvider = (data) => {
-    const groupedData = data.reduce((acc, curr) => {
+    return data.reduce((acc, curr) => {
       const providerIndex = acc.findIndex((item) => item.rut === curr.rut);
       if (providerIndex !== -1) {
         acc[providerIndex].transactions.push(curr);
@@ -88,7 +102,6 @@ const ReportesCtaCorrienteProv = () => {
       }
       return acc;
     }, []);
-    return groupedData;
   };
 
   const toggleRow = (rowId) => {
@@ -102,8 +115,9 @@ const ReportesCtaCorrienteProv = () => {
     setSnackbarOpen(false);
   };
 
-  const handleOpenDialog = (products) => {
-    setSelectedProducts(products);
+  const handleOpenDialog = (document) => {
+    setSelectedProducts(document.detalles);
+    setSelectedDocument(document);
     setDialogOpen(true);
   };
 
@@ -121,15 +135,10 @@ const ReportesCtaCorrienteProv = () => {
   };
 
   const groupedData = groupDataByProvider(data);
-
-  const filteredData = groupedData.filter((provider) => {
-    const lowercasedFilter = searchTerm.toLowerCase();
-
-    return (
-      provider.rut.toLowerCase().includes(lowercasedFilter) ||
-      provider.razonSocial.toLowerCase().includes(lowercasedFilter)
-    );
-  });
+  const filteredData = groupedData.filter((provider) =>
+    provider.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    provider.razonSocial.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const sortedData = filteredData.sort((a, b) => a.rut.localeCompare(b.rut));
 
@@ -144,7 +153,7 @@ const ReportesCtaCorrienteProv = () => {
 
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
         <Grid container spacing={1} alignItems="center">
-         Reportes Cuenta Corrientes Proveedores 
+          Reportes Cuenta Corrientes Proveedores
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -152,12 +161,7 @@ const ReportesCtaCorrienteProv = () => {
                   label="Fecha Inicio"
                   value={startDate}
                   onChange={(newValue) => setStartDate(newValue)}
-                  slotProps={{
-                    textField: {
-                      sx: { mb: 2 },
-                      fullWidth: true,
-                    },
-                  }}
+                  slotProps={{ textField: { sx: { mb: 2 }, fullWidth: true } }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -167,12 +171,7 @@ const ReportesCtaCorrienteProv = () => {
                   label="Fecha Término"
                   value={endDate}
                   onChange={(newValue) => setEndDate(newValue)}
-                  slotProps={{
-                    textField: {
-                      sx: { mb: 2 },
-                      fullWidth: true,
-                    },
-                  }}
+                  slotProps={{ textField: { sx: { mb: 2 }, fullWidth: true } }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -199,6 +198,7 @@ const ReportesCtaCorrienteProv = () => {
             />
           </Grid>
         </Grid>
+
         <Button
           variant="contained"
           onClick={handleHideZeroBalance}
@@ -207,6 +207,7 @@ const ReportesCtaCorrienteProv = () => {
         >
           {hideZeroBalance ? "Mostrar Saldo Cero" : "Ocultar Saldo Cero"}
         </Button>
+
         {loading ? (
           <CircularProgress />
         ) : error ? (
@@ -256,35 +257,31 @@ const ReportesCtaCorrienteProv = () => {
                       </TableCell>
                       <TableCell>{provider.rut}</TableCell>
                       <TableCell>{provider.razonSocial}</TableCell>
-                      <TableCell>
-                        {provider.transactions[0].nombreResponsable}
-                      </TableCell>
+                      <TableCell>{provider.nombreResponsable}</TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell
-                        style={{ paddingBottom: 0, paddingTop: 0 }}
-                        colSpan={6}
-                      >
-                        <Collapse
-                          in={openRows[provider.rut]}
-                          timeout="auto"
-                          unmountOnExit
-                        >
-                          <Box margin={1}>
-                            <Table size="small" aria-label="transactions">
-                              <TableHead>
-                                <TableRow>
-                                  <TableCell>Fecha</TableCell>
+                    {openRows[provider.rut] && (
+                      <TableRow>
+                        <TableCell colSpan={4}>
+                          <Collapse in={openRows[provider.rut]}>
+                            <Box sx={{ margin: 1 }}>
+                              <Table size="small">
+                                <TableHead>
+                                  <TableRow>
+                                                                     <TableCell>Fecha</TableCell>
                                   <TableCell>Tipo Documento</TableCell>
                                   <TableCell>Folio</TableCell>
                                   <TableCell>Cargo</TableCell>
                                   <TableCell>Abono</TableCell>
                                   <TableCell>Saldo</TableCell>
                                   <TableCell>Detalles</TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {provider.transactions
+
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+
+
+
+ {provider.transactions
                                   .filter(
                                     (transaction) =>
                                       !hideZeroBalance ||
@@ -343,7 +340,7 @@ const ReportesCtaCorrienteProv = () => {
                                           variant="contained"
                                           onClick={() =>
                                             handleOpenDialog(
-                                              transaction.detalles
+                                              transaction
                                             )
                                           }
                                         >
@@ -352,54 +349,140 @@ const ReportesCtaCorrienteProv = () => {
                                       </TableCell>
                                     </TableRow>
                                   ))}
-                              </TableBody>
-                            </Table>
-                          </Box>
-                        </Collapse>
-                      </TableCell>
-                    </TableRow>
+
+
+
+                                  {/* {provider.transactions.map((transaction) => (
+                                    <TableRow key={transaction.id}>
+                                      <TableCell>{dayjs(transaction.fecha).format("DD/MM/YYYY")}</TableCell>
+                                      <TableCell>{transaction.tipoDocumento}</TableCell>
+                                      <TableCell>{transaction.monto}</TableCell>
+                                      <TableCell>{calculateSaldo(transaction.total, transaction.pagos)}</TableCell>
+                                      <TableCell>
+                                        <Button
+                                          variant="outlined"
+                                          onClick={() => handleOpenDialog(transaction)}
+                                        >
+                                          Ver Detalles
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))} */}
+                                </TableBody>
+                              </Table>
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </React.Fragment>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         )}
+  <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
+       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+  <DialogTitle>Detalles del Documento</DialogTitle>
+  <DialogContent>
+    {/* Display the main details of the document */}
+    <Table size="small">
+      <TableBody>
+        <TableRow>
+          <TableCell><strong>Fecha:</strong></TableCell>
+          <TableCell>{dayjs(selectedDocument?.fechaIngreso).format('DD/MM/YYYY')}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Tipo Documento:</strong></TableCell>
+          <TableCell>{selectedDocument?.tipoDocumento}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Folio:</strong></TableCell>
+          <TableCell>{selectedDocument?.folio}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Total:</strong></TableCell>
+          <TableCell>{selectedDocument?.total.toLocaleString("es-CL")}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>RUT:</strong></TableCell>
+          <TableCell>{selectedDocument?.rut}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Razón Social:</strong></TableCell>
+          <TableCell>{selectedDocument?.razonSocial}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Nombre Responsable:</strong></TableCell>
+          <TableCell>{selectedDocument?.nombreResponsable}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell><strong>Código Proveedor:</strong></TableCell>
+          <TableCell>{selectedDocument?.codigoProveedor}</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
 
-        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle>Detalles de los Productos</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Aquí puedes ver los detalles de los productos seleccionados.
-            </DialogContentText>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Código</TableCell>
-                  <TableCell>Descripción</TableCell>
-                  <TableCell>Cantidad</TableCell>
-                  <TableCell>Precio Unidad</TableCell>
-                  <TableCell>Costo</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {selectedProducts.map((product) => (
-                  <TableRow key={product.idDetalle}>
-                    <TableCell>{product.codProducto}</TableCell>
-                    <TableCell>{product.descripcionProducto}</TableCell>
-                    <TableCell>{product.cantidad}</TableCell>
-                    <TableCell>{product.precioUnidad}</TableCell>
-                    <TableCell>{product.costo}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} color="primary">
-              Cerrar
-            </Button>
-          </DialogActions>
-        </Dialog>
+    {/* Display the product details */}
+    <Typography variant="h6" sx={{ mt: 2 }}>Detalles de Productos</Typography>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Descripción</TableCell>
+          <TableCell>Cantidad</TableCell>
+          <TableCell>Precio Unidad</TableCell>
+          <TableCell>Costo</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {selectedProducts.map((product) => (
+          <TableRow key={product.idDetalle}>
+            <TableCell>{product.descripcionProducto}</TableCell>
+            <TableCell>{product.cantidad}</TableCell>
+            <TableCell>{product.precioUnidad.toLocaleString("es-CL")}</TableCell>
+            <TableCell>{product.costo.toLocaleString("es-CL")}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+
+    {/* Display payment details */}
+    <Typography variant="h6" sx={{ mt: 2 }}>Detalles de Pagos</Typography>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Monto Pagado</TableCell>
+          <TableCell>Metodo Pago</TableCell>
+          <TableCell>Fecha Pago</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {selectedDocument?.pagos.map((pago) => (
+          <TableRow key={pago.idPago}>
+            <TableCell>{pago.montoPagado.toLocaleString("es-CL")}</TableCell>
+            <TableCell>{pago.metodoPago}</TableCell>
+            <TableCell>{new Date(pago.fechaPago).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleCloseDialog} color="primary">
+      Cerrar
+    </Button>
+  </DialogActions>
+</Dialog>
+
       </Grid>
     </div>
   );

@@ -327,7 +327,7 @@ const ReportesCtaCorriente = () => {
                                         {transaction.descripcionComprobante}
                                       </TableCell>
                                       <TableCell>{transaction.nroComprobante}</TableCell>
-                                      <TableCell>{transaction.total}</TableCell>
+                                      <TableCell>{transaction.total.toLocaleString("es-CL")}</TableCell>
                                      
 
                                       <TableCell>
@@ -347,6 +347,13 @@ const ReportesCtaCorriente = () => {
                                               )}
                                             </div>
                                           ))}
+                                      </TableCell>
+                                      <TableCell>
+                                        
+                                        {calculateSaldo(
+                                          transaction.total,
+                                          transaction.pagos
+                                        ).toLocaleString("es-CL")}
                                       </TableCell>
                                       <TableCell>
                                         <Button
@@ -373,6 +380,12 @@ const ReportesCtaCorriente = () => {
             </Table>
           </TableContainer>
         )}
+              <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
 
 <Dialog open={dialogOpen} onClose={handleCloseDialog}>
   <DialogTitle>Detalles del Documento</DialogTitle>
