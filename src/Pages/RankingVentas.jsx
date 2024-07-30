@@ -14,6 +14,10 @@ import {
   IconButton,
   Collapse,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
@@ -37,8 +41,24 @@ const RankingVentas = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openRows, setOpenRows] = useState({});
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleBuscarClick = () => {
+    if (!startDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de inicio.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!endDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de término.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    
+
     fetchData();
   };
 
@@ -58,6 +78,7 @@ const RankingVentas = () => {
       const groupedData = groupBy(
         response.data.reporteVentasPorTipoComprobanteYMetodoPagos || []
       );
+      console.log("response pro", response.data.reporteVentasPorTipoComprobanteYMetodoPagos)
       setData(groupedData);
       console.log("respuesta ranking data", groupedData);
     } catch (error) {
@@ -97,6 +118,15 @@ const RankingVentas = () => {
 
   const calculatePercentage = (totalSuma, grandTotal) => {
     return (totalSuma / grandTotal) * 100;
+  };
+  const handleOpenDialog = (item) => {
+    setSelectedItem(item);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedItem(null);
   };
 
   const grandTotalSuma = calculateTotalSuma();
@@ -300,6 +330,9 @@ const RankingVentas = () => {
                                       <TableCell align="center">
                                         Porcentaje Participación
                                       </TableCell>
+                                      <TableCell align="center">
+                                       Acciones
+                                      </TableCell>
                                     </TableRow>
                                   </TableHead>
                                   <TableBody>
@@ -330,6 +363,14 @@ const RankingVentas = () => {
                                                   10000
                                               ) / 100}
                                               %
+                                            </TableCell>
+                                            <TableCell align="center">
+                                            <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => handleOpenDialog(row)}
+                                            >Ver Detalles</Button>
+                                            
                                             </TableCell>
                                           </TableRow>
                                         )
@@ -365,6 +406,43 @@ const RankingVentas = () => {
             </IconButton>
           }
         />
+         <Dialog
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>Detalles</DialogTitle>
+          <DialogContent>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Fecha</TableCell>
+                  <TableCell>Tipo Comprobante</TableCell>
+                  <TableCell>Método de Pago</TableCell>
+                  <TableCell>Cantidad</TableCell>
+                  <TableCell>Valor</TableCell>
+                  <TableCell>Porcentaje Participación</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedItem && (
+                  <TableRow>
+                    <TableCell>{selectedItem.fecha}</TableCell>
+                    <TableCell>{selectedItem.tipoComprobante}</TableCell>
+                    <TableCell>{selectedItem.metodoPago}</TableCell>
+                    <TableCell>{selectedItem.cantidad}</TableCell>
+                    <TableCell>{selectedItem.sumaTotal.toLocaleString("es-CL")}</TableCell>
+                    <TableCell>{Math.round(selectedItem.porcentajeParticipacion * 10000) / 100}%</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Cerrar</Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   );
