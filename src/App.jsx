@@ -27,6 +27,7 @@ import ReportesCtaCorrienteProv from './Pages/ReportesCtaCorrienteProv';
 import RankingVentas from './Pages/RankingVentas';
 import RankingProductos from './Pages/RankingProductos';
 import RankingLibroVentas from './Pages/RankingLibroVentas';
+import RankingLibroCompras from './Pages/RankingLibroCompras';
 
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
       <Route path="reportes/rankingventas" element={<ProtectedRoute element={<RankingVentas />} />} />
       <Route path="reportes/rankingproductos" element={<ProtectedRoute element={<RankingProductos />} />} />
       <Route path="reportes/rankinglibroventas" element={<ProtectedRoute element={<RankingLibroVentas />} />} />
+      <Route path="reportes/rankinglibrocompras" element={<ProtectedRoute element={<RankingLibroCompras />} />} />
 
 
     </Routes>

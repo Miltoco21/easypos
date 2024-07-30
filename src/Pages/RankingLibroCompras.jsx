@@ -25,7 +25,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import SideBar from "../Componentes/NavBar/SideBar";
 import axios from "axios";
 
-const RankingLibroVentas = () => {
+const RankingLibroCompras = () => {
   const apiUrl = import.meta.env.VITE_URL_API2;
 
   const [startDate, setStartDate] = useState(null);
@@ -47,16 +47,16 @@ const RankingLibroVentas = () => {
     setError(null);
 
     const params = {
-      fechadesde: startDate ? startDate.format("YYYY-MM-DD") : "",
-      fechahasta: endDate ? endDate.format("YYYY-MM-DD") : "",
-      tipoComprobante: tipo.join(","),
+      fechaDesde: startDate ? startDate.format("DD-MM-YYYY") : "",
+      fechaHasta: endDate ? endDate.format("DD-MM-YYYY") : "",
+      tipocomprobantes: tipo.join(","),
     };
 
     console.log("Iniciando fetchData con params:", params);
 
     try {
-      const url = `${apiUrl}/ReporteVentas/ReporteLibroIVA`;
-      console.log("URL being fetched:", url);
+      const url = `${apiUrl}/Proveedores/ReporteProveedorCompraByFechaGet`;
+      
 
       const response = await axios.get(url, { params });
 
@@ -65,17 +65,17 @@ const RankingLibroVentas = () => {
       if (response.data) {
         setCantidad(response.data.cantidad);
 
-        if (response.data.cantidad > 0 && response.data.ventaCabeceraReportes) {
-          setData(response.data.ventaCabeceraReportes);
-          console.log("Datos recibidos:", response.data.ventaCabeceraReportes);
+        if (response.data.cantidad > 0 && response.data.proveedorCompraCabeceraReportes) {
+          setData(response.data.proveedorCompraCabeceraReportes);
+          console.log("Datos recibidos:", response.data.proveedorCompraCabeceraReportes);
 
-          const totalValue = response.data.ventaCabeceraReportes.reduce(
+          const totalValue = response.data.proveedorCompraCabeceraReportes.reduce(
             (sum, item) => sum + item.total,
             0
           );
-          const totalIVA = response.data.ventaCabeceraReportes
-            .filter((item) => item.tipoComprobante !== 0)
-            .reduce((sum, item) => sum + item.montoIVA, 0);
+          const totalIVA = response.data.proveedorCompraCabeceraReportes
+            .filter((item) => item.tipoComprobante !== "Ticket")
+            .reduce((sum, item) => sum + item.montoIva, 0);
 
           setSnackbarMessage(
             `Se encontraron ${response.data.cantidad} resultados.`
@@ -142,7 +142,7 @@ const RankingLibroVentas = () => {
   };
 
   const handleCheckboxChange = (event) => {
-    const value = parseInt(event.target.value);
+    const value = event.target.value;
     setTipo((prev) =>
       event.target.checked
         ? [...prev, value]
@@ -155,9 +155,8 @@ const RankingLibroVentas = () => {
       <SideBar />
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
         <Grid container spacing={1} alignItems="center">
-        Libro de Ventas
+          Libro de Compras
           <Grid container spacing={2} sx={{ mt: 2 }}>
-         
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
@@ -194,9 +193,9 @@ const RankingLibroVentas = () => {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={tipo.includes(1)}
+                        checked={tipo.includes("Boleta")}
                         onChange={handleCheckboxChange}
-                        value={1}
+                        value={"Boleta"}
                       />
                     }
                     label="Boleta"
@@ -204,22 +203,32 @@ const RankingLibroVentas = () => {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={tipo.includes(0)}
+                        checked={tipo.includes("Factura")}
                         onChange={handleCheckboxChange}
-                        value={0}
+                        value={"Factura"}
                       />
                     }
-                    label="Ticket"
+                    label="Factura"
                   />
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={tipo.includes(2)}
+                        checked={tipo.includes("Ingreso Interno")}
                         onChange={handleCheckboxChange}
-                        value={2}
+                        value={"Ingreso Interno"}
                       />
                     }
-                    label="Factura"
+                    label="Ingreso Interno"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={tipo.includes("Ticket")}
+                        onChange={handleCheckboxChange}
+                        value={"Ticket"}
+                      />
+                    }
+                    label="Ticket"
                   />
                 </FormControl>
               </FormControl>
@@ -243,7 +252,7 @@ const RankingLibroVentas = () => {
               <p>Total IVA: {totalIVA.toLocaleString("es-CL")}</p>
             </Grid>
             <Grid item xs={12} md={3}>
-              <p>Cantidad Encontrados: {cantidad.toLocaleString("es-CL")}</p>
+              <p>Resultados Encontrados: {cantidad.toLocaleString("es-CL")}</p>
             </Grid>
           </Grid>
         </Grid>
@@ -257,8 +266,10 @@ const RankingLibroVentas = () => {
               <TableHead>
                 <TableRow sx={{ backgroundColor: "gainsboro" }}>
                   <TableCell>Fecha</TableCell>
-                  <TableCell>Descripción</TableCell>
+                  <TableCell>Razón Social</TableCell>
+                  <TableCell>Rut</TableCell>
                   <TableCell>Folio Documento</TableCell>
+                  <TableCell>Tipo Documento</TableCell>
                   <TableCell>Valor Neto</TableCell>
                   <TableCell>IVA DF</TableCell>
                   <TableCell>Total</TableCell>
@@ -267,21 +278,22 @@ const RankingLibroVentas = () => {
               </TableHead>
               <TableBody>
                 {data.map((producto) => (
-                  <TableRow key={producto.idCabecera}>
+                  <TableRow key={producto.idCabeceraCompra}>
                     <TableCell>
                       {new Date(producto.fechaIngreso).toLocaleDateString(
                         "es-CL"
                       )}
                     </TableCell>
-                    <TableCell>{producto.descripcionComprobante}</TableCell>
-                    <TableCell>
-                      {producto.nroComprobante.toLocaleString("es-CL")}
-                    </TableCell>
+                  
+                    <TableCell>{producto.razonSocial}</TableCell>
+                    <TableCell>{producto.rut}</TableCell>
+                    <TableCell>{producto.folio}</TableCell>
+                    <TableCell>{producto.tipoDocumento}</TableCell>
                     <TableCell>
                       {producto.montoNeto.toLocaleString("es-CL")}
                     </TableCell>
                     <TableCell>
-                      {producto.montoIVA.toLocaleString("es-CL")}
+                      {producto.montoIva.toLocaleString("es-CL")}
                     </TableCell>
                     <TableCell>
                       {producto.total.toLocaleString("es-CL")}
@@ -289,7 +301,7 @@ const RankingLibroVentas = () => {
                     <TableCell>
                       <Button
                         variant="contained"
-                        color="secondary"
+                        color="primary"
                         onClick={() => handleDialogOpen(producto)}
                       >
                         Detalles
@@ -308,111 +320,130 @@ const RankingLibroVentas = () => {
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Dialog
-        open={openDialog}
-        onClose={handleDialogClose}
-        fullWidth
-        maxWidth="lg"
-      >
-        <DialogTitle>Detalles</DialogTitle>
-        <DialogContent>
-          {selectedProduct && (
-            <>
-              <TableContainer component={Paper} sx={{ mb: 2 }}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "gainsboro" }}>
-                      <TableCell>Fecha</TableCell>
-                      <TableCell>Descripción</TableCell>
-                      <TableCell>Folio Documento</TableCell>
-                      <TableCell>Método de Pago</TableCell>
-
-                      <TableCell>rdcTransactionId </TableCell>
-
-                      <TableCell>Valor Neto</TableCell>
-                      <TableCell>IVA DF</TableCell>
-                      <TableCell>Total</TableCell>
+     <Dialog
+  open={openDialog}
+  onClose={handleDialogClose}
+  fullWidth
+  maxWidth="lg"
+>
+  <DialogTitle>Detalles</DialogTitle>
+  <DialogContent>
+    {selectedProduct && (
+      <>
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "gainsboro" }}>
+                <TableCell>Fecha</TableCell>
+                <TableCell>Tipo Documento</TableCell>
+                <TableCell>Folio Documento</TableCell>
+                <TableCell>Razón Social</TableCell>
+                <TableCell>RUT</TableCell>
+                <TableCell>Nombre Responsable</TableCell>
+                <TableCell>Valor Neto</TableCell>
+                <TableCell>IVA</TableCell>
+                <TableCell>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  {new Date(selectedProduct.fechaIngreso).toLocaleDateString(
+                    "es-CL"
+                  )}
+                </TableCell>
+                <TableCell>{selectedProduct.tipoDocumento}</TableCell>
+                <TableCell>{selectedProduct.folio}</TableCell>
+                <TableCell>{selectedProduct.razonSocial}</TableCell>
+                <TableCell>{selectedProduct.rut}</TableCell>
+                <TableCell>{selectedProduct.nombreResponsable}</TableCell>
+                <TableCell>
+                  {selectedProduct.montoNeto.toLocaleString("es-CL")}
+                </TableCell>
+                <TableCell>
+                  {selectedProduct.montoIva.toLocaleString("es-CL")}
+                </TableCell>
+                <TableCell>
+                  {selectedProduct.total.toLocaleString("es-CL")}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <p>Datos de Venta</p>
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "gainsboro" }}>
+                <TableCell>Código Producto</TableCell>
+                <TableCell>Descripción</TableCell>
+                <TableCell>Precio Unidad</TableCell>
+                <TableCell>Cantidad</TableCell>
+                <TableCell>Costo</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {selectedProduct.detalles.map((detalle, index) => (
+                <TableRow key={index}>
+                  <TableCell>{detalle.codProducto}</TableCell>
+                  <TableCell>{detalle.descripcionProducto}</TableCell>
+                  <TableCell>
+                    {detalle.precioUnidad.toLocaleString("es-CL")}
+                  </TableCell>
+                  <TableCell>
+                    {detalle.cantidad.toLocaleString("es-CL")}
+                  </TableCell>
+                  <TableCell>
+                    {detalle.costo.toLocaleString("es-CL")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {selectedProduct.pagos.length > 0 && (
+          <>
+            <p>Detalles de Pagos</p>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "gainsboro" }}>
+                    <TableCell>ID Pago</TableCell>
+                    <TableCell>Monto Pagado</TableCell>
+                    <TableCell>Método de Pago</TableCell>
+                    <TableCell>Fecha de Pago</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedProduct.pagos.map((pago, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{pago.idPago}</TableCell>
+                      <TableCell>
+                        {pago.montoPagado.toLocaleString("es-CL")}
+                      </TableCell>
+                      <TableCell>{pago.metodoPago}</TableCell>
+                      <TableCell>
+                        {new Date(pago.fechaPago).toLocaleDateString("es-CL")}
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>
-                        {new Date(
-                          selectedProduct.fechaIngreso
-                        ).toLocaleDateString("es-CL")}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.descripcionComprobante}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.nroComprobante.toLocaleString("es-CL")}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.metodoPago.toLocaleString("es-CL")}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.rdcTransactionId.toLocaleString(
-                          "es-CL"
-                        )}
-                      </TableCell>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+        )}
+      </>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleDialogClose} color="primary">
+      Cerrar
+    </Button>
+  </DialogActions>
+</Dialog>
 
-                      <TableCell>
-                        {selectedProduct.montoNeto.toLocaleString("es-CL")}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.montoIVA.toLocaleString("es-CL")}
-                      </TableCell>
-                      <TableCell>
-                        {selectedProduct.total.toLocaleString("es-CL")}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              Datos de Productos
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "gainsboro" }}>
-                      <TableCell>Código Producto</TableCell>
-                      <TableCell>Descripción</TableCell>
-                      <TableCell>Precio Unidad</TableCell>
-                      <TableCell>Cantidad</TableCell>
-                      <TableCell>Costo</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedProduct.ventaDetalleReportes.map(
-                      (detalle, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{detalle.codProducto}</TableCell>
-                          <TableCell>{detalle.descripcion}</TableCell>
-                          <TableCell>
-                            {detalle.precioUnidad.toLocaleString("es-CL")}
-                          </TableCell>
-                          <TableCell>
-                            {detalle.cantidad.toLocaleString("es-CL")}
-                          </TableCell>
-                          <TableCell>
-                            {detalle.costo.toLocaleString("es-CL")}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 };
 
-export default RankingLibroVentas;
+export default RankingLibroCompras;

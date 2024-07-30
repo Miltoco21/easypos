@@ -14,7 +14,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  TablePagination
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -35,6 +36,9 @@ const RankingProductos = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [tipo, setTipo] = useState("Productos");
+
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const fetchData = async () => {
     setLoading(true);
@@ -82,7 +86,34 @@ const RankingProductos = () => {
   };
 
   const handleBuscarClick = () => {
+    if (!startDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de inicio.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (!endDate) {
+      setSnackbarMessage("Por favor, seleccione la fecha de término.");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    if (dayjs(startDate).isAfter(endDate)) {
+      setSnackbarMessage("La fecha de inicio no puede ser mayor que la fecha de término.");
+      setSnackbarOpen(true);
+      return;
+    }
+
     fetchData();
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -90,6 +121,7 @@ const RankingProductos = () => {
       <SideBar />
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
         <Grid container spacing={1} alignItems="center">
+          Ranking de Venta de Productos
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -154,36 +186,50 @@ const RankingProductos = () => {
         ) : cantidad === 0 ? (
           <p>No se encontraron resultados.</p>
         ) : (
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: "gainsboro" }}>
-                  <TableCell>Código Producto</TableCell>
-                  <TableCell>Descripción</TableCell>
-                  <TableCell>Precio Costo</TableCell>
-                  <TableCell>Precio Venta</TableCell>
-                  <TableCell>Stock Actual</TableCell>
-                  <TableCell>Cantidad</TableCell>
-                  <TableCell>Suma Total</TableCell>
-                  <TableCell>Ranking</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.map((producto) => (
-                  <TableRow key={producto.codigoProducto}>
-                    <TableCell>{producto.codigoProducto}</TableCell>
-                    <TableCell>{producto.descripcion}</TableCell>
-                    <TableCell>{producto.precioCosto.toLocaleString("es-CL")}</TableCell>
-                    <TableCell>{producto.precioVenta.toLocaleString("es-CL")}</TableCell>
-                    <TableCell>{producto.stockActual.toLocaleString("es-CL")}</TableCell>
-                    <TableCell>{producto.cantidad.toLocaleString("es-CL")}</TableCell>
-                    <TableCell>{producto.sumaTotal.toLocaleString("es-CL")}</TableCell>
-                    <TableCell>{producto.ranking.toLocaleString("es-CL")}</TableCell>
+          <>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "gainsboro" }}>
+                    <TableCell>Código Producto</TableCell>
+                    <TableCell>Descripción</TableCell>
+                    <TableCell>Precio Costo</TableCell>
+                    <TableCell>Precio Venta</TableCell>
+                    <TableCell>Stock Actual</TableCell>
+                    <TableCell>Cantidad</TableCell>
+                    <TableCell>Suma Total</TableCell>
+                    <TableCell>Ranking</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {data
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((producto) => (
+                      <TableRow key={producto.codigoProducto}>
+                        <TableCell>{producto.codigoProducto}</TableCell>
+                        <TableCell>{producto.descripcion}</TableCell>
+                        <TableCell>{producto.precioCosto.toLocaleString("es-CL")}</TableCell>
+                        <TableCell>{producto.precioVenta.toLocaleString("es-CL")}</TableCell>
+                        <TableCell>{producto.stockActual.toLocaleString("es-CL")}</TableCell>
+                        <TableCell>{producto.cantidad.toLocaleString("es-CL")}</TableCell>
+                        <TableCell>{producto.sumaTotal.toLocaleString("es-CL")}</TableCell>
+                        <TableCell>{producto.ranking.toLocaleString("es-CL")}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              component="div"
+              count={data.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[10, 25, 50]}
+              labelRowsPerPage="Filas por página"
+            />
+          </>
         )}
       </Grid>
       <Snackbar
