@@ -38,7 +38,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
   const [preciosModificados, setPreciosModificados] = useState({});
   const [loadingProduct, setLoadingProduct] = useState(null); 
   const [selectedItem, setSelectedItem] = useState(null);
-
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const codigoCliente = selectedClient ? selectedClient.codigoCliente : null;
   const codigoClienteSucursal = selectedClient
     ? selectedClient.codigoClienteSucursal
@@ -51,7 +51,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
 
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${result.codigoCliente}&codigoClienteSucursal=${result.codigoClienteSucursal}`
+        `${apiUrl}/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${result.codigoCliente}&codigoClienteSucursal=${result.codigoClienteSucursal}`
       );
       setProducts(response.data.clientesProductoPrecioMostrar);
     } catch (error) {

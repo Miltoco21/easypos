@@ -31,8 +31,8 @@ export default function Usuarios() {
     <CssBaseline />
     <div>
       <Box sx={{ display: "flex" }}>
-        <SideBar sx={{ zIndex: 1 }} />
-        <Box sx={{ zIndex: 2, flex: 1 }}>
+        <SideBar  />
+        <Box sx={{  flex: 1 }}>
           <Button
             variant="outlined"
             sx={{
@@ -58,7 +58,7 @@ export default function Usuarios() {
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
-            overflow: "auto",
+            // overflow: "auto",
            
           }}
         >

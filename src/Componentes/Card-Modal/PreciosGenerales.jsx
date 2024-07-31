@@ -159,7 +159,7 @@ const PreciosGenerales = ({ onClose }) => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/ProductosTmp/GetProductos"
+          `${apiUrl}/ProductosTmp/GetProductos`,
         );
         setProducts(response.data.productos);
         console.log(response.data.productos);
@@ -177,16 +177,18 @@ const PreciosGenerales = ({ onClose }) => {
     if (searchTerm.trim() === "") {
       setErrorMessage("El campo de búsqueda está vacío");
       setOpenSnackbar(true);
+      setProducts([])
       return;
     }
 
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}&codigoCliente=${0}`
+        `${apiUrl}/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}&codigoCliente=${0}`
       );
       if (response.data && response.data.cantidadRegistros > 0) {
         setProducts(response.data.productos);
       } else {
+        setProducts([])
         setErrorMessage(`No se encontraron resultados para "${searchTerm}"`);
         setOpenSnackbar(true);
       }
@@ -227,7 +229,7 @@ const PreciosGenerales = ({ onClose }) => {
       };
 
       const response = await axios.put(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/UpdateProducto",
+        `${apiUrl}/ProductosTmp/UpdateProducto`,
         {
           idProducto: editedProduct.idProducto,
           nombre: editedProduct.nombre,
@@ -277,7 +279,7 @@ const PreciosGenerales = ({ onClose }) => {
       }
 
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/AsociarProductoCliente",
+        `${apiUrl}/ProductosTmp/AsociarProductoCliente`,
         {
           idProducto: selectedProduct.idProducto,
           nombre: selectedProduct.nombre,
@@ -290,6 +292,11 @@ const PreciosGenerales = ({ onClose }) => {
       if (response.status === 200) {
         setSuccessMessage("Producto asociado exitosamente");
         setOpenSnackbar(true);
+        setOpenDialog(false)
+       
+      
+      
+           
       } else {
         setErrorMessage("Error al asociar producto");
         setOpenSnackbar(true);

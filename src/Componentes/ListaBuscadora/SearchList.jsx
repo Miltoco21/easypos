@@ -20,6 +20,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
 import PaymentsIcon from "@mui/icons-material/Payments";
+import SideBar from "../NavBar/SideBar"
 
 const SearchList = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,7 +82,7 @@ const SearchList = () => {
     console.log("ID de usuario a eliminar:", userId);
     try {
       const response = await axios.delete(
-        `https://www.easyposdev.somee.com/api/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`
+        `${import.meta.env.VITE_URL_API2}/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`
       );
 
       if (
@@ -135,6 +136,20 @@ const SearchList = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4, border: "4px" }}>
+      <SideBar/>
+
+       <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={16000}
+          onClose={handleSnackbarClose}
+          message={snackbarMessage}
+        
+          action={
+            <Button color="inherit" size="small" onClick={handleSnackbarClose}>
+              Cerrar
+            </Button>
+          }
+        />
       <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
       <Table sx={{ border: "1px ", borderRadius: "8px" }}>
         <TableHead>
@@ -214,24 +229,7 @@ const SearchList = () => {
             Siguiente
           </Button>
         </Box>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-          message={snackbarMessage}
-          sx={{
-            position: "absolute",
-            bottom: 1,
-            left: "10%",
-            bgcolor: "rgba(0, 0, 0, 0.7)",
-            color: "#fff",
-          }}
-          action={
-            <Button color="inherit" size="small" onClick={handleSnackbarClose}>
-              Cerrar
-            </Button>
-          }
-        />
+       
       </Box>
       <EditUsuario
         selectedUser={selectedUser}
