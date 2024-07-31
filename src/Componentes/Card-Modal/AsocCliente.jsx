@@ -92,7 +92,7 @@ const PreciosGenerales = () => {
     try {
       // Realizar la búsqueda por descripción
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}&codigoCliente=${0}`
+        `${apiUrl}/ProductosTmp/GetProductosByDescripcion?descripcion=${searchTerm}&codigoCliente=${0}`
       );
       handleSearchSuccess(response, "Descripción");
     } catch (error) {

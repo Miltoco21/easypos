@@ -69,7 +69,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
 
     try {
       const response = await axios.get(
-        `https://www.easyposdev.somee.com/api/Clientes/GetClientesByNombreApellido?nombreApellido=${searchText}`
+        `${apiUrl}/Clientes/GetClientesByNombreApellido?nombreApellido=${searchText}`
       );
       if (
         Array.isArray(response.data.clienteSucursal) &&
@@ -155,7 +155,7 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
       };
 
       const response = await axios.put(
-        "https://www.easyposdev.somee.com/api/Clientes/PutClientesProductoActualizarPrecioByIdCliente",
+        `${apiUrl}/Clientes/PutClientesProductoActualizarPrecioByIdCliente`,
         requestBody
       );
 
@@ -165,14 +165,14 @@ const BoxBuscador = ({ onClosePreciosClientes }) => {
         }, 3000);
 
         const updatePrecios = await axios.get(
-          `https://www.easyposdev.somee.com/api/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
+          `${apiUrl}/Clientes/GetClientesProductoPrecioByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
 
         setSnackbarMessage(response.data.descripcion);
         setSnackbarOpen(true);
 
         const deudasResponse = await axios.get(
-          `https://www.easyposdev.somee.com/api/Clientes/GetClientesDeudasByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
+          `${apiUrl}/Clientes/GetClientesDeudasByIdCliente?codigoCliente=${codigoCliente}&codigoClienteSucursal=${codigoClienteSucursal}`
         );
       }
     } catch (error) {
