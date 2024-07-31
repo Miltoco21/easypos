@@ -172,7 +172,7 @@ const SearchListProveedores = () => {
   async function fetchProveedores() {
     try {
       const response = await axios.get(
-        "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
+        `${apiUrl}/Proveedores/GetAllProveedores`
       );
       console.log("API response:", response.data.proveedores);
       setProveedores(response.data.proveedores);

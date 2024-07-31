@@ -40,7 +40,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
   useEffect(() => {
     // Obtener regiones
     axios
-      .get("https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones")
+      .get(`${apiUrl}/api/RegionComuna/GetAllRegiones`)
       .then((response) => {
         setRegiones(response.data.regiones);
       })

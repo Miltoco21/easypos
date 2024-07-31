@@ -79,7 +79,28 @@ const SearchListProducts = () => {
     };
 
     fetchProduct();
-  }, [productToDelete]);
+  }, [productToDelete,]);
+ 
+  useEffect(() => {
+    const updateProducts = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_URL_API2}/ProductosTmp/GetProductos`
+        );
+        
+        if (Array.isArray(response.data.productos)) {
+          setProduct(response.data.productos);
+        }
+      } catch (error) {
+        console.error("Error updating products:", error);
+      }
+    };
+
+    const intervalId = setInterval(updateProducts, 3000); // Actualizar cada 3 segundos
+
+    return () => clearInterval(intervalId); // Limpiar intervalo cuando el componente se desmonta
+  }, []);
+
 
   useEffect(() => {
     const filtered = product.filter(

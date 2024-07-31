@@ -29,6 +29,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 const IngresoPV = ({ onClose }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [rut, setRut] = useState("");
   const [razonSocial, setRazonSocial] = useState("");
   const [giro, setGiro] = useState("");
@@ -146,7 +147,7 @@ const IngresoPV = ({ onClose }) => {
 
   useEffect(() => {
     axios
-      .get("https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones")
+      .get(`${apiUrl}/api/RegionComuna/GetAllRegiones`)
       .then((response) => {
         setRegiones(response.data.regiones);
       })
@@ -159,7 +160,7 @@ const IngresoPV = ({ onClose }) => {
     const fetchRegions = async () => {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/RegionComuna/GetAllRegiones"
+         `${apiUrl}/RegionComuna/GetAllRegiones`
         );
         setRegionOptions(response.data.regiones);
       } catch (error) {
@@ -175,7 +176,7 @@ const IngresoPV = ({ onClose }) => {
       if (selectedRegion) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+            `${apiUrl}/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
           );
           setComunaOptions(
             response.data.comunas.map((comuna) => comuna.comunaNombre)
@@ -385,7 +386,7 @@ const IngresoPV = ({ onClose }) => {
 
       try {
         const response = await axios.post(
-          "https://www.easyposdev.somee.com/api/Proveedores/AddProveedor",
+          `${apiUrl}/Proveedores/AddProveedor`,
           cliente
         );
         setResponse(response.data);
@@ -413,7 +414,7 @@ const IngresoPV = ({ onClose }) => {
 
           setTimeout(() => {
             onClose(); ////Cierre Modal al finalizar
-          }, 3000);
+          }, 2000);
         }
       } catch (error) {
         console.error(error);

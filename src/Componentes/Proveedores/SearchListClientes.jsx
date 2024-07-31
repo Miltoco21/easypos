@@ -552,9 +552,9 @@ const SearchListClientes = () => {
                     <IconButton onClick={() => handleEdit(cliente)}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton>
+                    {/* <IconButton>
                       <DeleteIcon onClick={() => handleDeleteDialogOpen(cliente)}/>
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton
                       onClick={() => handleOpenPaymentDialog(cliente)}
                     >

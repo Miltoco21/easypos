@@ -81,7 +81,7 @@ const StepperSI = () => {
       };
 
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto",
+        "https://www.easypos.somee.com/api/ProductosTmp/AddProducto",
         postData
       );
 

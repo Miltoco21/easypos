@@ -24,6 +24,8 @@ import {
 } from "@mui/material";
 
 const Step3Component = ({ data, onNext, stepData }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [newUnidad, setNewUnidad] = useState("");
   const [stockInicial, setStockInicial] = useState("");
   const [precioCosto, setPrecioCosto] = useState("");
@@ -37,11 +39,23 @@ const Step3Component = ({ data, onNext, stepData }) => {
   const [loading, setLoading] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
-
+  const [product, setProduct] = useState([]);
 
   console.log("data:", data);
- 
-  
+
+  const fetchProduct = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_URL_API2}/ProductosTmp/GetProductos`
+      );
+      console.log("API Response:", response.data);
+      if (Array.isArray(response.data.productos)) {
+        setProduct(response.data.productos);
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+    }
+  };
 
   const handleNext = async () => {
     const isValid = validateFields();
@@ -101,15 +115,17 @@ const Step3Component = ({ data, onNext, stepData }) => {
     try {
       // Enviar la petición POST al endpoint con los datos combinados
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto",
+        `${apiUrl}/ProductosTmp/AddProducto`,
         requestData
       );
 
       // Manejar la respuesta de la API
-      console.log("Response:", response);
-      if (response.status === 200) {
+      console.log("Response PROD GAURDADO:", response.data);
+      if (response.status === 201) {
         setEmptyFieldsMessage("Producto guardado exitosamente");
         setOpenSnackbar(true);
+        fetchProduct();
+        console.log("Productos",product)
       }
 
       // Llamar a la función onNext para continuar con el siguiente paso
@@ -146,7 +162,6 @@ const Step3Component = ({ data, onNext, stepData }) => {
   };
 
   const validateFields = () => {
-    
     // Verificar si todos los campos están vacíos
     if (
       selectedUnidadId === "" &&
@@ -157,13 +172,13 @@ const Step3Component = ({ data, onNext, stepData }) => {
       setEmptyFieldsMessage("Todos los campos son obligatorios.");
       return false;
     }
-   
+
     // Verificar cada campo individualmente y mostrar el primer campo vacío
     if (selectedUnidadId === "") {
       setEmptyFieldsMessage("Debe seleccionar una unidad.");
       return false;
     }
-  
+
     if (precioCosto === "") {
       setEmptyFieldsMessage("Favor completar precio de costo.");
       return false;
@@ -172,7 +187,7 @@ const Step3Component = ({ data, onNext, stepData }) => {
       setEmptyFieldsMessage("El precio de costo no puede ser cero.");
       return false;
     }
-  
+
     if (precioVenta === "") {
       setEmptyFieldsMessage("Favor completar precio de venta.");
       return false;
@@ -182,10 +197,12 @@ const Step3Component = ({ data, onNext, stepData }) => {
       return false;
     }
     if (parseFloat(precioVenta) < parseFloat(precioCosto)) {
-      setEmptyFieldsMessage("El precio de venta debe ser al menos igual al precio de costo.");
+      setEmptyFieldsMessage(
+        "El precio de venta debe ser al menos igual al precio de costo."
+      );
       return false;
     }
-  
+
     if (stockInicial === "") {
       setEmptyFieldsMessage("Favor completar Stock Inicial.");
       return false;
@@ -194,18 +211,17 @@ const Step3Component = ({ data, onNext, stepData }) => {
       setEmptyFieldsMessage("El stock inicial no puede ser cero.");
       return false;
     }
-  
+
     // Si todos los campos están completos, limpiar el mensaje de error
     setEmptyFieldsMessage("");
     return true;
   };
-  
 
   // useEffect(() => {
   //   async function fetchBodegas() {
   //     try {
   //       const response = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllBodegas"
+  //         "https://www.easypos.somee.com/api/NivelMercadoLogicos/GetAllBodegas"
   //       );
   //       setBodegas(response.data.categorias);
   //     } catch (error) {
@@ -231,12 +247,12 @@ const Step3Component = ({ data, onNext, stepData }) => {
   ];
   const handleKeyDown = (event, field) => {
     // Verificar en qué campo se está escribiendo
-   if (field === "precio") {
-    // Permitir solo dígitos numéricos y la tecla de retroceso
-    if (!/^\d+$/.test(event.key) && event.key !== "Backspace") {
-      event.preventDefault();
+    if (field === "precio") {
+      // Permitir solo dígitos numéricos y la tecla de retroceso
+      if (!/^\d+$/.test(event.key) && event.key !== "Backspace") {
+        event.preventDefault();
+      }
     }
-  }
   };
   const handleChange = (event, field) => {
     // Asegurar que el valor solo contenga números
@@ -369,13 +385,12 @@ const Step3Component = ({ data, onNext, stepData }) => {
           </Grid>
         </Grid>
         <Snackbar
-         open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message={emptyFieldsMessage}
-      />
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          message={emptyFieldsMessage}
+        />
       </form>
-     
       <Dialog open={openDialog1} onClose={handleCloseDialog1}>
         <DialogTitle>Crear Unidad de Compra</DialogTitle>
         <DialogContent sx={{ marginTop: "9px" }}>

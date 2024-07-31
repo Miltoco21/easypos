@@ -52,7 +52,7 @@ const StepperComponent = () => {
       console.log("Complete data submitted:", updatedData);
       axios
         .post(
-          "https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto",
+          "https://www.easypos.somee.com/api/ProductosTmp/AddProducto",
           updatedData
         )
         .then((response) => {
@@ -103,7 +103,7 @@ const StepperComponent = () => {
     // Send the data to the server using Axios (replace with your API endpoint)
     axios
       .post(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/AddProducto",
+        "https://www.easypos.somee.com/api/ProductosTmp/AddProducto",
         data
       )
       .then((response) => {
