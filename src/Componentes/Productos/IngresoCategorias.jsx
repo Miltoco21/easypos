@@ -25,12 +25,15 @@ const theme = createTheme();
 
 
 const IngresoCategorias = ({ onSubmitSuccess }) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
   const [errors, setErrors] = useState({});
   
 
   const [responseDialogOpen, setResponseDialogOpen] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   
 
@@ -56,16 +59,16 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
 
     try {
       const response = await axios.post(
-        'https://www.easyposdev.somee.com/api/NivelMercadoLogicos/AddCategoria',
+        `${apiUrl}/NivelMercadoLogicos/AddCategoria`,
         { descripcionCategoria:descripcionCategoria }
       );
     
       if (response.data.statusCode === 201) {
         console.log(response.data, 'Response Debug');
         // Open the dialog
-        setResponseDialogOpen(true);
-        setDescripcionCategoria('');
-        ///onSubmitSuccess();
+        setOpenSnackbar(true);
+        setOpenSnackbar('Categoria creada con exito');
+        onSubmitSuccess();
       } else {
         throw new Error();
       }

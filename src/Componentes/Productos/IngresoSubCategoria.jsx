@@ -20,6 +20,8 @@ import {
 } from "@mui/material";
 
 const IngresoSubCategorias = () => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
@@ -31,7 +33,7 @@ const IngresoSubCategorias = () => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          `${apiUrl}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
@@ -59,7 +61,7 @@ const IngresoSubCategorias = () => {
 
     try {
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/AddSubCategoria",
+        `${apiUrl}/NivelMercadoLogicos/AddSubCategoria`,
         {
           idCategoria: selectedCategoryId,
           descripcionSubCategoria: descripcionCategoria,

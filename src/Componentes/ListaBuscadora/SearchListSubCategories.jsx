@@ -68,7 +68,7 @@ const SearchListSubCategories = () => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(`${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`);
-          console.log(`${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID=${selectedCategoryId}`);
+          console.log(`${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID=${selectedCategoryId}`);
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
         } catch (error) {
@@ -147,11 +147,11 @@ const SearchListSubCategories = () => {
                   <IconButton onClick={() => handleEdit(subcategory)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton
+                  {/* <IconButton
                     onClick={() => handleDelete(category.idCategoria)}
                   >
                     <DeleteIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </TableCell>
               </TableRow>
 

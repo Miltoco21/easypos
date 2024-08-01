@@ -90,6 +90,7 @@ const EditarCategoria = ({ category, open, handleClose }) => {
           <h2 id="modal-modal-title">Editar Categoria</h2>
           <form onSubmit={handleSubmit}>
             <TextField
+            sx={{display:"none"}}
               label="ID Categoria"
               name="idCategoria"
               value={editCategory.idCategoria}

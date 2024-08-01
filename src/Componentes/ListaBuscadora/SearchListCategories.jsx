@@ -63,6 +63,29 @@ const SearchListCategories = () => {
   }, [refresh]);
 
   useEffect(() => {
+    const updateCategories = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`
+        );
+        
+        if (Array.isArray(response.data.categorias)) {
+          setCategories(response.data.categorias);
+        }
+        // console.log(response.data.categorias);
+      } catch (error) {
+        console.error("Error updating products:", error);
+      }
+    };
+
+    const intervalId = setInterval( updateCategories, 3000); // Actualizar cada 3 segundos
+
+    return () => clearInterval(intervalId); // Limpiar intervalo cuando el componente se desmonta
+  }, []);
+
+
+
+  useEffect(() => {
     setFilteredCategories(
       categories.filter(
         (category) =>
@@ -137,11 +160,11 @@ const SearchListCategories = () => {
                   <IconButton onClick={() => handleEdit(category)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton
+                  {/* <IconButton
                     onClick={() => handleDelete(category.idCategoria)}
                   >
                     <DeleteIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </TableCell>
               </TableRow>
             ))

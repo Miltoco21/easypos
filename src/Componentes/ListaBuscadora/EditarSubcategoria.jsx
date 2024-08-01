@@ -56,20 +56,25 @@ const EditarSubCategoria = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
+    const dataToSend = {
+      idSubCategoria: editSubCategory.idSubCategoria,
+      descripcionSubCategoria: editSubCategory.descripcionSubCategoria,
+    };
+  
+    console.log("Datos que se enviarán al servidor:", dataToSend);
+  
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/UpdateSubCategoria`,
-        {
-          idSubCategoria: editSubCategory.idSubCategoria,
-          descripcionSubCategoria: editSubCategory.descripcionSubCategoria,
-        }
+        `${apiUrl}/NivelMercadoLogicos/UpdateSubCategoria`,
+        dataToSend
       );
-
+  
+      console.log("Datos enviados:", response.data);
       console.log("SubCategoria updated successfully:", response.data);
-
+  
       setSuccessDialogOpen(true);
-      fetchSubcategories(); // Update subcategories list
+      fetchSubcategories(); // Actualizar lista de subcategorías
       handleClose();
     } catch (error) {
       console.error("Error updating category:", error.response);
@@ -105,6 +110,7 @@ const EditarSubCategoria = ({
           <h2 id="modal-modal-title">Editar Sub-Categoria</h2>
           <form onSubmit={handleSubmit}>
             <TextField
+            sx={{display:"none"}}
               label="ID SubCategoria"
               name="idSubCategoria"
               value={editSubCategory.idSubCategoria}
