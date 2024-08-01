@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -8,16 +8,16 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = ({ setUserData }) => {
-  const apiUrl = import.meta.env.VITE_URL_API2; 
-  
-  const [rutOrCode, setRutOrCode] = useState('');
-  const [password, setPassword] = useState('');
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
+  const [rutOrCode, setRutOrCode] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,44 +25,44 @@ const Login = ({ setUserData }) => {
 
   useEffect(() => {
     // Verificar si hay datos en sessionStorage y redirigir a /home si existen
-    const userData = sessionStorage.getItem('userData');
+    const userData = sessionStorage.getItem("userData");
     if (userData) {
-      navigate('/home');
+      navigate("/home");
     }
   }, [navigate]);
 
   const handleLogin = async () => {
     try {
       if (!rutOrCode || !password) {
-        setError('Por favor, completa ambos campos.');
+        setError("Por favor, completa ambos campos.");
         return;
       }
       setLoading(true);
 
-      const response = await axios.post(
-        // `${import.meta.env.VITE_URL_API2}/Usuarios/LoginUsuario`
-        // `https://www.easypos.somee.com/api/Usuarios/LoginUsuario`
-        `${import.meta.env.VITE_URL_API2}/Usuarios/LoginUsuario`,
-        {
-          codigoUsuario: 0,
-          rut: rutOrCode,
-          clave: password,
-        }
-      );
-      console.log(apiUrl)
+      const response = await axios.post(`${apiUrl}/Usuarios/LoginUsuario`, {
+        codigoUsuario: 0,
+        rut: rutOrCode,
+        clave: password,
+      });
 
-      if (response.data.responseUsuario) {
+      if (response.data.responseUsuario && response.data.responseUsuario.codigoUsuario !== -1) {
         setUserData(response.data.responseUsuario);
+        console.log(response.data.responseUsuario);
         // Guardar datos en sessionStorage
-        sessionStorage.setItem('userData', JSON.stringify(response.data.responseUsuario));
-        navigate('/home');
+        sessionStorage.setItem(
+          "userData",
+          JSON.stringify(response.data.responseUsuario)
+        );
+        navigate("/home");
+      } else if (response.data.responseUsuario.codigoUsuario === -1) {
+        setError("Usuario no encontrado. Verifica tus credenciales.");
       } else {
-        setError('Error de inicio de sesión. Verifica tus credenciales.');
+        setError("Error de inicio de sesión. Verifica tus credenciales.");
       }
     } catch (error) {
-      console.error('Error al intentar iniciar sesión:', error);
+      console.error("Error al intentar iniciar sesión:", error);
       setError(
-        'Error al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde.'
+        "Error al intentar iniciar sesión. Por favor, inténtalo de nuevo más tarde."
       );
     } finally {
       setLoading(false);
@@ -78,16 +78,16 @@ const Login = ({ setUserData }) => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
         <Typography component="h1" variant="h5">
           Iniciar sesión
         </Typography>
         {error && (
-          <Typography sx={{ color: 'red', marginTop: 2 }}>{error}</Typography>
+          <Typography sx={{ color: "red", marginTop: 2 }}>{error}</Typography>
         )}
         <Box component="form" noValidate sx={{ mt: 3 }}>
           <TextField
@@ -104,7 +104,7 @@ const Login = ({ setUserData }) => {
             required
             fullWidth
             label="Clave"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             InputProps={{
@@ -128,12 +128,16 @@ const Login = ({ setUserData }) => {
             disabled={loading}
           >
             {loading ? (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <CircularProgress color="inherit" size={20} sx={{ marginRight: 1 }} />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress
+                  color="inherit"
+                  size={20}
+                  sx={{ marginRight: 1 }}
+                />
                 Ingresando
               </Box>
             ) : (
-              'Iniciar sesión'
+              "Iniciar sesión"
             )}
           </Button>
         </Box>
