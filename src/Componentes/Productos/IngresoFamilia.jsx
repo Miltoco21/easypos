@@ -12,19 +12,14 @@ import {
   MenuItem,
   InputLabel,
   ThemeProvider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Snackbar,
   Select,
 } from "@mui/material";
 
-const IngresoFamilias = ({onClose}) => {
+const IngresoFamilias = ({ onClose }) => {
   const apiUrl = import.meta.env.VITE_URL_API2;
 
   const [errors, setErrors] = useState({ descripcionFamilia: "" });
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
 
@@ -33,13 +28,14 @@ const IngresoFamilias = ({onClose}) => {
 
   const [descripcionFamilia, setDescripcionFamilia] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const theme = createTheme();
+
   useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-         ` ${apiUrl}/NivelMercadoLogicos/GetAllCategorias`
+          `${apiUrl}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
@@ -59,11 +55,10 @@ const IngresoFamilias = ({onClose}) => {
             `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           console.log(
-            `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}`
+            `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
-          
         } catch (error) {
           console.error("Error fetching subcategories:", error);
         }
@@ -72,10 +67,6 @@ const IngresoFamilias = ({onClose}) => {
 
     fetchSubCategories();
   }, [selectedCategoryId]);
-
-  const handleSuccessDialogClose = () => {
-    setIsSuccessDialogOpen(false);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,14 +99,25 @@ const IngresoFamilias = ({onClose}) => {
 
       console.log(response.data, "Response Debug");
 
-      // Show the success dialog
-      setIsSuccessDialogOpen(true);
-      onClose();
+      if (response.data.statusCode === 200) {
+        // Show the success snackbar
+        setSnackbarOpen(true);
+        setSnackbarMessage("Familia creada con éxito");
 
+        setTimeout(() => {
+           onClose();
+        }, 2000);
+       
 
-      setDescripcionFamilia("");
+        setDescripcionFamilia("");
+      } else {
+        setSnackbarOpen(true);
+        setSnackbarMessage("Error al crear la familia");
+      }
     } catch (error) {
       console.log(error.response.data, "Error Debug");
+      setSnackbarOpen(true);
+      setSnackbarMessage("Error al crear la familia");
     }
   };
 
@@ -218,22 +220,12 @@ const IngresoFamilias = ({onClose}) => {
           </Box>
         </Grid>
       </Grid>
-      {/* Success Dialog */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
       />
-      <Dialog open={isSuccessDialogOpen} onClose={handleSuccessDialogClose}>
-        <DialogTitle>Guardado </DialogTitle>
-        <DialogContent>Familia creada con éxito</DialogContent>
-        <DialogActions>
-          <Button onClick={handleSuccessDialogClose} autoFocus>
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
     </ThemeProvider>
   );
 };

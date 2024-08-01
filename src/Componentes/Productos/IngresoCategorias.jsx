@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogActions,
   DialogContentText,
+  Snackbar
 } from "@mui/material";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -33,7 +34,7 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
   const [responseDialogOpen, setResponseDialogOpen] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   
 
@@ -66,9 +67,13 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
       if (response.data.statusCode === 201) {
         console.log(response.data, 'Response Debug');
         // Open the dialog
-        setOpenSnackbar(true);
-        setOpenSnackbar('Categoria creada con exito');
-        onSubmitSuccess();
+        setSnackbarOpen(true);
+        setSnackbarMessage('Categoria creada con exito');
+        setDescripcionCategoria("")
+        setTimeout(() => {
+           onSubmitSuccess();
+        }, 2000);
+       
       } else {
         throw new Error();
       }
@@ -140,20 +145,12 @@ const IngresoCategorias = ({ onSubmitSuccess }) => {
         </Grid>
       </Grid>
       {/* Success Dialog */}
-      <Dialog
-        open={responseDialogOpen}
-        onClose={() => setResponseDialogOpen(false)}
-      >
-       
-        <DialogContent>
-          <DialogContentText>{responseMessage}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setResponseDialogOpen(false)} autoFocus>
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </ThemeProvider>
   );
 };

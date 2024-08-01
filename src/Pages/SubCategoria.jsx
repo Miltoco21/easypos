@@ -61,7 +61,7 @@ const SubCategorias = () => {
               maxWidth: "90vw", // Adjust as needed
             }}
           >
-          <IngresoSubCategoria/>
+          <IngresoSubCategoria onClose={handleCloseModal}/>
           </Box>
         </Modal>
 

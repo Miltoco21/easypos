@@ -17,9 +17,10 @@ import {
   DialogContent,
   DialogActions,
   Select,
+  Snackbar
 } from "@mui/material";
 
-const IngresoSubCategorias = () => {
+const IngresoSubCategorias = ({onClose}) => {
   const apiUrl = import.meta.env.VITE_URL_API2;
 
   const [categories, setCategories] = useState([]);
@@ -27,7 +28,8 @@ const IngresoSubCategorias = () => {
   const [descripcionCategoria, setDescripcionCategoria] = useState("");
   const [errors, setErrors] = useState({});
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const theme = createTheme();
   useEffect(() => {
     async function fetchCategories() {
@@ -67,13 +69,21 @@ const IngresoSubCategorias = () => {
           descripcionSubCategoria: descripcionCategoria,
         }
       );
+      if (response.data.statusCode === 201) {
+        // Show the success snackbar
+        setSnackbarOpen(true);
+        setSnackbarMessage("Sub Categoría creada con éxito");
 
-      console.log(response.data, "Response Debug");
+        setTimeout(() => {
+           onClose();
+        }, 2000);
+       
 
-      // Show the success dialog
-      setIsSuccessDialogOpen(true);
-
-      setDescripcionCategoria("");
+        setDescripcionFamilia("");
+      } else {
+        setSnackbarOpen(true);
+        setSnackbarMessage("Error al crear la familia");
+      }
     } catch (error) {
       console.log(error.response.data, "Error Debug");
       // Handle error and display a message
@@ -158,6 +168,12 @@ const IngresoSubCategorias = () => {
           </Box>
         </Grid>
       </Grid>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
       {/* Success Dialog */}
       <Dialog open={isSuccessDialogOpen} onClose={handleSuccessDialogClose}>
         <DialogTitle>Guardado </DialogTitle>
