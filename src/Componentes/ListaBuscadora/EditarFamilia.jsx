@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Snackbar
 } from "@mui/material";
 
 const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
@@ -23,6 +24,9 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const apiUrl = import.meta.env.VITE_URL_API2;
 
   useEffect(() => {
@@ -59,6 +63,8 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
         fetchFamilies(); // Update families list
         handleClose();
         setSuccessDialogOpen(true);
+        setSnackbarOpen(true);
+        setSnackbarMessage("Familia editada con éxito")
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
@@ -68,7 +74,9 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
         );
         // Open the error dialog with the error message from the server
         setErrorMessage(error.response.data.descripcion);
-        setOpenErrorDialog(true);
+        setSnackbarOpen(true);
+      
+        setSnackbarMessage(`Error,${error.response.data.descripcion}`)
       } else {
         console.error("Error updating category:", error);
       }
@@ -122,7 +130,13 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
           </form>
         </Box>
       </Modal>
-      <Dialog open={successDialogOpen} onClose={closeSuccessDialog}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
+      {/* <Dialog open={successDialogOpen} onClose={closeSuccessDialog}>
         <DialogTitle>Edición Exitosa!</DialogTitle>
         <DialogContent>Familia editada correctamente.</DialogContent>
         <DialogActions>
@@ -130,20 +144,9 @@ const EditarFamilia = ({ open, handleClose, family, fetchFamilies }) => {
             Cerrar
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
       
-      <Dialog open={openErrorDialog} onClose={() => setOpenErrorDialog(false)}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{errorMessage}</DialogContentText>
-          <DialogContentText>Ingrese uno nuevo y repita el proceso</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenErrorDialog(false)} color="primary">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
+   
     </>
   );
 };

@@ -16,10 +16,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
   Select,
 } from "@mui/material";
 
-const IngresoFamilias = () => {
+const IngresoFamilias = ({onClose}) => {
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
   const [errors, setErrors] = useState({ descripcionFamilia: "" });
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -29,13 +32,14 @@ const IngresoFamilias = () => {
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState("");
 
   const [descripcionFamilia, setDescripcionFamilia] = useState("");
-
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const theme = createTheme();
   useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+         ` ${apiUrl}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
@@ -52,10 +56,10 @@ const IngresoFamilias = () => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           console.log(
-            "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}"
+            `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID={selectedCategoryId}`
           );
           console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
@@ -89,7 +93,7 @@ const IngresoFamilias = () => {
 
     try {
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/AddFamilia",
+        `${apiUrl}/NivelMercadoLogicos/AddFamilia`,
         {
           idCategoria: selectedCategoryId,
           idSubcategoria: selectedSubCategoryId,
@@ -106,6 +110,8 @@ const IngresoFamilias = () => {
 
       // Show the success dialog
       setIsSuccessDialogOpen(true);
+      onClose();
+
 
       setDescripcionFamilia("");
     } catch (error) {
@@ -213,6 +219,12 @@ const IngresoFamilias = () => {
         </Grid>
       </Grid>
       {/* Success Dialog */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
       <Dialog open={isSuccessDialogOpen} onClose={handleSuccessDialogClose}>
         <DialogTitle>Guardado </DialogTitle>
         <DialogContent>Familia creada con éxito</DialogContent>

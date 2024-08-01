@@ -86,7 +86,7 @@ const SearchListFamilias = () => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_URL_API2}NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           console.log(
             `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?$CategoriaID=${selectedCategoryId}`
@@ -210,9 +210,9 @@ const SearchListFamilias = () => {
                   <IconButton onClick={() => handleEdit(family)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDelete(family.idFamilia)}>
+                  {/* <IconButton onClick={() => handleDelete(family.idFamilia)}>
                     <DeleteIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </TableCell>
               </TableRow>
             ))

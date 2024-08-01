@@ -62,7 +62,7 @@ const Familias = () => {
               maxWidth: "90vw", // Adjust as needed
             }}
           >
-          <IngresoFamilia/>
+          <IngresoFamilia onClose={handleCloseModal}/>
           </Box>
         </Modal>
 
