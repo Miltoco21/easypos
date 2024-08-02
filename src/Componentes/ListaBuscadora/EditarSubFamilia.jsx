@@ -50,7 +50,7 @@ const EditarSubFamilia = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_URL_API2}NivelMercadoLogicos/UpdateSubFamilia`,
@@ -59,17 +59,18 @@ const EditarSubFamilia = ({
           descripcionSubFamilia: editSubFamily.descripcion,
         }
       );
-  
+
       console.log("SubFamilia updated successfully:", response.data);
-  
+
       setSuccessDialogOpen(true);
       fetchSubfamilies(); // Update subfamilies list
       handleClose();
     } catch (error) {
       console.error("Error updating subfamily:", error.response);
-  
+
       if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.descripcion || "Ha ocurrido un error";
+        const errorMessage =
+          error.response.data.descripcion || "Ha ocurrido un error";
         setOpenErrorDialog(true);
         setErrorMessage(errorMessage);
       } else {
@@ -108,6 +109,7 @@ const EditarSubFamilia = ({
           <h2 id="modal-modal-title">Editar Subfamilia</h2>
           <form onSubmit={handleSubmit}>
             <TextField
+              sx={{ display: "none" }}
               label="ID SubFamilia"
               name="idSubFamilia"
               value={editSubFamily.idSubFamilia}
@@ -142,7 +144,9 @@ const EditarSubFamilia = ({
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
           <DialogContentText>{errorMessage}</DialogContentText>
-          <DialogContentText>Ingrese una nueva y repita el proceso</DialogContentText>
+          <DialogContentText>
+            Ingrese una nueva y repita el proceso
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenErrorDialog(false)} color="primary">

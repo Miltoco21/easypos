@@ -56,7 +56,7 @@ const SubFamilias = () => {
               maxWidth: "90vw", // Adjust as needed
             }}
           >
-          <IngresoSubFamilias/>
+          <IngresoSubFamilias onClose={handleCloseModal}/>
           </Box>
         </Modal>
 

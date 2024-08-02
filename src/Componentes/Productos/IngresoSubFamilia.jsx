@@ -20,10 +20,13 @@ import {
   DialogContent,
   DialogActions,
   Select,
+  Snackbar
 } from "@mui/material";
 
-const IngresoSubFamilias = () => {
+const IngresoSubFamilias = ({onClose}) => {
   const theme = createTheme();
+  const apiUrl = import.meta.env.VITE_URL_API2;
+
 
   const [errors, setErrors] = useState({ descripcionSubFamilia: "" });
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
@@ -36,11 +39,13 @@ const IngresoSubFamilias = () => {
   const [subfamilies, setSubFamilies] = useState([]);
   const [descripcionSubFamilia, setDescripcionSubFamilia] = useState("");
 
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          `${apiUrl}/NivelMercadoLogicos/GetAllCategorias`
         );
         console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
@@ -57,7 +62,7 @@ const IngresoSubFamilias = () => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `${apiUrl}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           
           console.log("Subcategories Response:", response.data.subCategorias);
@@ -78,7 +83,7 @@ const IngresoSubFamilias = () => {
       if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
+            `${apiUrl}/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
           );
 
           console.log("Families Response:", response.data.familias);
@@ -97,7 +102,7 @@ const IngresoSubFamilias = () => {
       if (selectedFamilyId !== "" && selectedCategoryId !== "" && selectedSubCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
+            `${apiUrl}/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
           );
 
           console.log("SubFamilies Response:", response.data.subFamilias);
@@ -129,7 +134,7 @@ const IngresoSubFamilias = () => {
 
     try {
       const response = await axios.post(
-        "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/AddSubFamilia",
+        `${apiUrl}/NivelMercadoLogicos/AddSubFamilia`,
         {
           idCategoria: selectedCategoryId,
           idSubcategoria: selectedSubCategoryId,
@@ -146,10 +151,21 @@ const IngresoSubFamilias = () => {
 
       console.log(response.data, "Response Debug");
 
-      // Show the success dialog
-      setIsSuccessDialogOpen(true);
+      if (response.data.statusCode === 200) {
+        // Show the success snackbar
+        setSnackbarOpen(true);
+        setSnackbarMessage("Sub Familia creada con éxito");
 
-      setDescripcionSubFamilia("");
+        setTimeout(() => {
+           onClose();
+        }, 2000);
+       
+
+        setDescripcionSubFamilia("");
+      } else {
+        setSnackbarOpen(true);
+        setSnackbarMessage("Error al crear la familia");
+      }
     } catch (error) {
       console.log(error.response.data, "Error Debug");
     }
@@ -274,15 +290,12 @@ const IngresoSubFamilias = () => {
         </Grid>
       </Grid>
       {/* Success Dialog */}
-      <Dialog open={isSuccessDialogOpen} onClose={handleSuccessDialogClose}>
-        <DialogTitle>Guardado </DialogTitle>
-        <DialogContent>SubFamilia creada con éxito</DialogContent>
-        <DialogActions>
-          <Button onClick={handleSuccessDialogClose} autoFocus>
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </ThemeProvider>
   );
 };
