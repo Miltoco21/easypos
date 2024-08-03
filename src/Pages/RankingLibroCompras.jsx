@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import {
+  Typography,
   Grid,
   Button,
   Snackbar,
@@ -154,8 +156,16 @@ const RankingLibroCompras = () => {
     <div style={{ display: "flex" }}>
       <SideBar />
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
-        <Grid container spacing={1} alignItems="center">
-          Libro de Compras
+        <Grid>
+        <Typography
+            variant="h4"
+            component="div"
+            sx={{ mb: 4, justifyContent:"center",textAlign: "center" }}
+          >
+                 Libro de Compras 
+
+          </Typography>
+        
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>

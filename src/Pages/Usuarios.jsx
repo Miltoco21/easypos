@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import { Button,Dialog,Grid } from "@mui/material";
+import { Typography, Button, Dialog, Grid } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import IngresoUsuarios from "../Componentes/Usuarios/IngresoUsuarios";
 import Add from "@mui/icons-material/Add";
@@ -27,12 +27,17 @@ export default function Usuarios() {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-    <CssBaseline />
-    <div>
-      <Box sx={{ display: "flex" }}>
-        <SideBar  />
-        <Box sx={{  flex: 1 }}>
+    <div style={{ display: "flex" }}>
+      <SideBar />
+      <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
+       
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{ mb: 4, textAlign: "center" }}
+          >
+            Usuarios
+          </Typography>
           <Button
             variant="outlined"
             sx={{
@@ -45,32 +50,33 @@ export default function Usuarios() {
             Crear usuario
           </Button>
           <SearchList />
-        </Box>
-      </Box>
+       
+      </Grid>
 
       <Dialog open={open} onClose={handleCloseModal}>
         <Grid
           sx={{
-          
             top: "50%",
             left: "50%",
-            
+
             bgcolor: "background.paper",
             boxShadow: 24,
             p: 4,
             // overflow: "auto",
-           
           }}
         >
-            <Grid container justifyContent="center" alignItems="center" style={{ height: '90%' }}>
-          <Grid item xs={12} sm={12} md={12} lg={12}>
-            <IngresoUsuarios onClose={handleCloseModal} />
+          <Grid
+            container
+            justifyContent="center"
+            alignItems="center"
+            style={{ height: "90%" }}
+          >
+            <Grid item xs={12} sm={12} md={12} lg={12}>
+              <IngresoUsuarios onClose={handleCloseModal} />
+            </Grid>
           </Grid>
-        </Grid>
         </Grid>
       </Dialog>
     </div>
-  </ThemeProvider>
-
   );
 }

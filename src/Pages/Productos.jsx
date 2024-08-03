@@ -2,16 +2,27 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import SideBar from "../Componentes/NavBar/SideBar";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+
+
 import Add from "@mui/icons-material/Add";
-import Modal from "@mui/joy/Modal";
-import Stepperproductos from "../Componentes/Stepper/Stepperproductos";
-import Stepper2 from "../Componentes/Stepper/Stepper2";
-import { Stepper } from "@mui/material";
-import StepperNO from "../Componentes/Stepper/StepperNo";
+
+import {
+  Modal,
+  Box,
+  Grid,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from "@mui/material";
 import StepperSI from "../Componentes/Stepper copy/StepperSI";
 import SearchListProducts from "../Componentes/Productos/SearchListProduct";
+Typography
 
 const Productos = () => {
   const [open, setOpen] = useState(false);
@@ -37,6 +48,13 @@ const Productos = () => {
       <SideBar />
 
       <Box sx={{ flexGrow: 1, p: 3 }}>
+      <Typography
+          variant="h4"
+          component="div"
+          sx={{ mb: 4, textAlign: "center" }}
+        >
+          Productos
+        </Typography>
         <Button
           size="large"
           variant="outlined"
@@ -53,6 +71,7 @@ const Productos = () => {
         >
           + Producto con código
         </Button> */}
+       
 
         <SearchListProducts/>
 

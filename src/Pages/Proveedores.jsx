@@ -1,9 +1,20 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import Navegacion from "../Componentes/NavBar/Navegacion";
-import Button from "@mui/joy/Button";
+import {
+  Box,
+  Modal,
+  Grid,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from "@mui/material";
 import Add from "@mui/icons-material/Add";
-import Modal from "@mui/joy/Modal";
 import IngresoPV from "../Componentes/Proveedores/IngresoPV";
 import IngresoCL from "../Componentes/Proveedores/IngresoCL";
 import Familias from "../Componentes/Familias/Familias";
@@ -34,8 +45,16 @@ const Proveedores = () => {
 
   return (
     <div style={{ display: "flex" }}>
+
       <SideBar />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Typography
+          variant="h4"
+          component="div"
+          sx={{ mb: 4, textAlign: "center" }}
+        >
+          Proovedores
+        </Typography>
         <Button
           variant="outlined"
           color="primary"

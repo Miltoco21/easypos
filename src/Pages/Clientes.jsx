@@ -1,10 +1,21 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import Box from "@mui/material/Box";
 import Navegacion from "../Componentes/NavBar/Navegacion";
-import Button from "@mui/joy/Button";
 import Add from "@mui/icons-material/Add";
-import Modal from "@mui/joy/Modal";
+import {
+  Modal,
+  Box,
+  Grid,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+} from "@mui/material";
 
 import IngresoPV from "../Componentes/Proveedores/IngresoPV";
 import IngresoCL from "../Componentes/Proveedores/IngresoCL";
@@ -12,6 +23,7 @@ import Familias from "../Componentes/Familias/Familias";
 import SideBar from "../Componentes/NavBar/SideBar";
 import SearchListProveedores from "../Componentes/Proveedores/SearchListProveedores";
 import SearchListClientes from "../Componentes/Proveedores/SearchListClientes";
+
 
 const Clientes = () => {
   const [open, setOpen] = useState(false);
@@ -44,20 +56,13 @@ const Clientes = () => {
       <SideBar />
 
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        {/* <Button
-          variant="outlined"
-          color="primary"
-          sx={{
-            my: 1,
-            mx: 2,
-          }}
-          startDecorator={<Add />}
-          onClick={handleOpenModal}
+      <Typography
+          variant="h4"
+          component="div"
+          sx={{ mb: 4, textAlign: "center" }}
         >
-          {uppercaseText}
-        </Button> */}
-
-        {/* CLIENTES Button */}
+          Clientes
+        </Typography>
         <Button
           variant="outlined"
           color="primary"

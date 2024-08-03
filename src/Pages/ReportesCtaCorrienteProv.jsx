@@ -60,8 +60,6 @@ const ReportesCtaCorrienteProv = () => {
       return;
     }
 
-    
-
     fetchData();
   };
 
@@ -79,7 +77,10 @@ const ReportesCtaCorrienteProv = () => {
         }
       );
       setData(response.data.proveedorCompraCabeceraReportes);
-      console.log("resultado prov",response.data.proveedorCompraCabeceraReportes);
+      console.log(
+        "resultado prov",
+        response.data.proveedorCompraCabeceraReportes
+      );
     } catch (error) {
       setError("Error fetching data");
       setSnackbarMessage("Error al buscar los datos");
@@ -135,9 +136,10 @@ const ReportesCtaCorrienteProv = () => {
   };
 
   const groupedData = groupDataByProvider(data);
-  const filteredData = groupedData.filter((provider) =>
-    provider.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    provider.razonSocial.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = groupedData.filter(
+    (provider) =>
+      provider.rut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      provider.razonSocial.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const sortedData = filteredData.sort((a, b) => a.rut.localeCompare(b.rut));
@@ -152,8 +154,15 @@ const ReportesCtaCorrienteProv = () => {
       <SideBar />
 
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
-        <Grid container spacing={1} alignItems="center">
-          Reportes Cuenta Corrientes Proveedores
+        <Grid>
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{ mb: 4, justifyContent: "center", textAlign: "center" }}
+          >
+            Reportes Cuenta Corrientes Proveedores
+          </Typography>
+
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -267,90 +276,90 @@ const ReportesCtaCorrienteProv = () => {
                               <Table size="small">
                                 <TableHead>
                                   <TableRow>
-                                                                     <TableCell>Fecha</TableCell>
-                                  <TableCell>Tipo Documento</TableCell>
-                                  <TableCell>Folio</TableCell>
-                                  <TableCell>Cargo</TableCell>
-                                  <TableCell>Abono</TableCell>
-                                  <TableCell>Saldo</TableCell>
-                                  <TableCell>Detalles</TableCell>
-
+                                    <TableCell>Fecha</TableCell>
+                                    <TableCell>Tipo Documento</TableCell>
+                                    <TableCell>Folio</TableCell>
+                                    <TableCell>Cargo</TableCell>
+                                    <TableCell>Abono</TableCell>
+                                    <TableCell>Saldo</TableCell>
+                                    <TableCell>Detalles</TableCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-
-
-
- {provider.transactions
-                                  .filter(
-                                    (transaction) =>
-                                      !hideZeroBalance ||
-                                      calculateSaldo(
-                                        transaction.total,
-                                        transaction.pagos
-                                      ) !== 0
-                                  )
-                                  .map((transaction) => (
-                                    <TableRow
-                                      key={transaction.idCabeceraCompra}
-                                    >
-                                      <TableCell>
-
-                                    
-                                        {" "}
-                                        {new Date(
-                                          transaction.fechaIngreso
-                                        ).toLocaleDateString("es-ES", {
-                                          day: "2-digit",
-                                          month: "2-digit",
-                                          year: "numeric",
-                                        })}
-                                      </TableCell>
-                                      <TableCell>
-                                        {transaction.tipoDocumento}
-                                      </TableCell>
-                                      <TableCell>{transaction.folio}</TableCell>
-                                      <TableCell> {transaction.pagos.length > 0 &&
-                                          transaction.pagos.map((payment) => (
-                                            <div key={payment.id}>
-                                              {payment.montoPagado.toLocaleString("es-CL")} <br />
-                                              {payment.metodoPago}
-                                              <br />
-                                              {new Date(payment.fechaPago).toLocaleDateString(
-                                                "es-ES",
-                                                {
+                                  {provider.transactions
+                                    .filter(
+                                      (transaction) =>
+                                        !hideZeroBalance ||
+                                        calculateSaldo(
+                                          transaction.total,
+                                          transaction.pagos
+                                        ) !== 0
+                                    )
+                                    .map((transaction) => (
+                                      <TableRow
+                                        key={transaction.idCabeceraCompra}
+                                      >
+                                        <TableCell>
+                                          {" "}
+                                          {new Date(
+                                            transaction.fechaIngreso
+                                          ).toLocaleDateString("es-ES", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                          })}
+                                        </TableCell>
+                                        <TableCell>
+                                          {transaction.tipoDocumento}
+                                        </TableCell>
+                                        <TableCell>
+                                          {transaction.folio}
+                                        </TableCell>
+                                        <TableCell>
+                                          {" "}
+                                          {transaction.pagos.length > 0 &&
+                                            transaction.pagos.map((payment) => (
+                                              <div key={payment.id}>
+                                                {payment.montoPagado.toLocaleString(
+                                                  "es-CL"
+                                                )}{" "}
+                                                <br />
+                                                {payment.metodoPago}
+                                                <br />
+                                                {new Date(
+                                                  payment.fechaPago
+                                                ).toLocaleDateString("es-ES", {
                                                   day: "2-digit",
                                                   month: "2-digit",
                                                   year: "numeric",
-                                                }
-                                              )}
-                                            </div>
-                                          ))}</TableCell>
-                                      <TableCell>{transaction.total.toLocaleString("es-CL")}</TableCell>
-              
-                                      <TableCell>
-                                        
-                                        {calculateSaldo(
-                                          transaction.total,
-                                          transaction.pagos
-                                        ).toLocaleString("es-CL")}
-                                      </TableCell>
-                                      <TableCell>
-                                        <Button
-                                          variant="contained"
-                                          onClick={() =>
-                                            handleOpenDialog(
-                                              transaction
-                                            )
-                                          }
-                                        >
-                                          Ver Detalles
-                                        </Button>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
+                                                })}
+                                              </div>
+                                            ))}
+                                        </TableCell>
+                                        <TableCell>
+                                          {transaction.total.toLocaleString(
+                                            "es-CL"
+                                          )}
+                                        </TableCell>
 
-
+                                        <TableCell>
+                                          {calculateSaldo(
+                                            transaction.total,
+                                            transaction.pagos
+                                          ).toLocaleString("es-CL")}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Button
+                                            variant="contained"
+                                            onClick={() =>
+                                              handleOpenDialog(transaction)
+                                            }
+                                          >
+                                            Ver Detalles
+                                          </Button>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
 
                                   {/* {provider.transactions.map((transaction) => (
                                     <TableRow key={transaction.id}>
@@ -381,108 +390,139 @@ const ReportesCtaCorrienteProv = () => {
             </Table>
           </TableContainer>
         )}
-  <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        message={snackbarMessage}
-      />
-       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-  <DialogTitle>Detalles del Documento</DialogTitle>
-  <DialogContent>
-    {/* Display the main details of the document */}
-    <Table size="small">
-      <TableBody>
-        <TableRow>
-          <TableCell><strong>Fecha:</strong></TableCell>
-          <TableCell>{dayjs(selectedDocument?.fechaIngreso).format('DD/MM/YYYY')}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Tipo Documento:</strong></TableCell>
-          <TableCell>{selectedDocument?.tipoDocumento}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Folio:</strong></TableCell>
-          <TableCell>{selectedDocument?.folio}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Total:</strong></TableCell>
-          <TableCell>{selectedDocument?.total.toLocaleString("es-CL")}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>RUT:</strong></TableCell>
-          <TableCell>{selectedDocument?.rut}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Razón Social:</strong></TableCell>
-          <TableCell>{selectedDocument?.razonSocial}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Nombre Responsable:</strong></TableCell>
-          <TableCell>{selectedDocument?.nombreResponsable}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell><strong>Código Proveedor:</strong></TableCell>
-          <TableCell>{selectedDocument?.codigoProveedor}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={() => setSnackbarOpen(false)}
+          message={snackbarMessage}
+        />
+        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+          <DialogTitle>Detalles del Documento</DialogTitle>
+          <DialogContent>
+            {/* Display the main details of the document */}
+            <Table size="small">
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <strong>Fecha:</strong>
+                  </TableCell>
+                  <TableCell>
+                    {dayjs(selectedDocument?.fechaIngreso).format("DD/MM/YYYY")}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Tipo Documento:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.tipoDocumento}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Folio:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.folio}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Total:</strong>
+                  </TableCell>
+                  <TableCell>
+                    {selectedDocument?.total.toLocaleString("es-CL")}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>RUT:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.rut}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Razón Social:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.razonSocial}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Nombre Responsable:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.nombreResponsable}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>
+                    <strong>Código Proveedor:</strong>
+                  </TableCell>
+                  <TableCell>{selectedDocument?.codigoProveedor}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
 
-    {/* Display the product details */}
-    <Typography variant="h6" sx={{ mt: 2 }}>Detalles de Productos</Typography>
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>Descripción</TableCell>
-          <TableCell>Cantidad</TableCell>
-          <TableCell>Precio Unidad</TableCell>
-          <TableCell>Costo</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {selectedProducts.map((product) => (
-          <TableRow key={product.idDetalle}>
-            <TableCell>{product.descripcionProducto}</TableCell>
-            <TableCell>{product.cantidad}</TableCell>
-            <TableCell>{product.precioUnidad.toLocaleString("es-CL")}</TableCell>
-            <TableCell>{product.costo.toLocaleString("es-CL")}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            {/* Display the product details */}
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Detalles de Productos
+            </Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Descripción</TableCell>
+                  <TableCell>Cantidad</TableCell>
+                  <TableCell>Precio Unidad</TableCell>
+                  <TableCell>Costo</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedProducts.map((product) => (
+                  <TableRow key={product.idDetalle}>
+                    <TableCell>{product.descripcionProducto}</TableCell>
+                    <TableCell>{product.cantidad}</TableCell>
+                    <TableCell>
+                      {product.precioUnidad.toLocaleString("es-CL")}
+                    </TableCell>
+                    <TableCell>
+                      {product.costo.toLocaleString("es-CL")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-    {/* Display payment details */}
-    <Typography variant="h6" sx={{ mt: 2 }}>Detalles de Pagos</Typography>
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>Monto Pagado</TableCell>
-          <TableCell>Metodo Pago</TableCell>
-          <TableCell>Fecha Pago</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {selectedDocument?.pagos.map((pago) => (
-          <TableRow key={pago.idPago}>
-            <TableCell>{pago.montoPagado.toLocaleString("es-CL")}</TableCell>
-            <TableCell>{pago.metodoPago}</TableCell>
-            <TableCell>{new Date(pago.fechaPago).toLocaleDateString("es-ES", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={handleCloseDialog} color="primary">
-      Cerrar
-    </Button>
-  </DialogActions>
-</Dialog>
-
+            {/* Display payment details */}
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Detalles de Pagos
+            </Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Monto Pagado</TableCell>
+                  <TableCell>Metodo Pago</TableCell>
+                  <TableCell>Fecha Pago</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {selectedDocument?.pagos.map((pago) => (
+                  <TableRow key={pago.idPago}>
+                    <TableCell>
+                      {pago.montoPagado.toLocaleString("es-CL")}
+                    </TableCell>
+                    <TableCell>{pago.metodoPago}</TableCell>
+                    <TableCell>
+                      {new Date(pago.fechaPago).toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Cerrar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Grid>
     </div>
   );

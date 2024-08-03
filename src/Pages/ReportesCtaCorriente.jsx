@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import {
   Paper,
@@ -164,8 +165,16 @@ const ReportesCtaCorriente = () => {
       <SideBar />
 
       <Grid component="main" sx={{ flexGrow: 1, p: 2 }}>
-        <Grid container spacing={1} alignItems="center">
-          Reportes Cuenta Corrientes Clientes
+        <Grid >
+
+        <Typography
+            variant="h4"
+            component="div"
+            sx={{ mb: 4, justifyContent:"center",textAlign: "center" }}
+          >
+                 Reportes Cuenta Corrientes Clientes
+
+          </Typography>
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
