@@ -53,7 +53,7 @@ const EditarSubFamilia = ({
 
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_URL_API2}NivelMercadoLogicos/UpdateSubFamilia`,
+        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/UpdateSubFamilia`,
         {
           idSubFamilia: editSubFamily.idSubFamilia,
           descripcionSubFamilia: editSubFamily.descripcion,
