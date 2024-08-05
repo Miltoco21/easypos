@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -19,37 +21,66 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditUsuario from "./EditUsuario";
-import PaymentsIcon from "@mui/icons-material/Payments";
-import SideBar from "../NavBar/SideBar"
+
+import SideBar from "../NavBar/SideBar";
 
 const SearchList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [modalEditOpen, setModalOpen] = useState(false);
+  const [rolesOptions, setRolesOptions] = useState([]);
+  const [selectedRol, setSelectedRol] = useState([]);
+
   const [refresh, setRefresh] = useState(false);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState("");
+  const [userToDelete, setUserToDelete] = useState(null);
   const perPage = 5;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const apiUrl = import.meta.env.VITE_URL_API2;
+
+  // Fetch users
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_URL_API2}/Usuarios/GetAllUsuarios`
-      );
-      // console.log("API response:", response.data);
+      const response = await axios.get(`${apiUrl}/Usuarios/GetAllUsuarios`);
       setUsers(response.data.usuarios);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
+  // Fetch regions
+  const fetchRegions = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/RegionComuna/GetAllRegiones`);
+      setRegions(response.data.regiones);
+    } catch (error) {
+      console.error("Error fetching regions:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchRegions();
   }, [refresh]);
+  useEffect(() => {
+    async function fetchRoles() {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_URL_API2}/Usuarios/GetAllRolUsuario`
+        );
+        setRolesOptions(response.data.usuarios);
+        console.log("ROLES", response.data.usuarios);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchRoles();
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -76,34 +107,22 @@ const SearchList = () => {
     setUserToDelete(null);
     setDeleteConfirmationOpen(false);
   };
-  const handleDelete = async () => {
-    if (!userToDelete) return; // Verificar si hay un usuario seleccionado para eliminar
-    const userId = userToDelete.codigoUsuario;
-    console.log("ID de usuario a eliminar:", userId);
-    try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_URL_API2}/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`
-      );
 
-      if (
-        response.status === 200 &&
-        response.data.descripcion === "Usuario Eliminado."
-      ) {
-        console.log("Usuario eliminado exitosamente:", response.data);
-        setRefresh(!refresh); // Refresh the users list after deletion
-        setDeleteConfirmationOpen(false); // Cerrar el diálogo de confirmación después de eliminar
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+    const userId = userToDelete.codigoUsuario;
+    try {
+      const response = await axios.delete(`${apiUrl}/Usuarios/DeleteUsuarioByCodigo?CodigoUsuario=${userId}`);
+      if (response.status === 200 && response.data.descripcion === "Usuario Eliminado.") {
+        setRefresh(!refresh);
+        setDeleteConfirmationOpen(false);
         setSnackbarMessage("Usuario eliminado exitosamente.");
         setSnackbarOpen(true);
       } else {
-        console.error(
-          "Error inesperado en la respuesta de eliminación:",
-          response.data
-        );
         setSnackbarMessage("Error inesperado al eliminar usuario.");
         setSnackbarOpen(true);
       }
     } catch (error) {
-      console.error("Error eliminando usuario:", error);
       setSnackbarMessage("Error eliminando usuario.");
       setSnackbarOpen(true);
     }
@@ -120,15 +139,18 @@ const SearchList = () => {
 
   const handleCloseEditModal = () => {
     setModalOpen(false);
-    setRefresh(!refresh); // Refresh the users list after editing
+    setRefresh(!refresh);
   };
 
-  // Filter users based on search term
+  const getRegionName = (regionId) => {
+    const region = regions.find((r) => r.id === parseInt(regionId));
+    return region ? region.regionNombre : "Desconocido";
+  };
+
   const filteredUsers = users.filter((user) =>
     user.nombres.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination
   const startIndex = (currentPage - 1) * perPage;
   const endIndex = startIndex + perPage;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
@@ -136,20 +158,19 @@ const SearchList = () => {
 
   return (
     <Box sx={{ p: 2, mb: 4, border: "4px" }}>
-      <SideBar/>
+      <SideBar />
 
-       <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={16000}
-          onClose={handleSnackbarClose}
-          message={snackbarMessage}
-        
-          action={
-            <Button color="inherit" size="small" onClick={handleSnackbarClose}>
-              Cerrar
-            </Button>
-          }
-        />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={16000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        action={
+          <Button color="inherit" size="small" onClick={handleSnackbarClose}>
+            Cerrar
+          </Button>
+        }
+      />
       <TextField label="Buscar..." value={searchTerm} onChange={handleSearch} />
       <Table sx={{ border: "1px ", borderRadius: "8px" }}>
         <TableHead>
@@ -187,7 +208,7 @@ const SearchList = () => {
                   <br />
                   {user.comuna}
                   <br />
-                  {user.region}
+                  {getRegionName(user.region)}
                 </TableCell>
                 <TableCell>{user.telefono}</TableCell>
                 <TableCell>{user.credito}</TableCell>
@@ -229,15 +250,14 @@ const SearchList = () => {
             Siguiente
           </Button>
         </Box>
-       
       </Box>
       <EditUsuario
+
         selectedUser={selectedUser}
         open={modalEditOpen}
         handleCloseEditModal={handleCloseEditModal}
       />
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteConfirmationOpen}
         onClose={handleDeleteConfirmationClose}
@@ -263,3 +283,4 @@ const SearchList = () => {
 };
 
 export default SearchList;
+
