@@ -727,11 +727,11 @@ const SearchListProveedores = () => {
                         onClick={() => handleDeleteDialogOpen(proveedor)}
                       />
                     </IconButton>
-                    <IconButton
+                    {/* <IconButton
                       onClick={() => handleOpenPaymentDialog(proveedor)}
                     >
                       <PaymentsIcon />
-                    </IconButton>
+                    </IconButton> */}
                   </TableCell>
                 </TableRow>
               ))}
