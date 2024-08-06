@@ -104,7 +104,7 @@ const EditarProducto = ({
 
     try {
       const response = await axios.put(
-        "https://www.easyposdev.somee.com/api/ProductosTmp/",
+        "https://www.easypos.somee.com/api/ProductosTmp/",
         editProducto
       );
 
@@ -143,7 +143,7 @@ const EditarProducto = ({
           border: "rounded",
         }}
       >
-        <h2 id="modal-modal-title">Editar Producto</h2>
+        <h2 id="modal-modal-title">Editar Productoooo</h2>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={3}>

@@ -294,7 +294,7 @@ const Editp2 = ({ product, open, handleClose }) => {
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>Editar Producto</DialogTitle>
       <DialogContent>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} marginTop={1}>
           <Grid item xs={8}>
             <TextField
               name="nombre"
@@ -435,33 +435,24 @@ const Editp2 = ({ product, open, handleClose }) => {
           </Grid>
 
           <Grid item xs={6}>
-            <InputLabel>Selecciona Marca</InputLabel>
-            <Select
-              fullWidth
-              value={selectedMarcaId}
+          
+            <TextField
+              name="marca"
+              label="Marca"
+              value={editedProduct.marca}
               onChange={(e) => {
+                // setSelectedCategoryId(e.target.value);
+                // // setEditedProduct.categoria=e.target.value;
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   marca: e.target.value,
                 }));
               }}
-              label="Selecciona Marca"
-            >
-              <MenuItem
-                key={editedProduct.id}
-                value={editedProduct.marca || ""}
-              >
-                {editedProduct.marca}
-              </MenuItem>
-              {marcas.map((marca) => (
-                <MenuItem key={marca.id} value={marca.nombre}>
-                  {marca.nombre}
-                </MenuItem>
-              ))}
-            </Select>
+              fullWidth
+            />
           </Grid>
 
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <InputLabel>Ingresa Proveedor</InputLabel>
             <Select
               fullWidth
@@ -486,13 +477,13 @@ const Editp2 = ({ product, open, handleClose }) => {
                 </MenuItem>
               ))}
             </Select>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={6}>
             <TextField
               name="precioCosto"
               label="Precio Costo"
-              value={editedProduct.precioCosto || ""}
+              value={editedProduct.precioCosto }
               onChange={(e) => {
                 // setSelectedCategoryId(e.target.value);
                 // // setEditedProduct.categoria=e.target.value;
@@ -524,7 +515,7 @@ const Editp2 = ({ product, open, handleClose }) => {
             <TextField
               name="stockInicial"
               label="Stock Inicial"
-              value={editedProduct.stockInicial || ""}
+              value={editedProduct.stockInicial }
               onChange={(e) => {
                 // setSelectedCategoryId(e.target.value);
                 // // setEditedProduct.categoria=e.target.value;
@@ -541,7 +532,7 @@ const Editp2 = ({ product, open, handleClose }) => {
             <TextField
               name="stockCritico"
               label="Stock Crítico"
-              value={editedProduct.stockCritico || ""}
+              value={editedProduct.stockCritico }
               onChange={(e) => {
                 // setSelectedCategoryId(e.target.value);
                 // // setEditedProduct.categoria=e.target.value;
@@ -554,7 +545,7 @@ const Editp2 = ({ product, open, handleClose }) => {
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item gap={4}xs={12} sx={{justifyContent:"space-arround"}}>
             <Button variant="contained" color="primary" onClick={handleSave}>
               Guardar
             </Button>
