@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
@@ -91,9 +92,8 @@ const SearchListProveedores = () => {
   const [nroOperacion, setNroOperacion] = useState(""); // Estado para almacenar el número de operación
   const [selectedBanco, setSelectedBanco] = useState("");
   const [tipoCuenta, setTipoCuenta] = useState("");
-  const [nroDocumento, setNroDocumento] = useState(""); 
-  const [serieCheque, setSerieCheque] = useState(""); 
-
+  const [nroDocumento, setNroDocumento] = useState("");
+  const [serieCheque, setSerieCheque] = useState("");
 
   const handleCheckboxChange = (index) => {
     const updatedProveedorData = proveedorData.map((compra, i) =>
@@ -156,9 +156,14 @@ const SearchListProveedores = () => {
 
   useEffect(() => {
     if (proveedores) {
-      const filtered = proveedores.filter((proveedor) =>
-        proveedor.nombreResponsable.toLowerCase().includes(searchTermProveedores.toLowerCase()) ||
-        proveedor.rut.toLowerCase().includes(searchTermProveedores.toLowerCase())
+      const filtered = proveedores.filter(
+        (proveedor) =>
+          proveedor.nombreResponsable
+            .toLowerCase()
+            .includes(searchTermProveedores.toLowerCase()) ||
+          proveedor.rut
+            .toLowerCase()
+            .includes(searchTermProveedores.toLowerCase())
       );
       setPageProveedores(
         filtered.slice(
@@ -176,8 +181,13 @@ const SearchListProveedores = () => {
       );
       console.log("API response:", response.data.proveedores);
       setProveedores(response.data.proveedores);
-      setFilteredProveedores(response.data.proveedores.slice(0, ITEMS_PER_PAGE));
-      setPageCount(Math.ceil(response.data.proveedores.length / ITEMS_PER_PAGE));
+
+      setFilteredProveedores(
+        response.data.proveedores.slice(0, ITEMS_PER_PAGE)
+      );
+      setPageCount(
+        Math.ceil(response.data.proveedores.length / ITEMS_PER_PAGE)
+      );
     } catch (error) {
       console.log(error);
     }
@@ -268,7 +278,7 @@ const SearchListProveedores = () => {
       metodoPago: metodoPago,
     };
 
-    console.log("Datos antes de ser enviados",pagoData)
+    console.log("Datos antes de ser enviados", pagoData);
 
     axios
       .post(
@@ -290,8 +300,6 @@ const SearchListProveedores = () => {
           setSelectedItems([]);
           setCantidadPagada(0);
           handleClosePaymentDialog();
-       
-
 
           setTimeout(() => {
             handleClosePaymentProcess();
@@ -316,9 +324,14 @@ const SearchListProveedores = () => {
   ///////Codigo de busqueda
   useEffect(() => {
     if (Array.isArray(proveedores)) {
-      const filtered = proveedores.filter((proveedor) =>
-        proveedor.razonSocial.toLowerCase().includes(searchTermProveedores.toLowerCase()) ||
-        proveedor.rut.toLowerCase().includes(searchTermProveedores.toLowerCase())
+      const filtered = proveedores.filter(
+        (proveedor) =>
+          proveedor.razonSocial
+            .toLowerCase()
+            .includes(searchTermProveedores.toLowerCase()) ||
+          proveedor.rut
+            .toLowerCase()
+            .includes(searchTermProveedores.toLowerCase())
       );
       setPageProveedores(filtered.slice(0, ITEMS_PER_PAGE));
       setPageCount(filtered.length);
@@ -402,7 +415,9 @@ const SearchListProveedores = () => {
     try {
       const codigoProveedor = selectedProveedorToDelete.codigoProveedor;
       await axios.delete(
-        `${import.meta.env.VITE_URL_API2}/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
+        `${
+          import.meta.env.VITE_URL_API2
+        }/Proveedores/DeleteProveedorByCodigo?CodigoProveedor=${codigoProveedor}`
       );
       setRefresh((prevRefresh) => !prevRefresh);
       fetchProveedores();
@@ -463,9 +478,7 @@ const SearchListProveedores = () => {
     setCantidadPagada(getTotalSelected());
   };
   const handleChequeModalClose = () => {
-    
     setOpenChequeModal(false);
-    
   };
 
   const tiposDeCuenta = {
@@ -509,14 +522,16 @@ const SearchListProveedores = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-  
-      let endpoint =
-        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaByIdCliente`
-  
+
+      let endpoint = `${
+        import.meta.env.VITE_URL_API2
+      }/Clientes/PostClientePagarDeudaByIdCliente`;
+
       if (metodoPago === "TRANSFERENCIA") {
-        endpoint =
-        `${import.meta.env.VITE_URL_API2}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
-  
+        endpoint = `${
+          import.meta.env.VITE_URL_API2
+        }/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
+
         if (
           nombre === "" ||
           rut === "" ||
@@ -532,7 +547,7 @@ const SearchListProveedores = () => {
           setLoading(false);
           return;
         }
-  
+
         if (nombre === "") {
           setTransferenciaError("Por favor, ingresa el nombre.");
           setLoading(false);
@@ -548,52 +563,52 @@ const SearchListProveedores = () => {
           setLoading(false);
           return;
         }
-  
+
         if (selectedBanco === "") {
           setTransferenciaError("Por favor, selecciona el banco.");
           setLoading(false);
           return;
         }
-  
+
         if (tipoCuenta === "") {
           setTransferenciaError("Por favor, selecciona el tipo de cuenta.");
           setLoading(false);
           return;
         }
-  
+
         if (nroCuenta === "") {
           setTransferenciaError("Por favor, ingresa el número de cuenta.");
           setLoading(false);
           return;
         }
-  
+
         if (fecha === "") {
           setTransferenciaError("Por favor, selecciona la fecha.");
           setLoading(false);
           return;
         }
-  
+
         if (nroOperacion === "") {
           setTransferenciaError("Por favor, ingresa el número de operación.");
           setLoading(false);
           return;
         }
       }
-  
+
       if (!metodoPago) {
         setError("Por favor, selecciona un método de pago.");
         setLoading(false);
         return;
       } else setError("");
-  
+
       const selectedDeudas = deudaData.filter((deuda) => deuda.selected);
-  
+
       const deudaIds = selectedDebts.map((deuda) => ({
         idCuentaCorriente: deuda.id,
         idCabecera: deuda.idCabecera,
         total: deuda.total,
       }));
-  
+
       const requestBody = {
         deudaIds: deudaIds,
         montoPagado: getTotalSelected(),
@@ -610,11 +625,11 @@ const SearchListProveedores = () => {
           nroOperacion: nroOperacion,
         },
       };
-  
+
       console.log("Request Body:", requestBody);
-  
+
       const response = await axios.post(endpoint, requestBody);
-  
+
       console.log("Response:", response.data);
       console.log("ResponseStatus:", response.data.statusCode);
       ///acciones post pago////
@@ -624,7 +639,7 @@ const SearchListProveedores = () => {
         handleClosePaymentDialog();
         setCantidadPagada(0);
         resetDeudaData();
-  
+
         setTimeout(() => {
           handleClosePaymentProcess();
         }, 2000);
@@ -638,11 +653,16 @@ const SearchListProveedores = () => {
     }
   };
 
+  const getRegionName = (regionId) => {
+    const region = region.find((r) => r.id === parseInt(regionId));
+    return region ? region.regionNombre : "Desconocido";
+  };
+
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <div>
         <Tabs value={selectedTab} onChange={handleTabChange}>
-          <Tab label="Proovedores" />
+          <Tab label="Proveedores" />
           {/* <Tab label="Clientes" /> */}
         </Tabs>
         <div style={{ p: 2, mt: 4 }} role="tabpanel" hidden={selectedTab !== 0}>
@@ -689,7 +709,8 @@ const SearchListProveedores = () => {
                   <TableCell>
                     {proveedor.sucursal}
                     <br />
-                    {proveedor.direccion}
+                    {proveedor.direccion} <br />
+                    {proveedor.region}
                     <br />
                     {proveedor.comuna}
                     <br />
@@ -839,7 +860,6 @@ const SearchListProveedores = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClosePaymentDialog}>Cerrar</Button>
-         
         </DialogActions>
       </Dialog>
 
@@ -944,7 +964,7 @@ const SearchListProveedores = () => {
                   variant={metodoPago === "CHEQUE" ? "contained" : "outlined"}
                   onClick={() => {
                     setMetodoPago("CHEQUE");
-                    setCantidadPagada(getTotalSelected()); 
+                    setCantidadPagada(getTotalSelected());
                     handleChequeModalOpen(selectedDebts);
                   }}
                   fullWidth
@@ -1074,7 +1094,7 @@ const SearchListProveedores = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <InputLabel sx={{ marginBottom: "4%" }}>
-              Ingresa Tipo de Cuenta{" "}
+                Ingresa Tipo de Cuenta{" "}
               </InputLabel>
               <TextField
                 select
@@ -1183,10 +1203,7 @@ const SearchListProveedores = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openChequeModal}
-        onClose={handleChequeModalClose}
-      >
+      <Dialog open={openChequeModal} onClose={handleChequeModalClose}>
         <DialogTitle>Cheque</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>

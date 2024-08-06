@@ -24,7 +24,7 @@ import SearchListProveedores from "../Componentes/Proveedores/SearchListProveedo
 const Proveedores = () => {
   const [open, setOpen] = useState(false);
   const [openCL, setOpenCL] = useState(false);
-  const text = "Proovedores";
+  const text = "Proveedores";
   const uppercaseText = text.toUpperCase();
 
   const handleOpenModal = () => {
@@ -53,7 +53,7 @@ const Proveedores = () => {
           component="div"
           sx={{ mb: 4, textAlign: "center" }}
         >
-          Proovedores
+          Proveedores
         </Typography>
         <Button
           variant="outlined"

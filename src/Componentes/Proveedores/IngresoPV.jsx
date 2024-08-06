@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -37,7 +40,7 @@ const IngresoPV = ({ onClose }) => {
   const [telefono, setTelefono] = useState("");
   const [direccion, setDireccion] = useState("");
   const [comuna, setComuna] = useState("");
-  const [region, setRegion] = useState("");
+
   const [sucursal, setSucursal] = useState("");
   const [pagina, setUlrPagina] = useState("");
   const [formaPago, setFormaPago] = useState("");
@@ -66,40 +69,40 @@ const IngresoPV = ({ onClose }) => {
     return () => setLoading(false);
   }, []);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+  // const handleFileUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = xlsx.read(data, { type: "array" });
+  //   reader.onload = (e) => {
+  //     const data = new Uint8Array(e.target.result);
+  //     const workbook = xlsx.read(data, { type: "array" });
 
-      for (const sheetName of workbook.SheetNames) {
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = xlsx.utils.sheet_to_json(worksheet);
+  //     for (const sheetName of workbook.SheetNames) {
+  //       const worksheet = workbook.Sheets[sheetName];
+  //       const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
-        if (jsonData.length > 0) {
-          const firstDataRow = jsonData[0];
-          setRazonSocial(firstDataRow.razonSocial || "");
-          setGiro(firstDataRow.giro || "");
-          setEmail(firstDataRow.email || "");
-          setDireccion(firstDataRow.direccion || "");
-          setTelefono(firstDataRow.telefono || "");
-          setRegion(firstDataRow.region || "");
-          setComuna(firstDataRow.comuna || "");
-          setSucursal(firstDataRow.sucursal || "");
-          setUlrPagina(firstDataRow.pagina || "");
-          setFormaPago(firstDataRow.formaPago || "");
-          setRut(firstDataRow.rut || "");
-          setNombreResponsable(firstDataRow.nombreResponsable || "");
-          setcorreoResponsable(firstDataRow.correoResponsable || "");
-          setTelefonoResponsable(firstDataRow.telefonoResponsable || "");
-        }
-      }
-    };
+  //       if (jsonData.length > 0) {
+  //         const firstDataRow = jsonData[0];
+  //         setRazonSocial(firstDataRow.razonSocial || "");
+  //         setGiro(firstDataRow.giro || "");
+  //         setEmail(firstDataRow.email || "");
+  //         setDireccion(firstDataRow.direccion || "");
+  //         setTelefono(firstDataRow.telefono || "");
+  //         setRegion(firstDataRow.region || "");
+  //         setComuna(firstDataRow.comuna || "");
+  //         setSucursal(firstDataRow.sucursal || "");
+  //         setUlrPagina(firstDataRow.pagina || "");
+  //         setFormaPago(firstDataRow.formaPago || "");
+  //         setRut(firstDataRow.rut || "");
+  //         setNombreResponsable(firstDataRow.nombreResponsable || "");
+  //         setcorreoResponsable(firstDataRow.correoResponsable || "");
+  //         setTelefonoResponsable(firstDataRow.telefonoResponsable || "");
+  //       }
+  //     }
+  //   };
 
-    reader.readAsArrayBuffer(file);
-  };
+  //   reader.readAsArrayBuffer(file);
+  // };
 
   const handleExportExcel = () => {
     const jsonData = [
@@ -110,7 +113,7 @@ const IngresoPV = ({ onClose }) => {
         direccion: direccion,
         telefono: telefono,
         comuna: comuna,
-        region: region,
+        region: selectedRegion,
         sucursal: sucursal,
         pagina: pagina,
         formaPago: formaPago,
@@ -342,7 +345,7 @@ const IngresoPV = ({ onClose }) => {
         email,
         telefono,
         direccion,
-        region,
+        region:selectedRegion,
         comuna,
         sucursal,
         pagina,
@@ -419,7 +422,7 @@ const IngresoPV = ({ onClose }) => {
       } catch (error) {
         console.error(error);
         setSnackbarMessage("Error al crear el proveedor");
-        setOpenSnackbar(true);
+        setSnackbarOpen(true);
         setLoading(false);
       }
     }
