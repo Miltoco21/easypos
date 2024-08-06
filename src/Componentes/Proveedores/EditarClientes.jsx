@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -18,29 +21,21 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
   const [errors, setErrors] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
-  useEffect(() => {
-    setEditedCliente(cliente); // Al recibir un nuevo cliente, actualizamos el estado de cliente editado
-    setSelectedRegion(cliente.regionId); // Actualizamos la región seleccionada
-    setSelectedComuna(cliente.comunaId); // Actualizamos la comuna seleccionada
-  }, [cliente]);
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setEditedCliente((prevCliente) => ({
-      ...prevCliente,
-      [name]: value,
-    }));
-  };
   const [regiones, setRegiones] = useState([]);
   const [comunas, setComunas] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedComuna, setSelectedComuna] = useState("");
-  console.log("editedCliente:", editedCliente);
+
+  useEffect(() => {
+    setEditedCliente(cliente);
+    setSelectedRegion(cliente.region); // Asume que cliente.region es el ID de la región
+    setSelectedComuna(cliente.comuna); // Asume que cliente.comuna es el nombre de la comuna
+  }, [cliente]);
+
   useEffect(() => {
     // Obtener regiones
     axios
-      .get(`${apiUrl}/api/RegionComuna/GetAllRegiones`)
+      .get(`${apiUrl}/RegionComuna/GetAllRegiones`)
       .then((response) => {
         setRegiones(response.data.regiones);
       })
@@ -49,53 +44,48 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
       });
   }, []);
 
+  useEffect(() => {
+    if (selectedRegion) {
+      // Obtener comunas para la región seleccionada
+      axios
+        .get(
+          `https://www.easypos.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+        )
+        .then((response) => {
+          setComunas(response.data.comunas);
+        })
+        .catch((error) => {
+          console.error("Error al obtener las comunas:", error);
+        });
+    }
+  }, [selectedRegion]);
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setEditedCliente((prevCliente) => ({
+      ...prevCliente,
+      [name]: value,
+    }));
+  };
+
   const handleRegionChange = (event) => {
     const selectedRegionId = event.target.value;
-
     setSelectedRegion(selectedRegionId);
-
-    // Obtener comunas para la región seleccionada
-    axios
-      .get(
-        `https://www.easyposdev.somee.com/api/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegionId}`
-      )
-      .then((response) => {
-        setComunas(response.data.comunas);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las comunas:", error);
-      });
+    setSelectedComuna(""); // Resetear la comuna seleccionada cuando se cambia la región
   };
 
   const handleSaveChanges = async () => {
     try {
       const updatedCliente = {
-        codigoCliente: editedCliente.codigoCliente || "",
-        rut: editedCliente.rut || "",
-        nombre: editedCliente.nombre || "",
-        apellido: editedCliente.apellido || "",
-        direccion: editedCliente.direccion || "",
-        telefono: editedCliente.telefono || "",
-        region: (selectedRegion || "").toString(),
-        comuna: selectedComuna || "", // Incluir comuna seleccionada
-        correo: editedCliente.correo || "",
-        giro: editedCliente.giro || "",
-        urlPagina: editedCliente.urlPagina || "",
-        formaPago: editedCliente.formaPago || "",
-        usaCuentaCorriente: editedCliente.usaCuentaCorriente || 0,
-        razonSocial: editedCliente.razonSocial || "",
+        ...editedCliente,
+        region: selectedRegion,
+        comuna: selectedComuna,
       };
 
-      // Depuración: Imprimir datos antes de la solicitud
-      console.log("Datos enviados antes de la solicitud:", updatedCliente);
-
       const response = await axios.put(
-        `${import.meta.env.VITE_URL_API2}/Clientes/PutClienteCliente`,
+        `${apiUrl}/Clientes/PutClienteCliente`,
         updatedCliente
       );
-
-      // Depuración: Imprimir detalles de la respuesta
-      console.log("Respuesta del servidor:", response);
 
       if (response.status === 200) {
         setSnackbarMessage(response.data.descripcion);
@@ -104,13 +94,8 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
       } else {
         throw new Error("No se pudo editar el cliente");
       }
-
-      // Depuración: Imprimir datos después de la solicitud
-      console.log("Datos recibidos después de la solicitud:", response.data);
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
-
-      // Depuración: Imprimir detalles del error
       if (error.response) {
         console.error("Respuesta de error del servidor:", error.response);
       } else if (error.request) {
@@ -118,8 +103,6 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
       } else {
         console.error("Error general:", error.message);
       }
-
-      // Lógica para manejar el error
     }
   };
 
@@ -132,7 +115,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Editar Cliente</DialogTitle>
         <DialogContent>
-          <Grid container item xs={12} sm={12} md={12} lg={12} spacing={2}>
+          <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Nombre"
@@ -178,7 +161,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
                 margin="normal"
                 select
                 label="Región"
-                value={editedCliente.region}
+                value={selectedRegion}
                 onChange={handleRegionChange}
                 fullWidth
               >
@@ -195,7 +178,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
                 error={!!errors.comuna}
                 select
                 label="Comuna"
-                value={editedCliente.comuna}
+                value={selectedComuna}
                 onChange={(e) => setSelectedComuna(e.target.value)}
                 fullWidth
               >
