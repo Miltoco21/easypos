@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
@@ -15,6 +16,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  MenuItem
 } from "@mui/material";
 
 const EditarProveedor = ({
@@ -48,6 +50,10 @@ const EditarProveedor = ({
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isEditSuccessful, setIsEditSuccessful] = useState(false);
+  const [regiones, setRegiones] = useState([]);
+  const [comunas, setComunas] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedComuna, setSelectedComuna] = useState("");
 
   useEffect(() => {
     if (proveedor) {
@@ -78,10 +84,33 @@ const EditarProveedor = ({
       [name]: value,
     }));
   };
+  const handleRegionChange = (event) => {
+    const regionId = event.target.value;
+    setSelectedRegion(regionId);
+    setEditProveedor((prevEditProveedor) => ({
+      ...prevEditProveedor,
+      region: regionId,
+      comuna: "",  // Reset comuna when region changes
+    }));
+    setSelectedComuna("");  // Reset selected comuna
+  };
   const closeSuccessDialog = () => {
     setSuccessDialogOpen(false);
     handleClose();
   };
+  useEffect(() => {
+    if (selectedRegion) {
+      // Fetch comunas for the selected region
+      axios
+        .get(`${apiUrl}/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`)
+        .then((response) => {
+          setComunas(response.data.comunas);
+        })
+        .catch((error) => {
+          console.error("Error fetching comunas:", error);
+        });
+    }
+  }, [selectedRegion]);
 
   const closeErrorDialog = () => {
     setOpenErrorDialog(false);
@@ -201,7 +230,41 @@ const EditarProveedor = ({
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="normal"
+                label="Región"
+                select
+                value={editProveedor.region}
+                onChange={handleInputChange}
+                fullWidth
+              >
+                {regiones.map((region) => (
+                  <MenuItem key={region.id} value={region.id}>
+                    {region.regionNombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                margin="normal"
+                // error={!!errors.comuna}
+                select
+                label="Comuna"
+                value={editProveedor.region}
+                onChange={handleInputChange}
+                // onChange={(e) => setSelectedComuna(e.target.value)}
+                fullWidth
+              >
+                {comunas.map((comuna) => (
+                  <MenuItem key={comuna.id} value={comuna.comunaNombre}>
+                    {comuna.comunaNombre}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            {/* <Grid item xs={12} sm={3}>
               <TextField
                 label="Comuna"
                 name="comuna"
@@ -218,7 +281,7 @@ const EditarProveedor = ({
                 onChange={handleInputChange}
                 fullWidth
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} sm={3}>
               <TextField
                 label="Página"

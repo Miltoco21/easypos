@@ -28,8 +28,8 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
 
   useEffect(() => {
     setEditedCliente(cliente);
-    setSelectedRegion(cliente.region); // Asume que cliente.region es el ID de la región
-    setSelectedComuna(cliente.comuna); // Asume que cliente.comuna es el nombre de la comuna
+    setSelectedRegion(cliente.region|| ""); // Asume que cliente.region es el ID de la región
+    setSelectedComuna(cliente.comuna|| ""); // Asume que cliente.comuna es el nombre de la comuna
   }, [cliente]);
 
   useEffect(() => {
