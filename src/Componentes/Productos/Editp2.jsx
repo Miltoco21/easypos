@@ -229,7 +229,7 @@ const Editp2 = ({ product, open, handleClose }) => {
     event.preventDefault();
 
     const idCategoria = categories.find(categoria=> categoria.descripcion ===editedProduct.categoria);
-    const idSubCategoriaFind = subcategoriesFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
+    const idSubCategoriaFind = idSubCategoriaFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
     const idFamiliaFind = familiesFind.find(fam=> fam.descripcion === editedProduct.familia);
     const idSubFamiliaFind = subfamiliesFind.find(sf=> sf.descripcion === editedProduct.subFamilia)
 

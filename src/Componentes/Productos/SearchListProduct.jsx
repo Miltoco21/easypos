@@ -66,6 +66,8 @@ const SearchListProducts = () => {
           setFilteredProducts(response.data.productos);
           setPageCount(response.data.productos.length);
         }
+        console.log("response productos",response.data.productos);
+        
       } catch (error) {
         console.error("Error fetching products:", error);
       }

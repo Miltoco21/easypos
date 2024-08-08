@@ -577,13 +577,13 @@ const SearchListClientes = () => {
                   </TableCell>
                   <TableCell>{cliente.giro}</TableCell>
                   <TableCell>
-                    {cliente.direccion}
-                    <br />
+  {cliente.direccion}
+  <br />
+  {cliente.comuna}
+  <br />
+  {cliente.region.length > 2 ? cliente.region : getRegionName(cliente.region)}
+</TableCell>
 
-                    {cliente.comuna}
-                    <br />
-                    {getRegionName(cliente.region)}
-                  </TableCell>
                   <TableCell>
                     <IconButton onClick={() => handleEdit(cliente)}>
                       <EditIcon />

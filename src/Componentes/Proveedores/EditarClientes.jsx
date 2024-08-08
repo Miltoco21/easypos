@@ -78,7 +78,7 @@ const EditarCliente = ({ open, handleClose, cliente, onEditSuccess }) => {
     try {
       const updatedCliente = {
         ...editedCliente,
-        region: selectedRegion,
+        region: selectedRegion.toString(),
         comuna: selectedComuna,
       };
 

@@ -46,6 +46,7 @@ const ITEMS_PER_PAGE = 10;
 
 const SearchListProveedores = () => {
   const apiUrl = import.meta.env.VITE_URL_API2;
+  const [regions, setRegions] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [searchTermProveedores, setSearchTermProveedores] = useState(""); // Separate state for proveedores search
@@ -653,9 +654,27 @@ const SearchListProveedores = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/RegionComuna/GetAllRegiones`
+        );
+        setRegions(response.data.regiones);
+        console.log("regiones:",response.data.regiones);
+        
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+      }
+    };
+    fetchRegions();
+  }, []);
+ 
   const getRegionName = (regionId) => {
-    const region = region.find((r) => r.id === parseInt(regionId));
-    return region ? region.regionNombre : "Desconocido";
+    console.log("Searching for region ID:", regionId);
+    const region = regions.find((r) => r.id === parseInt(regionId, 10));
+    console.log("Found region:", region);
+    return region ? region.regionNombre : "Region not found";
   };
 
   return (
@@ -710,7 +729,8 @@ const SearchListProveedores = () => {
                     {proveedor.sucursal}
                     <br />
                     {proveedor.direccion} <br />
-                    {proveedor.region}
+                 
+                   {getRegionName(proveedor.region)}
                     <br />
                     {proveedor.comuna}
                     <br />
