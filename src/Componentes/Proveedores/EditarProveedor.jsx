@@ -16,7 +16,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  MenuItem
+  MenuItem,
+  Snackbar,
 } from "@mui/material";
 
 const EditarProveedor = ({
@@ -26,25 +27,8 @@ const EditarProveedor = ({
   fetchProveedores,
   onEditSuccess,
 }) => {
-
   const apiUrl = import.meta.env.VITE_URL_API2;
-  const [editProveedor, setEditProveedor] = useState({
-    codigoProveedor: "",
-    razonSocial: "",
-    giro: "",
-    rut: "",
-    email: "",
-    telefono: "",
-    direccion: "",
-    comuna: "",
-    region: "",
-    pagina: "",
-    formaPago: "",
-    nombreResponsable: "",
-    correoResponsable: "",
-    telefonoResponsable: "",
-    sucursal: "",
-  });
+  const [editedProveedor, setEditedProveedor] = useState([]);
 
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
@@ -55,54 +39,50 @@ const EditarProveedor = ({
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedComuna, setSelectedComuna] = useState("");
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   useEffect(() => {
-    if (proveedor) {
-      setEditProveedor({
-        codigoProveedor: proveedor.codigoProveedor || "",
-        razonSocial: proveedor.razonSocial || "",
-        giro: proveedor.giro || "",
-        rut: proveedor.rut || "",
-        email: proveedor.email || "",
-        telefono: proveedor.telefono || "",
-        direccion: proveedor.direccion || "",
-        comuna: proveedor.comuna || "",
-        region: proveedor.region || "",
-        pagina: proveedor.pagina || "",
-        formaPago: proveedor.formaPago || "",
-        nombreResponsable: proveedor.nombreResponsable || "",
-        correoResponsable: proveedor.correoResponsable || "",
-        telefonoResponsable: proveedor.telefonoResponsable || "",
-        sucursal: proveedor.sucursal || "",
-      });
-    }
+    setEditedProveedor(proveedor);
+    setSelectedRegion(proveedor.region || ""); // Asume que cliente.region es el ID de la región
+    setSelectedComuna(proveedor.comuna || "");
   }, [proveedor]);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setEditProveedor((prevEditProveedor) => ({
-      ...prevEditProveedor,
+    setEditedProveedor((prevEditedProveedor) => ({
+      ...prevEditedProveedor,
       [name]: value,
     }));
   };
+
   const handleRegionChange = (event) => {
-    const regionId = event.target.value;
-    setSelectedRegion(regionId);
-    setEditProveedor((prevEditProveedor) => ({
-      ...prevEditProveedor,
-      region: regionId,
-      comuna: "",  // Reset comuna when region changes
-    }));
-    setSelectedComuna("");  // Reset selected comuna
+    const selectedRegionId = event.target.value;
+    setSelectedRegion(selectedRegionId);
+    setSelectedComuna(""); // Resetear la comuna seleccionada cuando se cambia la región
   };
-  const closeSuccessDialog = () => {
-    setSuccessDialogOpen(false);
-    handleClose();
-  };
+
+  // const closeSuccessDialog = () => {
+  //   setSuccessDialogOpen(false);
+  //   handleClose();
+  // };
+  useEffect(() => {
+    // Obtener regiones
+    axios
+      .get(`${apiUrl}/RegionComuna/GetAllRegiones`)
+      .then((response) => {
+        setRegiones(response.data.regiones);
+      })
+      .catch((error) => {
+        console.error("Error al obtener las regiones:", error);
+      });
+  }, []);
   useEffect(() => {
     if (selectedRegion) {
       // Fetch comunas for the selected region
       axios
-        .get(`${apiUrl}/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`)
+        .get(
+          `${apiUrl}/RegionComuna/GetComunaByIDRegion?IdRegion=${selectedRegion}`
+        )
         .then((response) => {
           setComunas(response.data.comunas);
         })
@@ -115,34 +95,63 @@ const EditarProveedor = ({
   const closeErrorDialog = () => {
     setOpenErrorDialog(false);
   };
-  const handleEdit = (proveedor) => {
-    setEditProveedor(proveedor);
 
-    setIsEditSuccessful(false); // Reset the edit success state
-  };
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
+      const updatedProveedor = {
+        ...editedProveedor,
+        region: selectedRegion.toString(),
+        comuna: selectedComuna,
+      };
       const response = await axios.put(
         `${import.meta.env.VITE_URL_API2}/Proveedores/UpdateProveedor`,
-        editProveedor
+        updatedProveedor
       );
 
       if (response.status === 200) {
-        console.log("Proveedor updated successfully:", response.data);
-        setIsEditSuccessful(true)
+        setEditedProveedor({
+          codigoProveedor: "",
+          razonSocial: "",
+          giro: "",
+          rut: "",
+          email: "",
+          telefono: "",
+          direccion: "",
+          region: "",
+          comuna: "",
+          pagina: "",
+          formaPago: "",
+          nombreResponsable: "",
+          correoResponsable: "",
+          telefonoResponsable: "",
+          sucursal: "",
+        });
 
-      } setSuccessDialogOpen(true)
+        // Reset selected region and comuna
+        setSelectedRegion("");
+        setSelectedComuna("");
+        setSnackbarOpen(true);
+
+        setSnackbarMessage(response.data.descripcion);
+
+        setTimeout(() => {
+          handleClose();
+          setSnackbarOpen(false);
+          setSnackbarMessage("");
+        }, 1000);
+      }
     } catch (error) {
       console.error("Error updating proveedor:", error);
-      setErrorMessage(error.message);
-      setOpenErrorDialog(true);
+      setSnackbarOpen(true);
+
+      setSnackbarMessage(error);
     }
   };
-
-  
-
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   return (
     <Modal
@@ -167,11 +176,11 @@ const EditarProveedor = ({
         <h2 id="modal-modal-title">Editar Proveedor</h2>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={3}>
+            <Grid item xs={12} sm={3} sx={{ display: "none" }}>
               <TextField
                 label="Código Proveedor"
                 name="codigoProveedor"
-                value={editProveedor.codigoProveedor}
+                value={editedProveedor.codigoProveedor}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -180,7 +189,7 @@ const EditarProveedor = ({
               <TextField
                 label="Razón Social"
                 name="razonSocial"
-                value={editProveedor.razonSocial}
+                value={editedProveedor.razonSocial}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -189,7 +198,7 @@ const EditarProveedor = ({
               <TextField
                 label="Giro"
                 name="giro"
-                value={editProveedor.giro}
+                value={editedProveedor.giro}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -198,7 +207,7 @@ const EditarProveedor = ({
               <TextField
                 label="RUT"
                 name="rut"
-                value={editProveedor.rut}
+                value={editedProveedor.rut}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -207,7 +216,7 @@ const EditarProveedor = ({
               <TextField
                 label="Email"
                 name="email"
-                value={editProveedor.email}
+                value={editedProveedor.email}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -216,7 +225,7 @@ const EditarProveedor = ({
               <TextField
                 label="Teléfono"
                 name="telefono"
-                value={editProveedor.telefono}
+                value={editedProveedor.telefono}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -225,18 +234,18 @@ const EditarProveedor = ({
               <TextField
                 label="Dirección"
                 name="direccion"
-                value={editProveedor.direccion}
+                value={editedProveedor.direccion}
                 onChange={handleInputChange}
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <TextField
-                margin="normal"
                 label="Región"
                 select
-                value={editProveedor.region}
-                onChange={handleInputChange}
+                value={selectedRegion}
+                // value={editedProveedor.region}
+                onChange={handleRegionChange}
                 fullWidth
               >
                 {regiones.map((region) => (
@@ -246,15 +255,15 @@ const EditarProveedor = ({
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               <TextField
-                margin="normal"
                 // error={!!errors.comuna}
                 select
                 label="Comuna"
-                value={editProveedor.region}
-                onChange={handleInputChange}
-                // onChange={(e) => setSelectedComuna(e.target.value)}
+                // value={editedProveedor.comuna}
+                value={selectedComuna}
+                // onChange={handleInputChange}
+                onChange={(e) => setSelectedComuna(e.target.value)}
                 fullWidth
               >
                 {comunas.map((comuna) => (
@@ -286,7 +295,7 @@ const EditarProveedor = ({
               <TextField
                 label="Página"
                 name="pagina"
-                value={editProveedor.pagina}
+                value={editedProveedor.pagina}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -295,7 +304,7 @@ const EditarProveedor = ({
               <TextField
                 label="Forma de Pago"
                 name="formaPago"
-                value={editProveedor.formaPago}
+                value={editedProveedor.formaPago}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -304,7 +313,7 @@ const EditarProveedor = ({
               <TextField
                 label="Nombre Responsable"
                 name="nombreResponsable"
-                value={editProveedor.nombreResponsable}
+                value={editedProveedor.nombreResponsable}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -313,7 +322,7 @@ const EditarProveedor = ({
               <TextField
                 label="Correo Responsable"
                 name="correoResponsable"
-                value={editProveedor.correoResponsable}
+                value={editedProveedor.correoResponsable}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -322,7 +331,7 @@ const EditarProveedor = ({
               <TextField
                 label="Teléfono Responsable"
                 name="telefonoResponsable"
-                value={editProveedor.telefonoResponsable}
+                value={editedProveedor.telefonoResponsable}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -331,7 +340,7 @@ const EditarProveedor = ({
               <TextField
                 label="Sucursal"
                 name="sucursal"
-                value={editProveedor.sucursal}
+                value={editedProveedor.sucursal}
                 onChange={handleInputChange}
                 fullWidth
               />
@@ -341,7 +350,7 @@ const EditarProveedor = ({
             Guardar
           </Button>
         </form>
-        {isEditSuccessful && (
+        {/* {isEditSuccessful && (
           <Dialog open={successDialogOpen} onClose={closeSuccessDialog}>
             <DialogTitle> Edición Exitosa </DialogTitle>
             <DialogContent>
@@ -363,7 +372,13 @@ const EditarProveedor = ({
               Cerrar
             </Button>
           </DialogActions>
-        </Dialog>
+        </Dialog> */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+          message={snackbarMessage}
+        />
       </Box>
     </Modal>
   );

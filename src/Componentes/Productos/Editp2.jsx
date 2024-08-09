@@ -149,77 +149,31 @@ const Editp2 = ({ product, open, handleClose }) => {
     fetchSubFamilies();
   }, [selectedFamilyId]);
 
-  // useEffect(() => {
-  //   const fetchProveedores = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/Proveedores/GetAllProveedores"
-  //       );
-  //       console.log("API response:", response.data.proveedores);
-  //       setProveedores(response.data.proveedores);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
 
-  //   fetchProveedores();
-  // }, []);
 
-  // useEffect(() => {
-  //   const fetchMarcas = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "https://www.easyposdev.somee.com/api/Marcas/GetAllMarcas"
-  //       );
-  //       setMarcas(response.data.marcas);
-  //       console.log(response.data.marcas);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
 
-  //   fetchMarcas();
-  // }, [refresh]);
-
-  ////Datos iniciales de edicion
-
-  // useEffect(() => {
-  //   setSelectedMarcaId(editedProduct.marca || "");
-  // }, [editedProduct]);
-
-  // useEffect(() => {
-  //   setSelectedProveedorId(editedProduct.proveedor || "");
-  // }, [editedProduct]);
 
   useEffect(() => {
     setSelectedCategoryId(editedProduct.categoria || "");
   }, [editedProduct]);
 
-  // useEffect(() => {
-  //   setSelectedSubCategoryId(editedProduct.subCategoria || "");
-  // }, [editedProduct]);
+  useEffect(() => {
+    setSelectedSubCategoryId(editedProduct.subCategoria || "");
+  }, [editedProduct]);
 
-  // useEffect(() => {
-  //   setSelectedFamilyId(editedProduct.familia || "");
-  // }, [editedProduct]);
+  useEffect(() => {
+    setSelectedFamilyId(editedProduct.familia || "");
+  }, [editedProduct]);
 
-  // useEffect(() => {
-  //   setSelectedSubFamilyId(editedProduct.subFamilia || "");
-  // }, [editedProduct]);
+  useEffect(() => {
+    setSelectedSubFamilyId(editedProduct.subFamilia || "");
+  }, [editedProduct]);
 
   
  
   
  
 
-  const handleFieldChange = (e) => {
-    // Update the edited product state on field change
-    const { name, value } = e.target;
-    setEditedProduct((prevProduct) => ({
-      ...prevProduct,
-      [name]: value,
-    }));
-  };
 
   const closeSuccessDialog = () => {
     setSuccessDialogOpen(false);
@@ -227,67 +181,123 @@ const Editp2 = ({ product, open, handleClose }) => {
 
   const handleSave = async (event) => {
     event.preventDefault();
-
-    const idCategoria = categories.find(categoria=> categoria.descripcion ===editedProduct.categoria);
-    const idSubCategoriaFind = idSubCategoriaFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
-    const idFamiliaFind = familiesFind.find(fam=> fam.descripcion === editedProduct.familia);
-    const idSubFamiliaFind = subfamiliesFind.find(sf=> sf.descripcion === editedProduct.subFamilia)
-
-    if(idCategoria){
-      console.log("idFamiliaFind", idFamiliaFind);
-      const idCategoriaFil = idCategoria.idCategoria;
-      const idSubCategoriaFil = idSubCategoriaFind.idSubcategoria;
-      const idFamiliaFil = idFamiliaFind.idFamilia;
-      const idSubFamiliaFil = idSubFamiliaFind.idSubFamilia;
-
-
-      var nuevoObjetoActualizado = {
-        ...editedProduct,
-        categoria: idCategoriaFil,
-        subCategoria: idSubCategoriaFil,
-        familia: idFamiliaFil,
-        subFamilia: idSubFamiliaFil
-
+  
+    const idCategoriaFind = categories.find(
+      (categoria) => categoria.descripcion === editedProduct.categoria
+    );
+    const idSubCategoriaFind = subcategories.find(
+      (scategoria) => scategoria.descripcion === editedProduct.subCategoria
+    );
+    const idFamiliaFind = families.find(
+      (fam) => fam.descripcion === editedProduct.familia
+    );
+    const idSubFamiliaFind = subfamilies.find(
+      (sf) => sf.descripcion === editedProduct.subFamilia
+    );
+  
+    let nuevoObjetoActualizado = {
+      ...editedProduct,
+    };
+  
+    if (idCategoriaFind && idSubCategoriaFind && idFamiliaFind && idSubFamiliaFind) {
+      nuevoObjetoActualizado = {
+        ...nuevoObjetoActualizado,
+        categoria: idCategoriaFind.idCategoria,
+        subCategoria: idSubCategoriaFind.idSubcategoria,
+        familia: idFamiliaFind.idFamilia,
+        subFamilia: idSubFamiliaFind.idSubFamilia,
       };
-      console.log("putnuevoobjeto", nuevoObjetoActualizado);
-    }else{
-      var nuevoObjetoActualizado = {
-        ...editedProduct,
-      };
+      console.log("Updated object:", nuevoObjetoActualizado);
     }
-
-    
-
+  
     try {
       const response = await axios.put(
-      `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`, nuevoObjetoActualizado
+        `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`,
+        nuevoObjetoActualizado
       );
       console.log("API Response:", response.data);
-
+  
       if (response.status === 201) {
         console.log("Producto updated successfully:", response.data);
-        setIsEditSuccessful(true);
         setSuccessDialogOpen(true);
         setSuccessMessage(response.data.message);
         setRefresh((prevRefresh) => !prevRefresh);
       }
     } catch (error) {
       console.error("Error updating producto:", error);
-      console.log("Full error object:", error);
-      console.log("Validation Errors:", error.response.data.errors);
-
       if (error.response) {
         console.log("Server Response:", error.response.data);
       }
-
       setErrorMessage(error.message);
       setOpenErrorDialog(true);
     }
-
-    console.log("Edited Product:", editedProduct);
-    // Additional logic to update the product in the database can be added here
+  
     handleClose();
   };
+  
+  // const handleSave = async (event) => {
+  //   event.preventDefault();
+
+  //   const idCategoria = categories.find(categoria=> categoria.descripcion ===editedProduct.categoria);
+  //   const idSubCategoriaFind = idSubCategoriaFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
+  //   const idFamiliaFind = familiesFind.find(fam=> fam.descripcion === editedProduct.familia);
+  //   const idSubFamiliaFind = subfamiliesFind.find(sf=> sf.descripcion === editedProduct.subFamilia)
+
+  //   if(idCategoria){
+  //     console.log("idFamiliaFind", idFamiliaFind);
+  //     const idCategoriaFil = idCategoria.idCategoria;
+  //     const idSubCategoriaFil = idSubCategoriaFind.idSubcategoria;
+  //     const idFamiliaFil = idFamiliaFind.idFamilia;
+  //     const idSubFamiliaFil = idSubFamiliaFind.idSubFamilia;
+
+
+  //     var nuevoObjetoActualizado = {
+  //       ...editedProduct,
+  //       categoria: idCategoriaFil,
+  //       subCategoria: idSubCategoriaFil,
+  //       familia: idFamiliaFil,
+  //       subFamilia: idSubFamiliaFil
+
+  //     };
+  //     console.log("putnuevoobjeto", nuevoObjetoActualizado);
+  //   }else{
+  //     var nuevoObjetoActualizado = {
+  //       ...editedProduct,
+  //     };
+  //   }
+
+    
+
+  //   try {
+  //     const response = await axios.put(
+  //     `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`, nuevoObjetoActualizado
+  //     );
+  //     console.log("API Response:", response.data);
+
+  //     if (response.status === 201) {
+  //       console.log("Producto updated successfully:", response.data);
+  //       setIsEditSuccessful(true);
+  //       setSuccessDialogOpen(true);
+  //       setSuccessMessage(response.data.message);
+  //       setRefresh((prevRefresh) => !prevRefresh);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating producto:", error);
+  //     console.log("Full error object:", error);
+  //     console.log("Validation Errors:", error.response.data.errors);
+
+  //     if (error.response) {
+  //       console.log("Server Response:", error.response.data);
+  //     }
+
+  //     setErrorMessage(error.message);
+  //     setOpenErrorDialog(true);
+  //   }
+
+  //   console.log("Edited Product:", editedProduct);
+  //   // Additional logic to update the product in the database can be added here
+  //   handleClose();
+  // };
 
   return (
     //fullScreen
@@ -314,7 +324,10 @@ const Editp2 = ({ product, open, handleClose }) => {
 
           <Grid item xs={6}>
             <InputLabel>Selecciona Categoría</InputLabel>
-            <Select
+            <TextField
+              InputProps={{
+                readOnly: true, // Asegúrate de que readOnly esté aquí
+              }}
               fullWidth
               value={selectedCategoryId}
               key={selectedCategoryId}
@@ -327,7 +340,7 @@ const Editp2 = ({ product, open, handleClose }) => {
                   // categoriaDes: e.target.name, // Update the categoria property
                 }));
               }}
-              label="Selecciona Categoría"
+             
             >
               <MenuItem
                   key={selectedCategoryId}
@@ -344,12 +357,15 @@ const Editp2 = ({ product, open, handleClose }) => {
                   {category.descripcion}
                 </MenuItem>
               ))}
-            </Select>
+            </TextField>
           </Grid>
 
           <Grid item xs={6}>
             <InputLabel>Selecciona Sub-Categoría</InputLabel>
-            <Select
+            <TextField
+              InputProps={{
+                readOnly: true, // Asegúrate de que readOnly esté aquí
+              }}
               fullWidth
               value={editedProduct.subCategoria || ""}
               onChange={(e) => {
@@ -358,7 +374,7 @@ const Editp2 = ({ product, open, handleClose }) => {
                   subCategoria: e.target.value,
                 }));
               }}
-              label="Selecciona Sub-Categoría"
+             
             >
               <MenuItem
                 key={editedProduct.id}
@@ -374,23 +390,26 @@ const Editp2 = ({ product, open, handleClose }) => {
                   {subcategory.descripcion}
                 </MenuItem>
               ))}
-            </Select>
+            </TextField>
           </Grid>
 
           <Grid item xs={6}>
             <InputLabel>Selecciona Familia</InputLabel>
-            <Select
+            <TextField
+  InputProps={{
+    readOnly: true, // Asegúrate de que readOnly esté aquí
+  }}
               fullWidth
-              value={selectedFamilyId}
+              value={editedProduct.familia }
               onChange={(e) => {
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   familia: e.target.value,
                 }));
               }}
-              label="Selecciona Familia"
+             
             >
-              <MenuItem
+              {/* <MenuItem
                 key={editedProduct.id}
                 value={editedProduct.familia || ""}
               >
@@ -400,24 +419,28 @@ const Editp2 = ({ product, open, handleClose }) => {
                 <MenuItem key={family.idFamilia} value={family.idFamilia}>
                   {family.descripcion}
                 </MenuItem>
-              ))}
-            </Select>
+              ))} */}
+            </TextField>
           </Grid>
 
           <Grid item xs={6}>
             <InputLabel>Selecciona Sub Familia</InputLabel>
-            <Select
+            <TextField
+             
+             InputProps={{
+              readOnly: true, // Asegúrate de que readOnly esté aquí
+            }}
               fullWidth
-              value={selectedSubFamilyId}
+              value={editedProduct.subFamilia }
               onChange={(e) => {
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   subFamilia: e.target.value,
                 }));
               }}
-              label="Selecciona SubFamilia"
+             
             >
-              <MenuItem
+              {/* <MenuItem
                 key={editedProduct.id}
                 value={editedProduct.subFamilia || ""}
               >
@@ -430,8 +453,8 @@ const Editp2 = ({ product, open, handleClose }) => {
                 >
                   {subfamily.descripcion}
                 </MenuItem>
-              ))}
-            </Select>
+              ))} */}
+            </TextField>
           </Grid>
 
           <Grid item xs={6}>

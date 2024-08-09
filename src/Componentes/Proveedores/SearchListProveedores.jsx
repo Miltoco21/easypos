@@ -196,11 +196,11 @@ const SearchListProveedores = () => {
 
   useEffect(() => {
     fetchProveedores();
-    // const intervalId = setInterval(() => {
-    //   fetchProveedores();
-    // }, 3000); // Fetch providers every 3 seconds
+    const intervalId = setInterval(() => {
+      fetchProveedores();
+    }, 3000); // Fetch providers every 3 seconds
 
-    // return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   useEffect(() => {
@@ -774,7 +774,6 @@ const SearchListProveedores = () => {
         handleClose={handleCloseEditModal}
         proveedor={editProveedorData}
         fetchProveedores={setProveedores}
-        onEditSuccess={() => setIsEditSuccessful(true)} // New addition
       />
       <Snackbar
         open={snackbarOpen}
