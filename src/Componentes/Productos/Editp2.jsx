@@ -4,6 +4,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -20,6 +21,7 @@ import {
   Select,
   Grid,
   Typography,
+  Snackbar
 } from "@mui/material";
 
 const Editp2 = ({ product, open, handleClose }) => {
@@ -37,34 +39,29 @@ const Editp2 = ({ product, open, handleClose }) => {
   const [families, setFamilies] = useState([]);
   const [subfamilies, setSubFamilies] = useState([]);
 
-  const [marcas, setMarcas] = useState([]);
-  const [selectedBodegaId, setSelectedBodegaId] = useState("");
-  const [selectedProveedorId, setSelectedProveedorId] = useState("");
-
-  const [bodegas, setBodegas] = useState([]);
-  const [proveedor, setProveedor] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
-
-  const [selectedMarcaId, setSelectedMarcaId] = useState("");
-
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [openErrorDialog, setOpenErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
   const [successMessage, setSuccessMessage] = useState("");
-  //INICIADOR DE DATOS
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  console.log("prodcuto a editar:",editedProduct)
+
   useEffect(() => {
-    // Initialize editedProduct when the component mounts
     setEditedProduct(product);
-  }, []);
+    setSelectedCategoryId(product.idCategoria);
+    setSelectedSubCategoryId(product.idsubCategoria);
+    setSelectedFamilyId(product.idFamilia);
+    setSelectedSubFamilyId(product.idSubFamilia);
+  }, [product]);
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-        `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetAllCategorias`
+          "https://www.easypos.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
         );
-        console.log("API response:", response.data.categorias); // Add this line
         setCategories(response.data.categorias);
       } catch (error) {
         console.log(error);
@@ -76,13 +73,11 @@ const Editp2 = ({ product, open, handleClose }) => {
 
   useEffect(() => {
     const fetchSubCategories = async () => {
-      if (selectedCategoryId ) {
+      if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${idCategoriaFind.idCategoria}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
-          
-          console.log("Subcategories Response:", response.data.subCategorias);
           setSubCategories(response.data.subCategorias);
         } catch (error) {
           console.error("Error fetching subcategories:", error);
@@ -93,33 +88,22 @@ const Editp2 = ({ product, open, handleClose }) => {
     fetchSubCategories();
   }, [selectedCategoryId]);
 
-
-
   useEffect(() => {
     const fetchFamilies = async () => {
       if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
         try {
-          console.log("selectedSubCategoryId", selectedSubCategoryId)
-          console.log("subcategories", subcategories)
-          const SubCategoriaFind = subcategoriesFind.find(sc=> sc.descripcion === selectedSubCategoryId);
-          console.log("idCategoriaFind", SubCategoriaFind)
-
           const response = await axios.get(
-            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${SubCategoriaFind.idSubcategoria}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
           );
-
-          console.log("n5 Families Response:", response.data.familias);
           setFamilies(response.data.familias);
         } catch (error) {
-          console.error("Error fetching Families:", error);
+          console.error("Error fetching families:", error);
         }
       }
     };
 
     fetchFamilies();
-  }, [selectedSubCategoryId]);
-
-  
+  }, [selectedCategoryId, selectedSubCategoryId]);
 
   useEffect(() => {
     const fetchSubFamilies = async () => {
@@ -129,190 +113,204 @@ const Editp2 = ({ product, open, handleClose }) => {
         selectedSubCategoryId !== ""
       ) {
         try {
-          console.log("selectedFamilyId", selectedFamilyId)
-          console.log("families", families)
-          const familiaFind = familiesFind.find(f=> f.descripcion === selectedFamilyId)
-          console.log("familiaFind", familiaFind)
-
           const response = await axios.get(
-            `${import.meta.env.VITE_URL_API2}/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${familiaFind.idFamilia}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
           );
-
-          console.log("n6 SubFamilies Response:", response.data.subFamilias);
           setSubFamilies(response.data.subFamilias);
         } catch (error) {
-          console.error("Error fetching SubFamilies:", error);
+          console.error("Error fetching subcategories:", error);
         }
       }
     };
 
     fetchSubFamilies();
-  }, [selectedFamilyId]);
-
-
-
-
-
-  useEffect(() => {
-    setSelectedCategoryId(editedProduct.categoria || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedSubCategoryId(editedProduct.subCategoria || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedFamilyId(editedProduct.familia || "");
-  }, [editedProduct]);
-
-  useEffect(() => {
-    setSelectedSubFamilyId(editedProduct.subFamilia || "");
-  }, [editedProduct]);
-
-  
- 
-  
- 
-
+  }, [selectedFamilyId, selectedCategoryId, selectedSubCategoryId]);
 
   const closeSuccessDialog = () => {
     setSuccessDialogOpen(false);
   };
 
+  const handleCategorySelect = (categoryId) => {
+    setSelectedCategoryId(categoryId);
+    setEditedProduct((prevProduct) => ({
+      ...prevProduct,
+      categoria: categoryId,
+    }));
+  };
+
+  const handleSubCategorySelect = (subCategoryId) => {
+    setSelectedSubCategoryId(subCategoryId);
+    setEditedProduct((prevProduct) => ({
+      ...prevProduct,
+      subCategoria: subCategoryId,
+    }));
+  };
+
+  const handleFamilySelect = (familyId) => {
+    setSelectedFamilyId(familyId);
+    setEditedProduct((prevProduct) => ({
+      ...prevProduct,
+      familia: familyId,
+    }));
+  };
+
+  const handleSubFamilySelect = (subFamilyId) => {
+    setSelectedSubFamilyId(subFamilyId);
+    setEditedProduct((prevProduct) => ({
+      ...prevProduct,
+      subFamilia: subFamilyId,
+    }));
+  };
+
   const handleSave = async (event) => {
     event.preventDefault();
-  
-    const idCategoriaFind = categories.find(
-      (categoria) => categoria.descripcion === editedProduct.categoria
-    );
-    const idSubCategoriaFind = subcategories.find(
-      (scategoria) => scategoria.descripcion === editedProduct.subCategoria
-    );
-    const idFamiliaFind = families.find(
-      (fam) => fam.descripcion === editedProduct.familia
-    );
-    const idSubFamiliaFind = subfamilies.find(
-      (sf) => sf.descripcion === editedProduct.subFamilia
-    );
-  
-    let nuevoObjetoActualizado = {
+
+    console.log("Before Update:", editedProduct);
+
+    let updatedProduct = {
       ...editedProduct,
+      categoria: selectedCategoryId,
+      subCategoria: selectedSubCategoryId,
+      familia: selectedFamilyId,
+      subFamilia: selectedSubFamilyId,
     };
-  
-    if (idCategoriaFind && idSubCategoriaFind && idFamiliaFind && idSubFamiliaFind) {
-      nuevoObjetoActualizado = {
-        ...nuevoObjetoActualizado,
-        categoria: idCategoriaFind.idCategoria,
-        subCategoria: idSubCategoriaFind.idSubcategoria,
-        familia: idFamiliaFind.idFamilia,
-        subFamilia: idSubFamiliaFind.idSubFamilia,
-      };
-      console.log("Updated object:", nuevoObjetoActualizado);
-    }
-  
+
+    console.log("Updated Object:", updatedProduct);
+
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`,
-        nuevoObjetoActualizado
+        `${apiUrl}/ProductosTmp/UpdateProducto`,
+        updatedProduct
       );
       console.log("API Response:", response.data);
-  
-      if (response.status === 201) {
+
+      if (response.status === 200) {
         console.log("Producto updated successfully:", response.data);
-        setSuccessDialogOpen(true);
-        setSuccessMessage(response.data.message);
-        setRefresh((prevRefresh) => !prevRefresh);
+       
+        setSnackbarMessage("Producto editado correctamente"); 
+        setSnackbarOpen(true);
+
+        setTimeout(() => {
+           setRefresh((prevRefresh) => !prevRefresh);
+        }, 2000);
+       
       }
     } catch (error) {
       console.error("Error updating producto:", error);
       if (error.response) {
-        console.log("Server Response:", error.response.data);
+        console.log("Server Error Response:", error.response.data);
       }
       setErrorMessage(error.message);
       setOpenErrorDialog(true);
     }
-  
+
     handleClose();
   };
-  
-  // const handleSave = async (event) => {
-  //   event.preventDefault();
+  const handleNumericKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
 
-  //   const idCategoria = categories.find(categoria=> categoria.descripcion ===editedProduct.categoria);
-  //   const idSubCategoriaFind = idSubCategoriaFind.find(scategoria=> scategoria.descripcion === editedProduct.subCategoria);
-  //   const idFamiliaFind = familiesFind.find(fam=> fam.descripcion === editedProduct.familia);
-  //   const idSubFamiliaFind = subfamiliesFind.find(sf=> sf.descripcion === editedProduct.subFamilia)
+    // Verifica si el carácter es un número, backspace o delete
+    if (
+      !/\d/.test(key) && // números
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
 
-  //   if(idCategoria){
-  //     console.log("idFamiliaFind", idFamiliaFind);
-  //     const idCategoriaFil = idCategoria.idCategoria;
-  //     const idSubCategoriaFil = idSubCategoriaFind.idSubcategoria;
-  //     const idFamiliaFil = idFamiliaFind.idFamilia;
-  //     const idSubFamiliaFil = idSubFamiliaFind.idSubFamilia;
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
 
+  const handleTextKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
 
-  //     var nuevoObjetoActualizado = {
-  //       ...editedProduct,
-  //       categoria: idCategoriaFil,
-  //       subCategoria: idSubCategoriaFil,
-  //       familia: idFamiliaFil,
-  //       subFamilia: idSubFamiliaFil
+    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
+    if (
+      !/^[a-zA-Z0-9]$/.test(key) && // letras y números
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
 
-  //     };
-  //     console.log("putnuevoobjeto", nuevoObjetoActualizado);
-  //   }else{
-  //     var nuevoObjetoActualizado = {
-  //       ...editedProduct,
-  //     };
-  //   }
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
+  const handleEmailKeyDown = (event) => {
+    const charCode = event.which ? event.which : event.keyCode;
 
-    
+    // Prevenir espacios en cualquier parte del correo
+    if (charCode === 32) {
+      // 32 es el código de la tecla espacio
+      event.preventDefault();
+    }
+  };
+  const handleRUTKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
 
-  //   try {
-  //     const response = await axios.put(
-  //     `${import.meta.env.VITE_URL_API2}/ProductosTmp/UpdateProducto`, nuevoObjetoActualizado
-  //     );
-  //     console.log("API Response:", response.data);
+    // Permitir números (0-9), guion (-), backspace y delete
+    if (
+      !isNaN(key) || // números
+      key === "Backspace" || // backspace
+      key === "Delete" || // delete
+      (key === "-" && !input.includes("-")) // guion y no hay guion previamente
+    ) {
+      // Permitir la tecla
+    } else {
+      // Prevenir cualquier otra tecla
+      event.preventDefault();
+    }
 
-  //     if (response.status === 201) {
-  //       console.log("Producto updated successfully:", response.data);
-  //       setIsEditSuccessful(true);
-  //       setSuccessDialogOpen(true);
-  //       setSuccessMessage(response.data.message);
-  //       setRefresh((prevRefresh) => !prevRefresh);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating producto:", error);
-  //     console.log("Full error object:", error);
-  //     console.log("Validation Errors:", error.response.data.errors);
+    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
+    if (
+      key === " " &&
+      (input.length === 0 || event.target.selectionStart === 0)
+    ) {
+      event.preventDefault();
+    }
+  };
 
-  //     if (error.response) {
-  //       console.log("Server Response:", error.response.data);
-  //     }
+  const handleTextOnlyKeyDown = (event) => {
+    const key = event.key;
+    const input = event.target.value;
 
-  //     setErrorMessage(error.message);
-  //     setOpenErrorDialog(true);
-  //   }
+    // Verifica si el carácter es una letra (mayúscula o minúscula), espacio, backspace o delete
+    if (
+      !/[a-zA-Z]/.test(key) && // letras mayúsculas y minúsculas
+      key !== " " && // espacio
+      key !== "Backspace" && // backspace
+      key !== "Delete" // delete
+    ) {
+      event.preventDefault();
+    }
 
-  //   console.log("Edited Product:", editedProduct);
-  //   // Additional logic to update the product in the database can be added here
-  //   handleClose();
-  // };
+    // Previene espacios iniciales y al final de la cadena
+    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
+      event.preventDefault();
+    }
+  };
 
   return (
-    //fullScreen
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>Editar Producto</DialogTitle>
       <DialogContent>
         <Grid container spacing={3} marginTop={1}>
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <TextField
               name="nombre"
               label="Nombre Producto"
               value={editedProduct.nombre || ""}
+              onKeyDown={handleTextOnlyKeyDown}
               onChange={(e) => {
-                // setSelectedCategoryId(e.target.value);
-                // // setEditedProduct.categoria=e.target.value;
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   nombre: e.target.value,
@@ -323,36 +321,19 @@ const Editp2 = ({ product, open, handleClose }) => {
           </Grid>
 
           <Grid item xs={6}>
-            <InputLabel>Selecciona Categoría</InputLabel>
+          
             <TextField
-              InputProps={{
-                readOnly: true, // Asegúrate de que readOnly esté aquí
-              }}
+            select
               fullWidth
               value={selectedCategoryId}
-              key={selectedCategoryId}
-              
-              onChange={(e) => {
-                setEditedProduct((prevProduct) => ({
-                  ...prevProduct,
-                 
-                  // categoria: e.target.value,
-                  // categoriaDes: e.target.name, // Update the categoria property
-                }));
-              }}
-             
+              onChange={(e) => handleCategorySelect(e.target.value)}
+              label="Selecciona Categoría"
             >
-              <MenuItem
-                  key={selectedCategoryId}
-                  value={editedProduct.categoria || ""}
-                  name={editedProduct.categoria}
-              >
-                {editedProduct.categoria}
-              </MenuItem>
+             
               {categories.map((category) => (
                 <MenuItem
                   key={category.idCategoria}
-                  value={category.descripcion}
+                  value={category.idCategoria}
                 >
                   {category.descripcion}
                 </MenuItem>
@@ -361,27 +342,15 @@ const Editp2 = ({ product, open, handleClose }) => {
           </Grid>
 
           <Grid item xs={6}>
-            <InputLabel>Selecciona Sub-Categoría</InputLabel>
-            <TextField
-              InputProps={{
-                readOnly: true, // Asegúrate de que readOnly esté aquí
-              }}
+           
+            <TextField 
+            select
               fullWidth
-              value={editedProduct.subCategoria || ""}
-              onChange={(e) => {
-                setEditedProduct((prevProduct) => ({
-                  ...prevProduct,
-                  subCategoria: e.target.value,
-                }));
-              }}
-             
+              value={selectedSubCategoryId || ""}
+              onChange={(e) => handleSubCategorySelect(e.target.value)}
+              label="Selecciona Sub-Categoría"
             >
-              <MenuItem
-                key={editedProduct.id}
-                value={editedProduct.subCategoria || ""}
-              >
-                {editedProduct.subCategoria}
-              </MenuItem>
+
               {subcategories.map((subcategory) => (
                 <MenuItem
                   key={subcategory.idSubcategoria}
@@ -394,58 +363,29 @@ const Editp2 = ({ product, open, handleClose }) => {
           </Grid>
 
           <Grid item xs={6}>
-            <InputLabel>Selecciona Familia</InputLabel>
             <TextField
-  InputProps={{
-    readOnly: true, // Asegúrate de que readOnly esté aquí
-  }}
+            select
               fullWidth
-              value={editedProduct.familia }
-              onChange={(e) => {
-                setEditedProduct((prevProduct) => ({
-                  ...prevProduct,
-                  familia: e.target.value,
-                }));
-              }}
-             
+              value={selectedFamilyId || ""}
+              onChange={(e) => handleFamilySelect(e.target.value)}
+              label="Selecciona Familia"
             >
-              {/* <MenuItem
-                key={editedProduct.id}
-                value={editedProduct.familia || ""}
-              >
-                {editedProduct.familia}
-              </MenuItem>
               {families.map((family) => (
                 <MenuItem key={family.idFamilia} value={family.idFamilia}>
                   {family.descripcion}
                 </MenuItem>
-              ))} */}
+              ))}
             </TextField>
           </Grid>
 
           <Grid item xs={6}>
-            <InputLabel>Selecciona Sub Familia</InputLabel>
             <TextField
-             
-             InputProps={{
-              readOnly: true, // Asegúrate de que readOnly esté aquí
-            }}
+              select
               fullWidth
-              value={editedProduct.subFamilia }
-              onChange={(e) => {
-                setEditedProduct((prevProduct) => ({
-                  ...prevProduct,
-                  subFamilia: e.target.value,
-                }));
-              }}
-             
-            >
-              {/* <MenuItem
-                key={editedProduct.id}
-                value={editedProduct.subFamilia || ""}
-              >
-                {editedProduct.subFamilia}
-              </MenuItem>
+              value={selectedSubFamilyId || ""}
+              onChange={(e) => handleSubFamilySelect(e.target.value)}
+              label="Selecciona Subfamilia"
+            >    
               {subfamilies.map((subfamily) => (
                 <MenuItem
                   key={subfamily.idSubFamilia}
@@ -453,19 +393,17 @@ const Editp2 = ({ product, open, handleClose }) => {
                 >
                   {subfamily.descripcion}
                 </MenuItem>
-              ))} */}
+              ))}
             </TextField>
           </Grid>
 
           <Grid item xs={6}>
-          
             <TextField
               name="marca"
               label="Marca"
-              value={editedProduct.marca}
+              value={editedProduct.marca || ""}
+              onKeyDown={handleTextOnlyKeyDown}
               onChange={(e) => {
-                // setSelectedCategoryId(e.target.value);
-                // // setEditedProduct.categoria=e.target.value;
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   marca: e.target.value,
@@ -475,41 +413,13 @@ const Editp2 = ({ product, open, handleClose }) => {
             />
           </Grid>
 
-          {/* <Grid item xs={6}>
-            <InputLabel>Ingresa Proveedor</InputLabel>
-            <Select
-              fullWidth
-              value={selectedProveedorId}
-              onChange={(e) => {
-                setEditedProduct((prevProduct) => ({
-                  ...prevProduct,
-                  proveedor: e.target.value,
-                }));
-              }}
-              label="Selecciona Proveedor"
-            >
-              <MenuItem value={editedProduct.id || ""}>
-                {editedProduct.proveedor}
-              </MenuItem>
-              {proveedores.map((proveedor) => (
-                <MenuItem
-                  key={proveedor.id}
-                  value={proveedor.nombreResponsable}
-                >
-                  {proveedor.nombreResponsable}
-                </MenuItem>
-              ))}
-            </Select>
-          </Grid> */}
-
           <Grid item xs={6}>
             <TextField
               name="precioCosto"
               label="Precio Costo"
               value={editedProduct.precioCosto }
+              onKeyDown={handleNumericKeyDown}
               onChange={(e) => {
-                // setSelectedCategoryId(e.target.value);
-                // // setEditedProduct.categoria=e.target.value;
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
                   precioCosto: e.target.value,
@@ -523,7 +433,8 @@ const Editp2 = ({ product, open, handleClose }) => {
             <TextField
               name="precioVenta"
               label="Precio Venta"
-              value={editedProduct.precioVenta || ""}
+              value={editedProduct.precioVenta }
+              onKeyDown={handleNumericKeyDown}
               onChange={(e) => {
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
@@ -533,76 +444,70 @@ const Editp2 = ({ product, open, handleClose }) => {
               fullWidth
             />
           </Grid>
-
           <Grid item xs={6}>
             <TextField
-              name="stockInicial"
+              name="StockInicial"
               label="Stock Inicial"
+              onKeyDown={handleNumericKeyDown}
               value={editedProduct.stockInicial }
               onChange={(e) => {
-                // setSelectedCategoryId(e.target.value);
-                // // setEditedProduct.categoria=e.target.value;
+                const numericValue = Number(e.target.value);
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
-                  stockInicial: e.target.value,
+                  stockInicial: numericValue,
                 }));
               }}
+              // onChange={(e) => {
+              //   setEditedProduct((prevProduct) => ({
+              //     ...prevProduct,
+              //     stockInicial: e.target.value,
+              //   }));
+              // }}
               fullWidth
             />
           </Grid>
-
           <Grid item xs={6}>
             <TextField
-              name="stockCritico"
+              name="StockCritico"
               label="Stock Crítico"
-              value={editedProduct.stockCritico }
+              value={editedProduct.stockCritico}
+              onKeyDown={handleNumericKeyDown}
               onChange={(e) => {
-                // setSelectedCategoryId(e.target.value);
-                // // setEditedProduct.categoria=e.target.value;
+                const numericValue = Number(e.target.value);
                 setEditedProduct((prevProduct) => ({
                   ...prevProduct,
-                  stockCritico: e.target.value,
+                  stockCritico: numericValue,
                 }));
               }}
+              // onChange={(e) => {
+              //   setEditedProduct((prevProduct) => ({
+              //     ...prevProduct,
+              //     stockInicial: e.target.value,
+              //   }));
+              // }}
               fullWidth
             />
-          </Grid>
-
-          <Grid item gap={4}xs={12} sx={{justifyContent:"space-arround"}}>
-            <Button variant="contained" color="primary" onClick={handleSave}>
-              Guardar
-            </Button>
-            <Button variant="contained" onClick={handleClose}>
-              Cerrar
-            </Button>
           </Grid>
         </Grid>
       </DialogContent>
 
-      <Dialog open={successDialogOpen} onClose={closeSuccessDialog}>
-        <DialogTitle> Edición Exitosa </DialogTitle>
-        <DialogContent>
-          <Typography>{successMessage}</Typography>{" "}
-          {/* Aquí se muestra el mensaje de éxito */}
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={openErrorDialog} onClose={closeSuccessDialog}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{errorMessage}</DialogContentText>
-          <DialogContentText>
-            Ingrese uno nuevo y repita el proceso
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeSuccessDialog} color="primary">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DialogActions>
+        <Button onClick={handleClose} color="secondary">
+          Cancelar
+        </Button>
+        <Button onClick={handleSave} color="primary">
+          Guardar Cambios
+        </Button>
+      </DialogActions>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMessage}
+      />
     </Dialog>
   );
 };
 
 export default Editp2;
+

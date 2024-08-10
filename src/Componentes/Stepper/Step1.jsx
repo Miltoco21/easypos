@@ -154,7 +154,7 @@ const Step1Component = ({ data, onNext }) => {
     async function fetchCategories() {
       try {
         const response = await axios.get(
-          "https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
+          "https://www.easypos.somee.com/api/NivelMercadoLogicos/GetAllCategorias"
         );
         setCategories(response.data.categorias);
       } catch (error) {
@@ -170,7 +170,7 @@ const Step1Component = ({ data, onNext }) => {
       if (selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetSubCategoriaByIdCategoria?CategoriaID=${selectedCategoryId}`
           );
           setSubCategories(response.data.subCategorias);
         } catch (error) {
@@ -187,7 +187,7 @@ const Step1Component = ({ data, onNext }) => {
       if (selectedSubCategoryId !== "" && selectedCategoryId !== "") {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetFamiliaByIdSubCategoria?SubCategoriaID=${selectedSubCategoryId}`
           );
           setFamilies(response.data.familias);
         } catch (error) {
@@ -208,7 +208,7 @@ const Step1Component = ({ data, onNext }) => {
       ) {
         try {
           const response = await axios.get(
-            `https://www.easyposdev.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
+            `https://www.easypos.somee.com/api/NivelMercadoLogicos/GetSubFamiliaByIdFamilia?FamiliaID=${selectedFamilyId}`
           );
           setSubFamilies(response.data.subFamilias);
         } catch (error) {
