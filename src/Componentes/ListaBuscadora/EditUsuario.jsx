@@ -45,7 +45,7 @@ const EditUsuario = ({ selectedUser, open, handleCloseEditModal }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  console.log("selectedUser :", selectedUser);
+  // console.log("selectedUser :", selectedUser);
 
   useEffect(() => {
     if (selectedUser) {

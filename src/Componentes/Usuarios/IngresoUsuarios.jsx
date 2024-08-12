@@ -167,137 +167,241 @@ export default function IngresoUsuarios({ onClose}) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const errors = [];
-
-    //Validaciones
+    const errors = {};
+  
+    // Validaciones
     if (!rut) {
-      errors.rut = "Favor completar rut ";
+      errors.rut = "Favor completar RUT.";
     } else if (!validarRutChileno(rut)) {
-      errors.rut = "El RUT ingresado NO es válido.";
+      errors.rut = "El RUT ingresado no es válido.";
     }
-
-    if (!nombres) {
-      errors.nombres = "Favor completar nombres ";
-    }
-    if (!apellidos) {
-      errors.apellidos = "Favor completar apellidos ";
-    }
+  
+    if (!nombres) errors.nombres = "Favor completar nombres.";
+    if (!apellidos) errors.apellidos = "Favor completar apellidos.";
     if (!correo) {
-      errors.correo = "Favor completar email ";
+      errors.correo = "Favor completar correo electrónico.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-      errors.correo = "Formato de correo no es válido";
+      errors.correo = "Formato de correo no es válido.";
     }
-   
-    if (!telefono) {
-      errors.telefono = "Favor completar telefono ";
-    } 
-    if (!codigoUsuario) {
-      errors.codigoUsuario = "Favor completar código de Usuario ";
-    } 
-    if (!direccion) {
-      errors.direccion = "Favor completar dirección ";
-    }
-    if (!selectedComuna || selectedComuna.length === 0) {
-      errors.comuna = "Favor completar comuna ";
-    }
-    if (!selectedRegion) {
-      errors.selectedRegion = "Favor completar región ";
-    }
-    if (!codigoPostal) {
-      errors.codigoPostal = "Favor completar codigo postal ";
-    }
-    if (!rut) {
-      errors.rut = "Favor completar rut ";
-    }
-    if (!validarRutChileno(rut)) {
-      errors.rut = "El RUT ingresado NO es válido.";
-    }
-    if (!selectedRol) {
-      errors.selectedRol = "Favor completar rol";
-    }
-    if (!codigoUsuario) {
-      errors.codigoUsuario = "Favor completar código usuario ";
-    }
-    if (!clave) {
-      errors.clave = "Favor completar clave ";
-    }
-    if (!remuneracion) {
-      errors.remuneracion = "Favor completar remuneración ";
-    }
-    if (!credito) {
-      errors.credito = "Favor completar crédito ";
-    }
-
+    if (!telefono) errors.telefono = "Favor completar teléfono.";
+    if (!codigoUsuario) errors.codigoUsuario = "Favor completar código de usuario.";
+    if (!direccion) errors.direccion = "Favor completar dirección.";
+    if (!selectedComuna || selectedComuna.length === 0) errors.comuna = "Favor completar comuna.";
+    if (!selectedRegion) errors.selectedRegion = "Favor completar región.";
+    if (!codigoPostal) errors.codigoPostal = "Favor completar código postal.";
+    if (!selectedRol) errors.selectedRol = "Favor completar rol.";
+    if (!clave) errors.clave = "Favor completar clave.";
+    if (!remuneracion) errors.remuneracion = "Favor completar remuneración.";
+    if (!credito) errors.credito = "Favor completar crédito.";
+  
     if (Object.keys(errors).length > 0) {
       setErrores(errors);
-    } else {
-      const usuario = {
-        nombres: nombres,
-        apellidos: apellidos,
-        correo: correo,
-        direccion: direccion,
-        telefono: telefono,
-        region: selectedRegion.toString(),
-        comuna: selectedComuna,
-        codigoPostal: codigoPostal,
-        rut: rut,
-    
-        codigoUsuario: codigoUsuario,
-        clave: clave,
-        // remuneracion: remuneracion,
-        // credito: credito,
-        rol: selectedRol.toString(),
-      };
-      console.log("Datos antes de enviar:", usuario);
-      try {
-        setLoading(true);
-        const response = await axios.post(
-          
-          `${import.meta.env.VITE_URL_API2}/Usuarios/AddUsuario`,
-          usuario
-        );
-        console.log("Respuesta de la solicitud:", response);
-
-        if (response.status === 201) {
-          setSnackbarMessage("Usuario creado exitosamente");
-          setSnackbarOpen(true);
-        }
-      } catch (error) {
-        if ( error.response.status === 409) {
-          setSnackbarMessage(error.response.descripcion);
-          setSnackbarOpen(true);
-        } else {
-          console.error("Error:", error);
-          setModalOpen(true);
-        }
-      } finally {
-        setLoading(false);
-        console.log("Datos después de enviar:", usuario);
-        setNombre("");
-        setApellido("");
-        setCorreo("");
-        setTelefono("");
-        setDireccion("");
-        setSelectedRegion("");
-        setSelectedComuna("");
-        setSelectedRol("");
-        setCodigoPostal("");
-        setRut("");
-        setCodigoUsuario("");
-        setClave("");
-        setRemuneracion("");
-        setCredito("");
-        setErrores({});
-       
-        setUserId(null);
-
-        setTimeout(() => {
-          onClose();
-        }, 3000);
-       
+      return;
+    }
+  
+    const usuario = {
+      nombres,
+      apellidos,
+      correo,
+      direccion,
+      telefono,
+      region: selectedRegion.toString(),
+      comuna: selectedComuna,
+      codigoPostal,
+      rut,
+      codigoUsuario,
+      clave,
+      rol: selectedRol.toString(),
+      // remuneracion,
+      // credito,
+    };
+  
+    console.log("Datos antes de enviar:", usuario);
+  
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${import.meta.env.VITE_URL_API2}/Usuarios/AddUsuario`,
+        usuario
+      );
+      console.log("Respuesta de la solicitud:", response);
+  
+      if (response.status === 201) {
+        setSnackbarMessage("Usuario creado exitosamente");
+        setSnackbarOpen(true);
+        resetForm(); // Reset form after successful submission
       }
+    } catch (error) {
+      console.error("Error:", error);
+  
+      if (error.response?.status === 409) {
+        setSnackbarMessage(error.response.data?.descripcion || "Usuario ya existe.");
+      } else {
+        setSnackbarMessage("Error al crear el usuario.");
+        setModalOpen(true);
+      }
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+      console.log("Datos después de enviar:", usuario);
     }
   };
+  
+  const resetForm = () => {
+    setNombre("");
+    setApellido("");
+    setCorreo("");
+    setTelefono("");
+    setDireccion("");
+    setSelectedRegion("");
+    setSelectedComuna("");
+    setSelectedRol("");
+    setCodigoPostal("");
+    setRut("");
+    setCodigoUsuario("");
+    setClave("");
+    setRemuneracion("");
+    setCredito("");
+    setErrores({});
+    setUserId(null);
+  
+    setTimeout(() => {
+      onClose();
+    }, 3000);
+  };
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   const errors = [];
+
+  //   //Validaciones
+  //   if (!rut) {
+  //     errors.rut = "Favor completar rut ";
+  //   } else if (!validarRutChileno(rut)) {
+  //     errors.rut = "El RUT ingresado NO es válido.";
+  //   }
+
+  //   if (!nombres) {
+  //     errors.nombres = "Favor completar nombres ";
+  //   }
+  //   if (!apellidos) {
+  //     errors.apellidos = "Favor completar apellidos ";
+  //   }
+  //   if (!correo) {
+  //     errors.correo = "Favor completar email ";
+  //   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+  //     errors.correo = "Formato de correo no es válido";
+  //   }
+   
+  //   if (!telefono) {
+  //     errors.telefono = "Favor completar telefono ";
+  //   } 
+  //   if (!codigoUsuario) {
+  //     errors.codigoUsuario = "Favor completar código de Usuario ";
+  //   } 
+  //   if (!direccion) {
+  //     errors.direccion = "Favor completar dirección ";
+  //   }
+  //   if (!selectedComuna || selectedComuna.length === 0) {
+  //     errors.comuna = "Favor completar comuna ";
+  //   }
+  //   if (!selectedRegion) {
+  //     errors.selectedRegion = "Favor completar región ";
+  //   }
+  //   if (!codigoPostal) {
+  //     errors.codigoPostal = "Favor completar codigo postal ";
+  //   }
+  //   if (!rut) {
+  //     errors.rut = "Favor completar rut ";
+  //   }
+  //   if (!validarRutChileno(rut)) {
+  //     errors.rut = "El RUT ingresado NO es válido.";
+  //   }
+  //   if (!selectedRol) {
+  //     errors.selectedRol = "Favor completar rol";
+  //   }
+  //   if (!codigoUsuario) {
+  //     errors.codigoUsuario = "Favor completar código usuario ";
+  //   }
+  //   if (!clave) {
+  //     errors.clave = "Favor completar clave ";
+  //   }
+  //   if (!remuneracion) {
+  //     errors.remuneracion = "Favor completar remuneración ";
+  //   }
+  //   if (!credito) {
+  //     errors.credito = "Favor completar crédito ";
+  //   }
+
+  //   if (Object.keys(errors).length > 0) {
+  //     setErrores(errors);
+  //   } else {
+  //     const usuario = {
+  //       nombres: nombres,
+  //       apellidos: apellidos,
+  //       correo: correo,
+  //       direccion: direccion,
+  //       telefono: telefono,
+  //       region: selectedRegion.toString(),
+  //       comuna: selectedComuna,
+  //       codigoPostal: codigoPostal,
+  //       rut: rut,
+    
+  //       codigoUsuario: codigoUsuario,
+  //       clave: clave,
+  //       // remuneracion: remuneracion,
+  //       // credito: credito,
+  //       rol: selectedRol.toString(),
+  //     };
+  //     console.log("Datos antes de enviar:", usuario);
+  //     try {
+  //       setLoading(true);
+  //       const response = await axios.post(
+          
+  //         `${import.meta.env.VITE_URL_API2}/Usuarios/AddUsuario`,
+  //         usuario
+  //       );
+  //       console.log("Respuesta de la solicitud:", response);
+
+  //       if (response.status === 201) {
+  //         setSnackbarMessage("Usuario creado exitosamente");
+  //         setSnackbarOpen(true);
+  //       }
+  //     } catch (error) {
+  //       if ( error.response.status === 409) {
+  //         setSnackbarMessage(error.response.descripcion);
+  //         setSnackbarOpen(true);
+  //       } else {
+  //         console.error("Error:", error);
+  //         setModalOpen(true);
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //       console.log("Datos después de enviar:", usuario);
+  //       setNombre("");
+  //       setApellido("");
+  //       setCorreo("");
+  //       setTelefono("");
+  //       setDireccion("");
+  //       setSelectedRegion("");
+  //       setSelectedComuna("");
+  //       setSelectedRol("");
+  //       setCodigoPostal("");
+  //       setRut("");
+  //       setCodigoUsuario("");
+  //       setClave("");
+  //       setRemuneracion("");
+  //       setCredito("");
+  //       setErrores({});
+       
+  //       setUserId(null);
+
+  //       setTimeout(() => {
+  //         onClose();
+  //       }, 3000);
+       
+  //     }
+  //   }
+  // };
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);

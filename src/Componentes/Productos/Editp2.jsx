@@ -191,6 +191,7 @@ const Editp2 = ({ product, open, handleClose }) => {
         setSnackbarOpen(true);
 
         setTimeout(() => {
+          handleClose();
            setRefresh((prevRefresh) => !prevRefresh);
         }, 2000);
        
@@ -204,7 +205,7 @@ const Editp2 = ({ product, open, handleClose }) => {
       setOpenErrorDialog(true);
     }
 
-    handleClose();
+   
   };
   const handleNumericKeyDown = (event) => {
     const key = event.key;
